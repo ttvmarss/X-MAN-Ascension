@@ -165,7 +165,10 @@ KNOWN_PATHS = {
         r"C:\Program Files (x86)\FeatherClient\FeatherClient.exe",
     ],
     "discord": [
-        str(Path.home() / "AppData/Local/Discord/Update.exe"),
+        str(Path.home() / "AppData" / "Local" / "Discord" / "Update.exe"),
+        str(Path.home() / "AppData" / "Local" / "Discord" / "app-1.0.9197" / "Discord.exe"),
+        str(Path.home() / "AppData" / "Local" / "Discord" / "app-1.0.9183" / "Discord.exe"),
+        str(Path.home() / "AppData" / "Local" / "Discord" / "app-1.0.9170" / "Discord.exe"),
     ],
     "spotify": [
         str(Path.home() / "AppData/Roaming/Spotify/Spotify.exe"),
@@ -306,14 +309,32 @@ async def open_app(app_name: str) -> dict:
         try:
             if target.startswith("ms-"):
                 subprocess.Popen(["cmd", "/c", "start", target])
+            elif target in ("chrome", "msedge", "firefox", "brave", "steam", "discord",
+                            "spotify", "notepad", "calc", "mspaint", "explorer", "cmd",
+                            "powershell", "taskmgr", "control", "wordpad", "wmplayer",
+                            "obs64", "vlc", "msteams", "zoom", "slack", "telegram",
+                            "whatsapp", "itunes", "snippingtool", "winword", "excel",
+                            "powerpnt", "outlook", "roblox", "minecraft", "epicgameslauncher"):
+                subprocess.Popen(["cmd", "/c", "start", "", target])
             elif Path(target).exists():
-                # Special case: Discord Update.exe needs --processStart flag
+                # Discord: find latest app-x.x.x folder if Update.exe
                 if "discord" in target.lower() and "update.exe" in target.lower():
-                    subprocess.Popen([target, "--processStart", "Discord.exe"])
+                    discord_dir = Path(target).parent
+                    app_dirs = sorted(discord_dir.glob("app-*"), reverse=True)
+                    discord_exe = None
+                    for d in app_dirs:
+                        exe = d / "Discord.exe"
+                        if exe.exists():
+                            discord_exe = exe
+                            break
+                    if discord_exe:
+                        subprocess.Popen([str(discord_exe)])
+                    else:
+                        subprocess.Popen([target, "--processStart", "Discord.exe"])
                 else:
                     subprocess.Popen([target])
             else:
-                subprocess.Popen(["cmd", "/c", "start", "", target], shell=False)
+                subprocess.Popen(["cmd", "/c", "start", "", target])
             return {"success": True, "confirmation": f"Opening {display_name}, sir."}
         except Exception as e:
             log.error(f"open_app failed for '{app_name}': {e}")
@@ -377,18 +398,25 @@ async def close_app(app_name: str) -> dict:
 
         if killed:
             return {"success": True, "confirmation": f"Closed {app_name}, sir."}
-        else:
-            # Try by window title using taskkill /fi
-            try:
-                result = subprocess.run(
-                    ["taskkill", "/f", "/fi", f"WINDOWTITLE eq *{app_name}*"],
-                    capture_output=True, text=True
-                )
-                if result.returncode == 0:
-                    return {"success": True, "confirmation": f"Closed {app_name}, sir."}
-            except Exception:
-                pass
-            return {"success": False, "confirmation": f"I couldn't find {app_name} running, sir."}
+
+        # Last resort: search running processes by name using tasklist
+        try:
+            tasklist = subprocess.run(
+                ["tasklist", "/fo", "csv", "/nh"],
+                capture_output=True, text=True, timeout=5
+            )
+            name_lower = app_name.lower()
+            for line in tasklist.stdout.splitlines():
+                parts = line.strip('"').split('","')
+                if parts and name_lower in parts[0].lower():
+                    pid = parts[1] if len(parts) > 1 else None
+                    if pid and pid.isdigit():
+                        subprocess.run(["taskkill", "/f", "/pid", pid], capture_output=True)
+                        return {"success": True, "confirmation": f"Closed {app_name}, sir."}
+        except Exception:
+            pass
+
+        return {"success": False, "confirmation": f"I couldn't find {app_name} running, sir."}
 
     # macOS
     script = f'tell application "{app_name}" to quit'
@@ -415,9 +443,10 @@ async def open_terminal(command: str = "") -> dict:
     if IS_WINDOWS:
         try:
             if command:
-                subprocess.Popen(f'start cmd /K "{command}"', shell=True)
+                # Use list form to avoid shell injection
+                subprocess.Popen(["cmd", "/K", command])
             else:
-                subprocess.Popen("start cmd", shell=True)
+                subprocess.Popen(["cmd"])
             return {"success": True, "confirmation": "Command prompt is open, sir."}
         except Exception as e:
             log.error(f"open_terminal failed: {e}")

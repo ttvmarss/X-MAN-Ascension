@@ -143,9 +143,10 @@ async def _screenshot_windows() -> str | None:
     try:
         from PIL import ImageGrab
         import io
-        img = ImageGrab.grab()
+        img = ImageGrab.grab(all_screens=False)
         buf = io.BytesIO()
         img.save(buf, format="PNG")
+        img.close()
         data = buf.getvalue()
         log.info(f"Screenshot captured: {len(data)} bytes")
         return base64.b64encode(data).decode()

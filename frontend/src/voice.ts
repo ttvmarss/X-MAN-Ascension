@@ -21,9 +21,16 @@ export function createVoiceInput(
   onError: (msg: string) => void
 ): VoiceInput {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // Check HTTPS requirement for non-localhost (phones need HTTPS for mic)
+  const isLocalhost = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+  if (!isLocalhost && location.protocol !== "https:") {
+    onError("HTTPS required for microphone on this device. Use your ngrok HTTPS link instead of the IP address.");
+    return { start() {}, stop() {}, pause() {}, resume() {} };
+  }
+
   const SR = (window as any).SpeechRecognition || (typeof webkitSpeechRecognition !== "undefined" ? webkitSpeechRecognition : null);
   if (!SR) {
-    onError("Speech recognition not supported in this browser");
+    onError("Speech recognition not supported. Use Google Chrome.");
     return { start() {}, stop() {}, pause() {}, resume() {} };
   }
 
@@ -56,12 +63,18 @@ export function createVoiceInput(
 
   recognition.onerror = (event: any) => {
     if (event.error === "not-allowed") {
-      onError("Microphone access denied. Please allow microphone access.");
+      if (!isLocalhost && location.protocol !== "https:") {
+        onError("Mic blocked: open the HTTPS ngrok link on your phone, not the IP address.");
+      } else {
+        onError("Microphone access denied. Tap Allow when Chrome asks for mic permission.");
+      }
       shouldListen = false;
     } else if (event.error === "no-speech") {
-      // Normal, just restart
+      // Normal — just restart
     } else if (event.error === "aborted") {
       // Expected during pause
+    } else if (event.error === "network") {
+      onError("Network error with speech recognition. Check your internet connection.");
     } else {
       console.warn("[voice] recognition error:", event.error);
     }

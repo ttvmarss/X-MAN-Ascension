@@ -20,11 +20,13 @@ from pathlib import Path
 # Load .env file if present
 _env_path = Path(__file__).parent / ".env"
 if _env_path.exists():
-    for _line in _env_path.read_text(encoding="utf-8", errors="ignore").splitlines():
+    for _line in _env_path.read_text(encoding="utf-8-sig", errors="ignore").splitlines():
         _line = _line.strip()
         if _line and not _line.startswith("#") and "=" in _line:
             _k, _, _v = _line.partition("=")
-            os.environ.setdefault(_k.strip(), _v.strip().strip('"').strip("'"))
+            _val = _v.strip().strip('"').strip("'")
+        if _val and _val not in ("your-anthropic-api-key-here", "your-fish-audio-api-key-here"):
+            os.environ[_k.strip()] = _val  # .env always wins — overrides stale shell vars
 import uuid
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field, asdict
@@ -61,9 +63,6 @@ log = logging.getLogger("jarvis")
 # ---------------------------------------------------------------------------
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
-FISH_API_KEY = os.getenv("FISH_API_KEY", "")
-FISH_VOICE_ID = os.getenv("FISH_VOICE_ID", "612b878b113047d9a770c069c8b4fdfe")  # JARVIS (MCU)
-FISH_API_URL = "https://api.fish.audio/v1/tts"
 USER_NAME = os.getenv("USER_NAME", "sir")
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -2400,7 +2399,7 @@ def _read_env() -> tuple[list[str], dict[str, str]]:
             _shutil.copy2(str(example), str(path))
         else:
             path.write_text("")
-    lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
+    lines = path.read_text(encoding="utf-8-sig", errors="ignore").splitlines()
     parsed: dict[str, str] = {}
     for line in lines:
         stripped = line.strip()
@@ -2425,7 +2424,7 @@ def _write_env_key(key: str, value: str) -> None:
         new_lines.append(line)
     if not found:
         new_lines.append(f"{key}={value}")
-    _env_file_path().write_text("\n".join(new_lines) + "\n", encoding="utf-8")
+    _env_file_path().write_text("\n".join(new_lines) + "\n", encoding="utf-8-sig")
     os.environ[key] = value
 
 class KeyUpdate(BaseModel):
@@ -2473,7 +2472,7 @@ async def api_test_fish(body: KeyTest):
             resp = await client.post(
                 "https://api.fish.audio/v1/tts",
                 headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
-                json={"text": "test", "reference_id": FISH_VOICE_ID},
+                json={"text": "test", "reference_id": os.getenv("FISH_VOICE_ID", "612b878b113047d9a770c069c8b4fdfe")},
             )
             if resp.status_code in (200, 201):
                 return {"valid": True}
