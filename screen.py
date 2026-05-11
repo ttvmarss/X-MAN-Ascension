@@ -1,28 +1,53 @@
 """
-JARVIS Screen Awareness — see what's on the user's screen.
+JARVIS Screen Awareness — Windows + macOS compatible.
 
-Two capabilities:
-1. Window/app list via AppleScript (fast, text-based)
-2. Screenshot via screencapture → Claude vision API (sees everything)
+1. Window/app list via Windows API (pygetwindow) or AppleScript on Mac
+2. Screenshot via PIL.ImageGrab (Windows) or screencapture (Mac)
 """
 
 import asyncio
 import base64
-import json
 import logging
+import platform
 import tempfile
 from pathlib import Path
 
 log = logging.getLogger("jarvis.screen")
 
+IS_WINDOWS = platform.system() == "Windows"
+
 
 async def get_active_windows() -> list[dict]:
-    """Get list of visible windows with app name, window title, and position.
+    """Get list of visible windows. Works on Windows and macOS."""
+    if IS_WINDOWS:
+        return await _get_windows_windows()
+    return await _get_mac_windows()
 
-    Uses AppleScript + System Events to enumerate windows.
-    Returns list of {"app": str, "title": str, "frontmost": bool}.
-    """
-    # Use a simpler approach that's more permission-friendly
+
+async def _get_windows_windows() -> list[dict]:
+    try:
+        import pygetwindow as gw
+        windows = []
+        all_wins = gw.getAllWindows()
+        active = gw.getActiveWindow()
+        active_title = active.title if active else ""
+        for w in all_wins:
+            if w.title and w.title.strip() and w.visible:
+                windows.append({
+                    "app": w.title.split(" - ")[-1] if " - " in w.title else w.title,
+                    "title": w.title,
+                    "frontmost": w.title == active_title,
+                })
+        return windows
+    except ImportError:
+        log.warning("pygetwindow not installed — run: pip install pygetwindow")
+        return []
+    except Exception as e:
+        log.warning(f"get_active_windows error: {e}")
+        return []
+
+
+async def _get_mac_windows() -> list[dict]:
     script = """
 set windowList to ""
 tell application "System Events"
@@ -54,11 +79,8 @@ return windowList
             stderr=asyncio.subprocess.PIPE,
         )
         stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=5)
-
         if proc.returncode != 0:
-            log.warning(f"get_active_windows failed: {stderr.decode()[:200]}")
             return []
-
         windows = []
         for line in stdout.decode().strip().split("\n"):
             parts = line.strip().split("|||")
@@ -69,17 +91,22 @@ return windowList
                     "frontmost": parts[2].strip().lower() == "true",
                 })
         return windows
-
-    except asyncio.TimeoutError:
-        log.warning("get_active_windows timed out")
-        return []
     except Exception as e:
         log.warning(f"get_active_windows error: {e}")
         return []
 
 
 async def get_running_apps() -> list[str]:
-    """Get list of running application names (visible only)."""
+    """Get list of running application names."""
+    if IS_WINDOWS:
+        try:
+            import pygetwindow as gw
+            wins = gw.getAllWindows()
+            apps = list({w.title.split(" - ")[-1] for w in wins if w.title and w.visible})
+            return apps
+        except Exception:
+            return []
+
     script = """
 tell application "System Events"
     set appNames to name of every application process whose visible is true
@@ -106,41 +133,48 @@ end tell
 
 
 async def take_screenshot(display_only: bool = True) -> str | None:
-    """Take a screenshot and return base64-encoded PNG.
+    """Take a screenshot and return base64-encoded PNG."""
+    if IS_WINDOWS:
+        return await _screenshot_windows()
+    return await _screenshot_mac(display_only)
 
-    Args:
-        display_only: If True, capture main display only. If False, all displays.
 
-    Returns:
-        Base64-encoded PNG string, or None on failure.
-    """
+async def _screenshot_windows() -> str | None:
+    try:
+        from PIL import ImageGrab
+        import io
+        img = ImageGrab.grab()
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+        data = buf.getvalue()
+        log.info(f"Screenshot captured: {len(data)} bytes")
+        return base64.b64encode(data).decode()
+    except ImportError:
+        log.warning("Pillow not installed — run: pip install Pillow")
+        return None
+    except Exception as e:
+        log.warning(f"Screenshot error: {e}")
+        return None
+
+
+async def _screenshot_mac(display_only: bool) -> str | None:
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         tmp_path = f.name
-
     try:
-        cmd = ["screencapture", "-x"]  # -x = no sound
+        cmd = ["screencapture", "-x"]
         if display_only:
-            cmd.append("-m")  # main display only
+            cmd.append("-m")
         cmd.append(tmp_path)
-
         proc = await asyncio.create_subprocess_exec(
             *cmd,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
         await asyncio.wait_for(proc.communicate(), timeout=10)
-
         if proc.returncode != 0 or not Path(tmp_path).exists():
-            log.warning("Screenshot capture failed")
             return None
-
         data = Path(tmp_path).read_bytes()
-        log.info(f"Screenshot captured: {len(data)} bytes")
         return base64.b64encode(data).decode()
-
-    except asyncio.TimeoutError:
-        log.warning("Screenshot timed out")
-        return None
     except Exception as e:
         log.warning(f"Screenshot error: {e}")
         return None
@@ -152,11 +186,7 @@ async def take_screenshot(display_only: bool = True) -> str | None:
 
 
 async def describe_screen(anthropic_client) -> str:
-    """Describe what's on the user's screen.
-
-    Tries screenshot + vision first. Falls back to window list + LLM summary.
-    """
-    # Try screenshot + vision
+    """Describe what's on the user's screen."""
     screenshot_b64 = await take_screenshot()
     if screenshot_b64 and anthropic_client:
         try:
@@ -181,31 +211,25 @@ async def describe_screen(anthropic_client) -> str:
                                 "data": screenshot_b64,
                             },
                         },
-                        {
-                            "type": "text",
-                            "text": "What's on my screen right now?",
-                        },
+                        {"type": "text", "text": "What's on my screen right now?"},
                     ],
                 }],
             )
             return response.content[0].text
         except Exception as e:
-            log.warning(f"Vision call failed, falling back to window list: {e}")
+            log.warning(f"Vision call failed: {e}")
 
-    # Fallback: get window list and have LLM summarize
     windows = await get_active_windows()
     apps = await get_running_apps()
 
     if not windows and not apps:
-        return "I wasn't able to see your screen, sir. Screen recording permission may be needed."
+        return "I wasn't able to see your screen, sir."
 
-    # Build a text description for LLM to summarize
     context_parts = []
     if windows:
         for w in windows:
             marker = " (ACTIVE)" if w["frontmost"] else ""
             context_parts.append(f"{w['app']}: {w['title']}{marker}")
-
     if apps:
         window_apps = set(w["app"] for w in windows) if windows else set()
         bg_apps = [a for a in apps if a not in window_apps]
@@ -217,29 +241,24 @@ async def describe_screen(anthropic_client) -> str:
             response = await anthropic_client.messages.create(
                 model="claude-haiku-4-5-20251001",
                 max_tokens=100,
-                system=(
-                    "You are JARVIS. Given the user's open windows and apps, summarize "
-                    "what they appear to be working on in 1-2 sentences. Natural voice, no markdown."
-                ),
+                system="You are JARVIS. Given the user's open windows, summarize what they appear to be working on in 1-2 sentences. Natural voice, no markdown.",
                 messages=[{"role": "user", "content": "Open windows:\n" + "\n".join(context_parts)}],
             )
             return response.content[0].text
         except Exception:
             pass
 
-    # Raw fallback
     if windows:
         active = next((w for w in windows if w["frontmost"]), None)
-        result = f"You have {len(windows)} windows open across {len(set(w['app'] for w in windows))} apps."
+        result = f"You have {len(windows)} windows open."
         if active:
-            result += f" Currently focused on {active['app']}: {active['title']}."
+            result += f" Currently focused on {active['title']}."
         return result
 
-    return f"Running apps: {', '.join(apps)}. Couldn't read window titles, sir."
+    return f"Running apps: {', '.join(apps)}."
 
 
 def format_windows_for_context(windows: list[dict]) -> str:
-    """Format window list as context string for the LLM."""
     if not windows:
         return ""
     lines = ["Currently open on your desktop:"]
