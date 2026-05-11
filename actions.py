@@ -1,8 +1,8 @@
 """
 JARVIS Action Executor — Windows + macOS compatible.
 
-Opens browsers, apps, games, terminals, and URLs on Windows 10/11 and macOS.
-Dynamically discovers every installed app on the PC via Start Menu shortcuts.
+Full PC control: open apps, close apps, open websites, run commands.
+Dynamically discovers every installed app via Start Menu shortcuts.
 """
 
 import asyncio
@@ -22,7 +22,50 @@ IS_WINDOWS = platform.system() == "Windows"
 DESKTOP_PATH = Path.home() / "Desktop"
 
 # ---------------------------------------------------------------------------
-# Built-in aliases for common apps / system commands
+# App name -> process name mapping for closing apps
+# ---------------------------------------------------------------------------
+PROCESS_NAMES = {
+    "chrome": ["chrome.exe"],
+    "google chrome": ["chrome.exe"],
+    "edge": ["msedge.exe"],
+    "microsoft edge": ["msedge.exe"],
+    "firefox": ["firefox.exe"],
+    "brave": ["brave.exe"],
+    "steam": ["steam.exe"],
+    "discord": ["discord.exe"],
+    "spotify": ["spotify.exe"],
+    "obs": ["obs64.exe", "obs32.exe"],
+    "vlc": ["vlc.exe"],
+    "roblox": ["robloxplayerbeta.exe", "roblox.exe"],
+    "minecraft": ["javaw.exe", "minecraft.exe", "minecraftlauncher.exe"],
+    "epic games": ["epicgameslauncher.exe"],
+    "epic": ["epicgameslauncher.exe"],
+    "tiktok": ["tiktok live studio.exe", "tiktokstudio.exe"],
+    "tiktok live studio": ["tiktok live studio.exe", "tiktokstudio.exe"],
+    "notepad": ["notepad.exe"],
+    "paint": ["mspaint.exe"],
+    "calculator": ["calculatorapp.exe", "calc.exe"],
+    "word": ["winword.exe"],
+    "excel": ["excel.exe"],
+    "powerpoint": ["powerpnt.exe"],
+    "outlook": ["outlook.exe"],
+    "teams": ["teams.exe"],
+    "microsoft teams": ["teams.exe"],
+    "zoom": ["zoom.exe"],
+    "slack": ["slack.exe"],
+    "telegram": ["telegram.exe"],
+    "skype": ["skype.exe"],
+    "itunes": ["itunes.exe"],
+    "explorer": ["explorer.exe"],
+    "file explorer": ["explorer.exe"],
+    "task manager": ["taskmgr.exe"],
+    "feather": ["featherclient.exe", "feather.exe"],
+    "featherclient": ["featherclient.exe", "feather.exe"],
+    "feather client": ["featherclient.exe", "feather.exe"],
+}
+
+# ---------------------------------------------------------------------------
+# Built-in aliases — app name -> command/exe name
 # ---------------------------------------------------------------------------
 BUILTIN_ALIASES = {
     "chrome": "chrome",
@@ -61,6 +104,9 @@ BUILTIN_ALIASES = {
     "tiktok live": "tiktok live studio",
     "tiktok studio": "tiktok live studio",
     "tiktok live studio": "tiktok live studio",
+    "feather": "featherclient",
+    "feather client": "featherclient",
+    "featherclient": "featherclient",
     "snipping tool": "snippingtool",
     "snip": "snippingtool",
     "wordpad": "wordpad",
@@ -92,37 +138,64 @@ WEBSITE_SHORTCUTS = {
     "github": "https://www.github.com",
     "chatgpt": "https://chat.openai.com",
     "claude": "https://claude.ai",
-    "tiktok website": "https://www.tiktok.com",
     "hulu": "https://www.hulu.com",
     "disney plus": "https://www.disneyplus.com",
     "disney+": "https://www.disneyplus.com",
     "crunchyroll": "https://www.crunchyroll.com",
-    "pornhub": "https://www.pornhub.com",
+    "tiktok website": "https://www.tiktok.com",
+    "soundcloud": "https://www.soundcloud.com",
+    "spotify web": "https://open.spotify.com",
+}
+
+# Known exe paths for apps Windows can't find via PATH
+KNOWN_PATHS = {
+    "epicgameslauncher": [
+        r"C:\Program Files (x86)\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe",
+        r"C:\Program Files\Epic Games\Launcher\Portal\Binaries\Win64\EpicGamesLauncher.exe",
+    ],
+    "tiktok live studio": [
+        str(Path.home() / "AppData/Local/TikTok LIVE Studio/TikTok LIVE Studio.exe"),
+        r"C:\Program Files\TikTok LIVE Studio\TikTok LIVE Studio.exe",
+        r"C:\Program Files (x86)\TikTok LIVE Studio\TikTok LIVE Studio.exe",
+    ],
+    "featherclient": [
+        str(Path.home() / "AppData/Local/FeatherClient/FeatherClient.exe"),
+        str(Path.home() / "AppData/Roaming/FeatherClient/FeatherClient.exe"),
+        r"C:\Program Files\FeatherClient\FeatherClient.exe",
+        r"C:\Program Files (x86)\FeatherClient\FeatherClient.exe",
+    ],
+    "discord": [
+        str(Path.home() / "AppData/Local/Discord/Update.exe"),
+    ],
+    "spotify": [
+        str(Path.home() / "AppData/Roaming/Spotify/Spotify.exe"),
+    ],
+    "steam": [
+        r"C:\Program Files (x86)\Steam\steam.exe",
+        r"C:\Program Files\Steam\steam.exe",
+    ],
 }
 
 # ---------------------------------------------------------------------------
-# Dynamic app index — scans Start Menu shortcuts to find every installed app
+# Dynamic app index — built once from Start Menu shortcuts
 # ---------------------------------------------------------------------------
-_app_index: dict[str, str] = {}  # lowercase name -> full exe path
+_app_index: dict[str, str] = {}
 _app_index_built = False
 
 
 def _build_app_index() -> dict[str, str]:
-    """Scan Windows Start Menu shortcuts to find all installed apps."""
-    global _app_index_built
+    """Scan Windows Start Menu to find every installed app."""
     if not IS_WINDOWS:
         return {}
 
     index: dict[str, str] = {}
 
-    # Start Menu locations
     start_menu_dirs = [
         Path(os.environ.get("ProgramData", "C:/ProgramData")) / "Microsoft/Windows/Start Menu/Programs",
         Path(os.environ.get("APPDATA", "")) / "Microsoft/Windows/Start Menu/Programs",
     ]
 
-    def _resolve_lnk(lnk_path: Path) -> str | None:
-        """Resolve a .lnk shortcut to its target exe path using PowerShell."""
+    def resolve_lnk(lnk_path: Path) -> str | None:
         try:
             result = subprocess.run(
                 ["powershell", "-Command",
@@ -141,50 +214,28 @@ def _build_app_index() -> dict[str, str]:
             continue
         for lnk in start_dir.rglob("*.lnk"):
             name = lnk.stem.lower().strip()
-            if not name or name in ("uninstall", "readme", "help", "changelog"):
+            skip_words = {"uninstall", "readme", "help", "changelog", "support", "website",
+                          "release notes", "license", "documentation", "manual"}
+            if not name or any(s in name for s in skip_words):
                 continue
-            target = _resolve_lnk(lnk)
+            target = resolve_lnk(lnk)
             if target:
                 index[name] = target
-                # Also index without common suffixes
-                for suffix in [" - shortcut", " launcher", " client", " app"]:
+                for suffix in [" - shortcut", " launcher", " client", " app", " (64-bit)", " (32-bit)"]:
                     if name.endswith(suffix):
-                        index[name[:-len(suffix)]] = target
+                        short = name[:-len(suffix)].strip()
+                        if short:
+                            index[short] = target
 
-    # Also search common install directories directly
-    search_dirs = [
-        Path("C:/Program Files"),
-        Path("C:/Program Files (x86)"),
-        Path(os.environ.get("LOCALAPPDATA", "")),
-        Path(os.environ.get("APPDATA", "")),
-    ]
+    # Add known paths for common apps
+    for app_name, paths in KNOWN_PATHS.items():
+        if app_name not in index:
+            for path in paths:
+                p = Path(path)
+                if p.exists():
+                    index[app_name] = str(p)
+                    break
 
-    # Specific known executables to look for
-    known_exes = {
-        "epicgameslauncher": ["Epic Games/Launcher/Portal/Binaries/Win64/EpicGamesLauncher.exe",
-                               "Epic Games/Launcher/Portal/Binaries/Win32/EpicGamesLauncher.exe"],
-        "tiktok live studio": ["TikTok LIVE Studio/TikTok LIVE Studio.exe",
-                                "Programs/TikTok LIVE Studio/TikTok LIVE Studio.exe"],
-        "steam": ["Steam/steam.exe"],
-        "discord": ["Discord/Update.exe", "Discord/app-*/Discord.exe"],
-        "spotify": ["Spotify/Spotify.exe"],
-    }
-
-    for exe_name, paths in known_exes.items():
-        for search_base in search_dirs:
-            for rel_path in paths:
-                if "*" in rel_path:
-                    matches = list(search_base.glob(rel_path))
-                    if matches:
-                        index[exe_name] = str(matches[-1])
-                        break
-                else:
-                    full = search_base / rel_path
-                    if full.exists():
-                        index[exe_name] = str(full)
-                        break
-
-    _app_index_built = True
     log.info(f"App index built: {len(index)} apps found")
     return index
 
@@ -193,55 +244,59 @@ def _get_app_index() -> dict[str, str]:
     global _app_index, _app_index_built
     if not _app_index_built:
         _app_index = _build_app_index()
+        _app_index_built = True
     return _app_index
 
 
-def _fuzzy_find_app(name: str) -> tuple[str | None, str | None]:
-    """Find best matching app for a given name.
-
-    Returns (display_name, exe_path_or_command).
-    """
+def _fuzzy_find_app(name: str) -> tuple[str, str | None]:
+    """Find best matching app. Returns (display_name, exe_path_or_command)."""
     name_lower = name.lower().strip()
 
-    # 1. Check built-in aliases first
+    # 1. Built-in aliases
     if name_lower in BUILTIN_ALIASES:
-        return name, BUILTIN_ALIASES[name_lower]
+        alias = BUILTIN_ALIASES[name_lower]
+        # Check known paths for this alias
+        if alias in KNOWN_PATHS:
+            for path in KNOWN_PATHS[alias]:
+                if Path(path).exists():
+                    return name, path
+        return name, alias
 
-    # 2. Check dynamic index — exact match
+    # 2. Dynamic index exact match
     index = _get_app_index()
     if name_lower in index:
         return name, index[name_lower]
 
-    # 3. Partial match in index
+    # 3. Substring match in index
     matches = [(k, v) for k, v in index.items() if name_lower in k or k in name_lower]
     if matches:
-        # Pick longest key match (most specific)
         matches.sort(key=lambda x: len(x[0]), reverse=True)
         return matches[0][0].title(), matches[0][1]
 
-    # 4. Word overlap match
+    # 4. Word overlap
     name_words = set(name_lower.split())
-    best_score = 0
-    best_match = None
+    best_score, best_match = 0, None
     for k, v in index.items():
-        k_words = set(k.split())
-        overlap = len(name_words & k_words)
+        overlap = len(name_words & set(k.split()))
         if overlap > best_score:
             best_score = overlap
             best_match = (k, v)
     if best_match and best_score >= 1:
         return best_match[0].title(), best_match[1]
 
-    return None, None
+    return name, None
 
 
+# ---------------------------------------------------------------------------
+# Open app
+# ---------------------------------------------------------------------------
 async def open_app(app_name: str) -> dict:
-    """Open any app or game on Windows or macOS by name."""
+    """Open any app or game on Windows or macOS."""
     if IS_WINDOWS:
         display_name, target = _fuzzy_find_app(app_name)
 
         if target is None:
-            # Last resort: try running it directly via start command
+            # Last resort: try via start command
             try:
                 subprocess.Popen(["cmd", "/c", "start", "", app_name], shell=False)
                 return {"success": True, "confirmation": f"Trying to open {app_name}, sir."}
@@ -252,15 +307,19 @@ async def open_app(app_name: str) -> dict:
             if target.startswith("ms-"):
                 subprocess.Popen(["cmd", "/c", "start", target])
             elif Path(target).exists():
-                subprocess.Popen([target])
+                # Special case: Discord Update.exe needs --processStart flag
+                if "discord" in target.lower() and "update.exe" in target.lower():
+                    subprocess.Popen([target, "--processStart", "Discord.exe"])
+                else:
+                    subprocess.Popen([target])
             else:
                 subprocess.Popen(["cmd", "/c", "start", "", target], shell=False)
-            return {"success": True, "confirmation": f"Opening {display_name or app_name} for you, sir."}
+            return {"success": True, "confirmation": f"Opening {display_name}, sir."}
         except Exception as e:
             log.error(f"open_app failed for '{app_name}': {e}")
             return {"success": False, "confirmation": f"I had trouble launching {app_name}, sir."}
 
-    # macOS fallback
+    # macOS
     script = f'tell application "{app_name}"\n    activate\nend tell'
     proc = await asyncio.create_subprocess_exec(
         "osascript", "-e", script,
@@ -274,12 +333,84 @@ async def open_app(app_name: str) -> dict:
     }
 
 
+# ---------------------------------------------------------------------------
+# Close app
+# ---------------------------------------------------------------------------
+async def close_app(app_name: str) -> dict:
+    """Close any running app or game on Windows or macOS."""
+    if IS_WINDOWS:
+        name_lower = app_name.lower().strip()
+
+        # Get process names to kill
+        process_names = PROCESS_NAMES.get(name_lower)
+
+        if not process_names:
+            # Try fuzzy match from PROCESS_NAMES keys
+            for key in PROCESS_NAMES:
+                if name_lower in key or key in name_lower:
+                    process_names = PROCESS_NAMES[key]
+                    break
+
+        if not process_names:
+            # Try to guess from app index — use the exe filename
+            _, target = _fuzzy_find_app(app_name)
+            if target and Path(target).exists():
+                process_names = [Path(target).name]
+
+        if not process_names:
+            # Generic attempt using the name itself
+            process_names = [f"{app_name}.exe"]
+
+        killed = False
+        for proc_name in process_names:
+            try:
+                result = subprocess.run(
+                    ["taskkill", "/f", "/im", proc_name],
+                    capture_output=True, text=True
+                )
+                if result.returncode == 0:
+                    killed = True
+                    log.info(f"Killed {proc_name}")
+                    break
+            except Exception as e:
+                log.warning(f"taskkill failed for {proc_name}: {e}")
+
+        if killed:
+            return {"success": True, "confirmation": f"Closed {app_name}, sir."}
+        else:
+            # Try by window title using taskkill /fi
+            try:
+                result = subprocess.run(
+                    ["taskkill", "/f", "/fi", f"WINDOWTITLE eq *{app_name}*"],
+                    capture_output=True, text=True
+                )
+                if result.returncode == 0:
+                    return {"success": True, "confirmation": f"Closed {app_name}, sir."}
+            except Exception:
+                pass
+            return {"success": False, "confirmation": f"I couldn't find {app_name} running, sir."}
+
+    # macOS
+    script = f'tell application "{app_name}" to quit'
+    proc = await asyncio.create_subprocess_exec(
+        "osascript", "-e", script,
+        stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+    )
+    _, _ = await proc.communicate()
+    return {"success": True, "confirmation": f"Closed {app_name}, sir."}
+
+
+# ---------------------------------------------------------------------------
+# List installed apps
+# ---------------------------------------------------------------------------
 async def list_installed_apps() -> list[str]:
-    """Return list of all discovered app names for JARVIS context."""
     index = _get_app_index()
     return sorted(index.keys())
 
 
+# ---------------------------------------------------------------------------
+# Terminal
+# ---------------------------------------------------------------------------
 async def open_terminal(command: str = "") -> dict:
     if IS_WINDOWS:
         try:
@@ -301,7 +432,7 @@ async def open_terminal(command: str = "") -> dict:
         "osascript", "-e", script,
         stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
     )
-    _, stderr = await proc.communicate()
+    _, _ = await proc.communicate()
     success = proc.returncode == 0
     return {
         "success": success,
@@ -309,46 +440,49 @@ async def open_terminal(command: str = "") -> dict:
     }
 
 
+# ---------------------------------------------------------------------------
+# Browser
+# ---------------------------------------------------------------------------
 async def open_browser(url: str, browser: str = "default") -> dict:
     if IS_WINDOWS:
         try:
-            browser_lower = browser.lower()
-            if browser_lower in ("edge", "msedge"):
+            b = browser.lower()
+            if b in ("edge", "msedge"):
                 subprocess.Popen(["cmd", "/c", "start", "msedge", url])
-            elif browser_lower in ("chrome", "google chrome"):
+            elif b in ("chrome", "google chrome"):
                 subprocess.Popen(["cmd", "/c", "start", "chrome", url])
-            elif browser_lower == "firefox":
+            elif b == "firefox":
                 subprocess.Popen(["cmd", "/c", "start", "firefox", url])
             else:
                 webbrowser.open(url)
-            browser_name = browser if browser != "default" else "your browser"
-            return {"success": True, "confirmation": f"Opening that in {browser_name}, sir."}
+            return {"success": True, "confirmation": f"Opening that for you, sir."}
         except Exception as e:
             log.error(f"open_browser failed: {e}")
             webbrowser.open(url)
-            return {"success": True, "confirmation": "Pulled that up for you, sir."}
+            return {"success": True, "confirmation": "Pulled that up, sir."}
 
-    escaped_url = url.replace('"', '\\"')
-    if browser.lower() == "firefox":
-        script = f'tell application "Firefox"\n    activate\n    open location "{escaped_url}"\nend tell'
-    else:
-        script = f'tell application "Google Chrome"\n    activate\n    open location "{escaped_url}"\nend tell'
+    escaped = url.replace('"', '\\"')
+    script = (
+        f'tell application "Firefox"\n    activate\n    open location "{escaped}"\nend tell'
+        if browser.lower() == "firefox"
+        else f'tell application "Google Chrome"\n    activate\n    open location "{escaped}"\nend tell'
+    )
     proc = await asyncio.create_subprocess_exec(
         "osascript", "-e", script,
         stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
     )
-    _, stderr = await proc.communicate()
-    success = proc.returncode == 0
-    return {
-        "success": success,
-        "confirmation": "Pulled that up, sir." if success else "Had trouble opening the browser, sir.",
-    }
+    _, _ = await proc.communicate()
+    return {"success": proc.returncode == 0,
+            "confirmation": "Pulled that up, sir." if proc.returncode == 0 else "Had trouble opening the browser, sir."}
 
 
 async def open_chrome(url: str) -> dict:
     return await open_browser(url, "chrome")
 
 
+# ---------------------------------------------------------------------------
+# Claude Code project launcher
+# ---------------------------------------------------------------------------
 async def open_claude_in_project(project_dir: str, prompt: str) -> dict:
     claude_md = Path(project_dir) / "CLAUDE.md"
     claude_md.write_text(f"# Task\n\n{prompt}\n\nBuild this completely. If web app, make index.html work standalone.\n")
@@ -364,21 +498,16 @@ async def open_claude_in_project(project_dir: str, prompt: str) -> dict:
             log.error(f"open_claude_in_project failed: {e}")
             return {"success": False, "confirmation": "Had trouble spawning Claude Code, sir."}
 
-    script = (
-        'tell application "Terminal"\n'
-        "    activate\n"
-        f'    do script "cd {project_dir} && claude --dangerously-skip-permissions"\n'
-        "end tell"
-    )
+    script = f'tell application "Terminal"\n    activate\n    do script "cd {project_dir} && claude --dangerously-skip-permissions"\nend tell'
     proc = await asyncio.create_subprocess_exec(
         "osascript", "-e", script,
         stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
     )
-    _, stderr = await proc.communicate()
+    _, _ = await proc.communicate()
     success = proc.returncode == 0
     return {
         "success": success,
-        "confirmation": "Claude Code is running in Terminal, sir." if success else "Had trouble spawning Claude Code, sir.",
+        "confirmation": "Claude Code is running, sir." if success else "Had trouble spawning Claude Code, sir.",
     }
 
 
@@ -390,16 +519,13 @@ async def prompt_existing_terminal(project_name: str, prompt: str) -> dict:
     escaped_prompt = prompt.replace("\\", "\\\\").replace('"', '\\"')
     script = f'''
 tell application "Terminal"
-    set matched to false
     repeat with w in windows
         if name of w contains "{escaped_name}" then
             set index of w to 1
             activate
-            set matched to true
             exit repeat
         end if
     end repeat
-    if not matched then return "NOT_FOUND"
 end tell
 delay 1
 tell application "System Events"
@@ -419,24 +545,20 @@ return "OK"
             stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
         )
         stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=15)
-        result = stdout.decode().strip()
-        success = proc.returncode == 0 and result != "NOT_FOUND"
+        success = proc.returncode == 0
         return {
             "success": success,
-            "confirmation": f"Sent that to {project_name}, sir." if success else f"Couldn't find a terminal for {project_name}, sir.",
+            "confirmation": f"Sent that to {project_name}, sir." if success else f"Couldn't reach {project_name}, sir.",
         }
     except Exception as e:
         log.error(f"prompt_existing_terminal failed: {e}")
-        return {"success": False, "confirmation": "Something went wrong reaching that terminal, sir."}
+        return {"success": False, "confirmation": "Something went wrong, sir."}
 
 
 async def monitor_build(project_dir: str, ws=None, synthesize_fn=None) -> None:
-    import base64
     output_file = Path(project_dir) / ".jarvis_output.txt"
     start = time.time()
-    timeout = 600
-
-    while time.time() - start < timeout:
+    while time.time() - start < 600:
         await asyncio.sleep(5)
         if output_file.exists():
             content = output_file.read_text()
@@ -455,10 +577,12 @@ async def monitor_build(project_dir: str, ws=None, synthesize_fn=None) -> None:
                     except Exception as e:
                         log.warning(f"Build notification failed: {e}")
                 return
-
     log.warning(f"Build timed out in {project_dir}")
 
 
+# ---------------------------------------------------------------------------
+# Main dispatcher
+# ---------------------------------------------------------------------------
 async def execute_action(intent: dict, projects: list = None) -> dict:
     action = intent.get("action", "chat")
     target = intent.get("target", "")
@@ -474,6 +598,11 @@ async def execute_action(intent: dict, projects: list = None) -> dict:
         result["project_dir"] = None
         return result
 
+    elif action == "close_app":
+        result = await close_app(target)
+        result["project_dir"] = None
+        return result
+
     elif action == "browse":
         for keyword, url in WEBSITE_SHORTCUTS.items():
             if keyword in target_lower:
@@ -486,13 +615,7 @@ async def execute_action(intent: dict, projects: list = None) -> dict:
         else:
             url = f"https://www.google.com/search?q={quote(target)}"
 
-        if "firefox" in target_lower:
-            browser = "firefox"
-        elif "edge" in target_lower:
-            browser = "edge"
-        else:
-            browser = "chrome"
-
+        browser = "edge" if "edge" in target_lower else "firefox" if "firefox" in target_lower else "chrome"
         result = await open_browser(url, browser)
         result["project_dir"] = None
         return result
@@ -505,8 +628,7 @@ async def execute_action(intent: dict, projects: list = None) -> dict:
         result["project_dir"] = project_dir
         return result
 
-    else:
-        return {"success": False, "confirmation": "", "project_dir": None}
+    return {"success": False, "confirmation": "", "project_dir": None}
 
 
 def _generate_project_name(prompt: str) -> str:
