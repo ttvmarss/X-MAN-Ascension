@@ -2,7 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#000000" />
     <title>JARVIS</title>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
@@ -35,6 +39,28 @@
     <div id="status-text"></div>
     <div id="jarvis-label">JARVIS</div>
     <div id="error-text"></div>
+
+    <!-- Mobile tap-to-talk button -->
+    <div id="mobile-hint" style="
+      display:none;
+      position:fixed;
+      bottom:40px;
+      left:50%;
+      transform:translateX(-50%);
+      color:rgba(255,255,255,0.5);
+      font-family:sans-serif;
+      font-size:13px;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      pointer-events:none;
+    ">Tap to speak</div>
+
     <script type="module" src="/src/main.ts"></script>
+    <script>
+      // Show mobile hint on touch devices
+      if ('ontouchstart' in window) {
+        document.getElementById('mobile-hint').style.display = 'block';
+      }
+    </script>
   </body>
 </html>
