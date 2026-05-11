@@ -9,6 +9,44 @@
     <meta name="theme-color" content="#000000" />
     <title>JARVIS</title>
     <link rel="stylesheet" href="/src/style.css" />
+    <style>
+      #tap-to-start {
+        display: none;
+        position: fixed;
+        bottom: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 120, 255, 0.15);
+        border: 1px solid rgba(0, 120, 255, 0.5);
+        color: rgba(255, 255, 255, 0.85);
+        font-family: sans-serif;
+        font-size: 14px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        padding: 14px 32px;
+        border-radius: 40px;
+        cursor: pointer;
+        z-index: 999;
+        -webkit-tap-highlight-color: transparent;
+      }
+      #tap-to-start:active {
+        background: rgba(0, 120, 255, 0.35);
+      }
+      #mobile-hint {
+        display: none;
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: rgba(255,255,255,0.35);
+        font-family: sans-serif;
+        font-size: 11px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        pointer-events: none;
+        white-space: nowrap;
+      }
+    </style>
   </head>
   <body>
     <canvas id="orb-canvas"></canvas>
@@ -40,26 +78,34 @@
     <div id="jarvis-label">JARVIS</div>
     <div id="error-text"></div>
 
-    <!-- Mobile tap-to-talk button -->
-    <div id="mobile-hint" style="
-      display:none;
-      position:fixed;
-      bottom:40px;
-      left:50%;
-      transform:translateX(-50%);
-      color:rgba(255,255,255,0.5);
-      font-family:sans-serif;
-      font-size:13px;
-      letter-spacing:2px;
-      text-transform:uppercase;
-      pointer-events:none;
-    ">Tap to speak</div>
+    <!-- Mobile tap-to-start button (Safari requires user gesture) -->
+    <button id="tap-to-start">TAP TO START</button>
+    <div id="mobile-hint">Speak after tapping</div>
 
     <script type="module" src="/src/main.ts"></script>
     <script>
-      // Show mobile hint on touch devices
-      if ('ontouchstart' in window) {
+      const isTouch = 'ontouchstart' in window;
+      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+      if (isTouch || isSafari) {
+        document.getElementById('tap-to-start').style.display = 'block';
         document.getElementById('mobile-hint').style.display = 'block';
+
+        document.getElementById('tap-to-start').addEventListener('click', function() {
+          // Unlock AudioContext on Safari (requires user gesture)
+          try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) {
+              const ctx = new AudioCtx();
+              ctx.resume();
+            }
+          } catch(e) {}
+
+          this.style.display = 'none';
+          document.getElementById('mobile-hint').textContent = 'Listening...';
+          // Signal main.ts to start listening
+          window.dispatchEvent(new CustomEvent('jarvis-activate'));
+        });
       }
     </script>
   </body>

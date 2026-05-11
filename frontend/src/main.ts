@@ -165,6 +165,13 @@ document.addEventListener("click", ensureAudioContext);
 document.addEventListener("touchstart", ensureAudioContext);
 document.addEventListener("keydown", ensureAudioContext, { once: true });
 
+// Safari/iOS: listen for tap-to-start button activation
+window.addEventListener("jarvis-activate", () => {
+  ensureAudioContext();
+  voice.start();
+  statusEl.textContent = "listening";
+});
+
 // Try to resume audio context on load
 ensureAudioContext();
 

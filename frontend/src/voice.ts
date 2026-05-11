@@ -1,5 +1,6 @@
 /**
- * Voice input (Web Speech API) and audio output (AudioContext) for JARVIS.
+ * Voice input and audio output for JARVIS.
+ * Compatible with Chrome, Safari, Firefox, and mobile browsers.
  */
 
 // ---------------------------------------------------------------------------
@@ -13,34 +14,40 @@ export interface VoiceInput {
   resume(): void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const webkitSpeechRecognition: any;
+
+const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
 export function createVoiceInput(
   onTranscript: (text: string) => void,
   onError: (msg: string) => void
 ): VoiceInput {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  // Check HTTPS requirement for non-localhost (phones need HTTPS for mic)
+  // HTTPS check for non-localhost (phones need HTTPS for mic)
   const isLocalhost = location.hostname === "localhost" || location.hostname === "127.0.0.1";
   if (!isLocalhost && location.protocol !== "https:") {
-    onError("HTTPS required for microphone on this device. Use your ngrok HTTPS link instead of the IP address.");
+    onError("Open the HTTPS link (ngrok) on your phone — HTTP blocks the microphone.");
     return { start() {}, stop() {}, pause() {}, resume() {} };
   }
 
-  const SR = (window as any).SpeechRecognition || (typeof webkitSpeechRecognition !== "undefined" ? webkitSpeechRecognition : null);
+  const SR = (window as any).SpeechRecognition
+    || (typeof webkitSpeechRecognition !== "undefined" ? webkitSpeechRecognition : null);
+
   if (!SR) {
-    onError("Speech recognition not supported. Use Google Chrome.");
+    onError("Speech recognition not supported in this browser. Try Chrome or Safari.");
     return { start() {}, stop() {}, pause() {}, resume() {} };
   }
 
   const recognition = new SR();
-  recognition.continuous = true;
+  // Safari doesn't support continuous well — set to false and restart manually
+  recognition.continuous = !isSafari && !isIOS;
   recognition.interimResults = true;
   recognition.lang = "en-US";
+  recognition.maxAlternatives = 1;
 
   let shouldListen = false;
   let paused = false;
+  let restarting = false;
 
   recognition.onresult = (event: any) => {
     for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -52,31 +59,30 @@ export function createVoiceInput(
   };
 
   recognition.onend = () => {
+    restarting = false;
     if (shouldListen && !paused) {
-      try {
-        recognition.start();
-      } catch {
-        // Already started
-      }
+      // Always restart — Safari needs this even more than Chrome
+      restarting = true;
+      setTimeout(() => {
+        if (shouldListen && !paused) {
+          try { recognition.start(); } catch { restarting = false; }
+        }
+      }, isIOS ? 300 : 100);
     }
   };
 
   recognition.onerror = (event: any) => {
     if (event.error === "not-allowed") {
-      if (!isLocalhost && location.protocol !== "https:") {
-        onError("Mic blocked: open the HTTPS ngrok link on your phone, not the IP address.");
-      } else {
-        onError("Microphone access denied. Tap Allow when Chrome asks for mic permission.");
-      }
+      onError("Microphone blocked. Go to your browser Settings and allow microphone for this site.");
       shouldListen = false;
     } else if (event.error === "no-speech") {
-      // Normal — just restart
+      // Normal on Safari — just let onend restart it
     } else if (event.error === "aborted") {
-      // Expected during pause
+      // Expected when pausing
     } else if (event.error === "network") {
-      onError("Network error with speech recognition. Check your internet connection.");
+      onError("Network error. Check your connection.");
     } else {
-      console.warn("[voice] recognition error:", event.error);
+      console.warn("[voice] error:", event.error);
     }
   };
 
@@ -84,36 +90,31 @@ export function createVoiceInput(
     start() {
       shouldListen = true;
       paused = false;
-      try {
-        recognition.start();
-      } catch {
-        // Already started
+      if (!restarting) {
+        try { recognition.start(); } catch { /* already started */ }
       }
     },
     stop() {
       shouldListen = false;
       paused = false;
-      recognition.stop();
+      restarting = false;
+      try { recognition.stop(); } catch { /* already stopped */ }
     },
     pause() {
       paused = true;
-      recognition.stop();
+      try { recognition.stop(); } catch { /* already stopped */ }
     },
     resume() {
       paused = false;
-      if (shouldListen) {
-        try {
-          recognition.start();
-        } catch {
-          // Already started
-        }
+      if (shouldListen && !restarting) {
+        try { recognition.start(); } catch { /* already started */ }
       }
     },
   };
 }
 
 // ---------------------------------------------------------------------------
-// Audio Player
+// Audio Player — Safari/iOS compatible
 // ---------------------------------------------------------------------------
 
 export interface AudioPlayer {
@@ -124,7 +125,10 @@ export interface AudioPlayer {
 }
 
 export function createAudioPlayer(): AudioPlayer {
-  const audioCtx = new AudioContext();
+  // Safari needs webkitAudioContext fallback
+  const AudioCtx = (window as any).AudioContext || (window as any).webkitAudioContext;
+  const audioCtx = new AudioCtx();
+
   const analyser = audioCtx.createAnalyser();
   analyser.fftSize = 256;
   analyser.smoothingTimeConstant = 0.8;
@@ -149,35 +153,33 @@ export function createAudioPlayer(): AudioPlayer {
     source.buffer = buffer;
     source.connect(analyser);
     currentSource = source;
-
     source.onended = () => {
-      if (currentSource === source) {
-        playNext();
-      }
+      if (currentSource === source) playNext();
     };
-
-    source.start();
+    source.start(0);
   }
 
   return {
     async enqueue(base64: string) {
-      // Resume audio context (browser autoplay policy)
+      // Must resume AudioContext after user gesture (required by all browsers)
       if (audioCtx.state === "suspended") {
-        await audioCtx.resume();
+        try { await audioCtx.resume(); } catch { /* ignore */ }
       }
 
       try {
         const binary = atob(base64);
         const bytes = new Uint8Array(binary.length);
-        for (let i = 0; i < binary.length; i++) {
-          bytes[i] = binary.charCodeAt(i);
-        }
-        const audioBuffer = await audioCtx.decodeAudioData(bytes.buffer.slice(0));
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+
+        // Use promise form for Safari compatibility
+        const audioBuffer = await new Promise<AudioBuffer>((resolve, reject) => {
+          audioCtx.decodeAudioData(bytes.buffer.slice(0), resolve, reject);
+        });
+
         queue.push(audioBuffer);
         if (!isPlaying) playNext();
       } catch (err) {
         console.error("[audio] decode error:", err);
-        // Skip bad audio, continue
         if (!isPlaying && queue.length > 0) playNext();
       }
     },
@@ -185,22 +187,13 @@ export function createAudioPlayer(): AudioPlayer {
     stop() {
       queue.length = 0;
       if (currentSource) {
-        try {
-          currentSource.stop();
-        } catch {
-          // Already stopped
-        }
+        try { currentSource.stop(); } catch { /* already stopped */ }
         currentSource = null;
       }
       isPlaying = false;
     },
 
-    getAnalyser() {
-      return analyser;
-    },
-
-    onFinished(cb: () => void) {
-      finishedCallback = cb;
-    },
+    getAnalyser() { return analyser; },
+    onFinished(cb: () => void) { finishedCallback = cb; },
   };
 }
