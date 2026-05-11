@@ -239,6 +239,52 @@ def _build_app_index() -> dict[str, str]:
                     index[app_name] = str(p)
                     break
 
+    # Search Windows Registry for installed apps
+    try:
+        import winreg
+        reg_paths = [
+            r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
+            r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall",
+        ]
+        for reg_path in reg_paths:
+            try:
+                key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, reg_path)
+                for i in range(winreg.QueryInfoKey(key)[0]):
+                    try:
+                        subkey_name = winreg.EnumKey(key, i)
+                        subkey = winreg.OpenKey(key, subkey_name)
+                        try:
+                            name_val = winreg.QueryValueEx(subkey, "DisplayName")[0].lower().strip()
+                            install_loc = winreg.QueryValueEx(subkey, "InstallLocation")[0].strip()
+                            if name_val and install_loc and Path(install_loc).exists():
+                                # Find main exe in install location
+                                exes = list(Path(install_loc).glob("*.exe"))
+                                if exes and name_val not in index:
+                                    # Pick exe with closest name match
+                                    best = sorted(exes, key=lambda e: 0 if name_val.split()[0] in e.stem.lower() else 1)[0]
+                                    index[name_val] = str(best)
+                        except (FileNotFoundError, OSError):
+                            pass
+                        finally:
+                            subkey.Close()
+                    except OSError:
+                        pass
+                key.Close()
+            except OSError:
+                pass
+    except ImportError:
+        pass
+
+    # Search Desktop shortcuts
+    desktop = Path.home() / "Desktop"
+    if desktop.exists():
+        for lnk in desktop.glob("*.lnk"):
+            name = lnk.stem.lower().strip()
+            if name and name not in index:
+                target = resolve_lnk(lnk)
+                if target:
+                    index[name] = target
+
     log.info(f"App index built: {len(index)} apps found")
     return index
 
@@ -249,6 +295,37 @@ def _get_app_index() -> dict[str, str]:
         _app_index = _build_app_index()
         _app_index_built = True
     return _app_index
+
+
+def _deep_search_exe(app_name: str) -> str | None:
+    """Search common install locations for an exe matching the app name."""
+    name_lower = app_name.lower().replace(" ", "")
+    search_dirs = [
+        Path("C:/Program Files"),
+        Path("C:/Program Files (x86)"),
+        Path(os.environ.get("LOCALAPPDATA", "")),
+        Path(os.environ.get("APPDATA", "")),
+        Path(os.environ.get("LOCALAPPDATA", "")) / "Programs",
+    ]
+    candidates = []
+    for base in search_dirs:
+        if not base.exists():
+            continue
+        try:
+            for exe in base.rglob("*.exe"):
+                exe_lower = exe.stem.lower().replace(" ", "").replace("-", "").replace("_", "")
+                app_clean = name_lower.replace("-", "").replace("_", "")
+                if app_clean in exe_lower or exe_lower in app_clean:
+                    candidates.append(exe)
+        except PermissionError:
+            continue
+    if candidates:
+        # Prefer shorter paths (closer to install root = more likely the main exe)
+        candidates.sort(key=lambda p: len(p.parts))
+        result = str(candidates[0])
+        log.info(f"Deep search found '{app_name}' at: {result}")
+        return result
+    return None
 
 
 def _fuzzy_find_app(name: str) -> tuple[str, str | None]:
@@ -297,6 +374,10 @@ async def open_app(app_name: str) -> dict:
     """Open any app or game on Windows or macOS."""
     if IS_WINDOWS:
         display_name, target = _fuzzy_find_app(app_name)
+
+        if target is None:
+            # Deep search: scan Program Files and AppData for matching exe
+            target = _deep_search_exe(app_name)
 
         if target is None:
             # Last resort: try via start command
