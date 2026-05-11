@@ -484,23 +484,32 @@
     }
   }
 
-  // Input
-  function onTap(e) {
-    if (e.cancelable) e.preventDefault();
-    if (state === 'play') flap();
-  }
-  window.addEventListener('pointerdown', onTap, { passive: false });
+  // Input — tap on canvas to flap (only during play)
+  canvas.addEventListener('pointerdown', (e) => {
+    if (state === 'play') {
+      e.preventDefault();
+      flap();
+    }
+  }, { passive: false });
+
   window.addEventListener('keydown', (e) => {
     if (e.code === 'Space' || e.code === 'ArrowUp') {
       e.preventDefault();
-      if (state === 'menu') startGame();
+      if (state === 'menu' || state === 'over') startGame();
       else if (state === 'play') flap();
-      else if (state === 'over') startGame();
     }
   });
 
-  startBtn.addEventListener('click', (e) => { e.stopPropagation(); startGame(); });
-  retryBtn.addEventListener('click', (e) => { e.stopPropagation(); startGame(); });
+  // Buttons: handle on pointerup so iOS Safari fires reliably
+  function bindBtn(el, fn) {
+    let armed = false;
+    el.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); armed = true; }, { passive: false });
+    el.addEventListener('pointerup',   (e) => { e.preventDefault(); e.stopPropagation(); if (armed) { armed = false; fn(); } }, { passive: false });
+    el.addEventListener('pointercancel', () => { armed = false; });
+    el.addEventListener('click',       (e) => { e.preventDefault(); e.stopPropagation(); fn(); });
+  }
+  bindBtn(startBtn, startGame);
+  bindBtn(retryBtn, startGame);
 
   // initial idle render
   state = 'menu';
