@@ -2,8 +2,9 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   server: {
-    host: "0.0.0.0",  // expose on all network interfaces so phone can connect
+    host: "0.0.0.0",
     port: 5173,
+    allowedHosts: "all",
     proxy: {
       "/ws": {
         target: "http://localhost:8340",
