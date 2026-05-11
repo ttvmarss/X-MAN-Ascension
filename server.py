@@ -20,7 +20,7 @@ from pathlib import Path
 # Load .env file if present
 _env_path = Path(__file__).parent / ".env"
 if _env_path.exists():
-    for _line in _env_path.read_text().splitlines():
+    for _line in _env_path.read_text(encoding="utf-8", errors="ignore").splitlines():
         _line = _line.strip()
         if _line and not _line.startswith("#") and "=" in _line:
             _k, _, _v = _line.partition("=")
@@ -2371,7 +2371,7 @@ def _read_env() -> tuple[list[str], dict[str, str]]:
             _shutil.copy2(str(example), str(path))
         else:
             path.write_text("")
-    lines = path.read_text().splitlines()
+    lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
     parsed: dict[str, str] = {}
     for line in lines:
         stripped = line.strip()
@@ -2396,7 +2396,7 @@ def _write_env_key(key: str, value: str) -> None:
         new_lines.append(line)
     if not found:
         new_lines.append(f"{key}={value}")
-    _env_file_path().write_text("\n".join(new_lines) + "\n")
+    _env_file_path().write_text("\n".join(new_lines) + "\n", encoding="utf-8")
     os.environ[key] = value
 
 class KeyUpdate(BaseModel):
@@ -2413,10 +2413,13 @@ class PreferencesUpdate(BaseModel):
 
 @app.post("/api/settings/keys")
 async def api_settings_keys(body: KeyUpdate):
+    global anthropic_client
     allowed = {"ANTHROPIC_API_KEY", "FISH_API_KEY", "FISH_VOICE_ID", "USER_NAME", "HONORIFIC", "CALENDAR_ACCOUNTS"}
     if body.key_name not in allowed:
         return JSONResponse({"success": False, "error": "Invalid key name"}, status_code=400)
     _write_env_key(body.key_name, body.key_value)
+    if body.key_name == "ANTHROPIC_API_KEY" and body.key_value:
+        anthropic_client = anthropic.AsyncAnthropic(api_key=body.key_value)
     return {"success": True}
 
 @app.post("/api/settings/test-anthropic")
