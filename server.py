@@ -187,6 +187,10 @@ When you decide the user needs something DONE (not just discussed), include an a
 - [ACTION:BROWSE] url or search query — when user wants to see a webpage or search result in Chrome
 - [ACTION:RESEARCH] detailed research brief — when user wants real research with real data. Claude Code will browse the web, find real listings/data, and create a report document. Give it a detailed brief of what to find.
 - [ACTION:OPEN_TERMINAL] — when user just wants a fresh Claude Code terminal with no specific project
+- [ACTION:OPEN_APP] app_name — open any app or game on the user's PC. Examples: Steam, Discord, Spotify, Roblox, Notepad, Calculator, Chrome, Edge. Use the common name.
+  "open Steam" → [ACTION:OPEN_APP] Steam
+  "launch Discord" → [ACTION:OPEN_APP] Discord
+  "open Spotify" → [ACTION:OPEN_APP] Spotify
 CRITICAL: When the user asks about their SCREEN, what's RUNNING, or what they're LOOKING AT — ALWAYS use [ACTION:SCREEN] or let the fast action system handle it. NEVER use [ACTION:PROMPT_PROJECT] for screen requests. PROMPT_PROJECT is ONLY for working on code projects.
 
 - [ACTION:PROMPT_PROJECT] project_name ||| prompt — THIS IS YOUR MOST POWERFUL ACTION. Use it whenever the user wants to work on, jump into, resume, check on, or interact with ANY existing project. You connect directly to Claude Code in that project and can read its response. Craft a clear prompt based on what the user wants. Examples:
@@ -647,18 +651,21 @@ async def classify_intent(text: str, client: anthropic.AsyncAnthropic) -> dict:
             max_tokens=100,
             system=(
                 "Classify this voice command. The user is talking to JARVIS, an AI assistant that can:\n"
-                "- Open Terminal and run Claude Code (coding AI tool)\n"
-                "- Open Chrome browser for web searches and URLs\n"
-                "- Build software projects via Claude Code in Terminal\n"
-                "- Research topics by opening Chrome search\n\n"
+                "- Open Terminal / Command Prompt\n"
+                "- Open Chrome, Edge, Firefox browsers for web searches and URLs\n"
+                "- Open any app or game on the user's PC (Steam, Discord, Spotify, Roblox, etc.)\n"
+                "- Open websites like YouTube, Netflix, Google, Reddit, Twitch, etc.\n"
+                "- Build software projects via Claude Code\n\n"
                 "Note: speech-to-text may produce errors like \"Cloud\" for \"Claude\", "
                 "\"Travis\" for \"JARVIS\", \"clock code\" for \"Claude Code\".\n\n"
-                "Return ONLY valid JSON: {\"action\": \"open_terminal|browse|build|chat\", "
+                "Return ONLY valid JSON: {\"action\": \"open_terminal|browse|open_app|build|chat\", "
                 "\"target\": \"description of what to do\"}\n"
-                "open_terminal = user wants to open terminal or launch Claude Code\n"
-                "browse = user wants to search the web, look something up, visit a URL\n"
+                "open_terminal = user wants to open terminal or command prompt\n"
+                "browse = user wants to search the web, visit a URL, or open a website like YouTube\n"
+                "open_app = user wants to open an application or game (Steam, Discord, Spotify, Notepad, etc.)\n"
                 "build = user wants to create/build a software project\n"
                 "chat = just conversation, questions, or anything else\n"
+                "If user says 'open YouTube' or 'go to Netflix' use browse not open_app.\n"
                 "If unclear, default to \"chat\"."
             ),
             messages=[{"role": "user", "content": text}],
@@ -738,7 +745,7 @@ def extract_action(response: str) -> tuple[str, dict | None]:
     Returns (clean_text_for_tts, action_dict_or_none).
     """
     match = _action_re.search(
-        r'\[ACTION:(BUILD|BROWSE|RESEARCH|OPEN_TERMINAL|PROMPT_PROJECT|ADD_TASK|ADD_NOTE|COMPLETE_TASK|REMEMBER|CREATE_NOTE|READ_NOTE|SCREEN)\]\s*(.*?)$',
+        r'\[ACTION:(BUILD|BROWSE|RESEARCH|OPEN_TERMINAL|OPEN_APP|PROMPT_PROJECT|ADD_TASK|ADD_NOTE|COMPLETE_TASK|REMEMBER|CREATE_NOTE|READ_NOTE|SCREEN)\]\s*(.*?)$',
         response, _action_re.DOTALL,
     )
     if match:
@@ -873,6 +880,16 @@ async def _execute_open_terminal():
         await handle_open_terminal()
     except Exception as e:
         log.error(f"Open terminal failed: {e}")
+
+
+async def _execute_open_app(app_name: str):
+    """Execute an open-app action from an LLM-embedded [ACTION:OPEN_APP] tag."""
+    try:
+        from actions import open_app
+        result = await open_app(app_name)
+        log.info(f"Open app '{app_name}': {result}")
+    except Exception as e:
+        log.error(f"Open app failed: {e}")
 
 
 def _find_project_dir(project_name: str) -> str | None:
@@ -2204,6 +2221,8 @@ async def voice_handler(ws: WebSocket):
                                     )
                                 elif embedded_action["action"] == "open_terminal":
                                     asyncio.create_task(_execute_open_terminal())
+                                elif embedded_action["action"] == "open_app":
+                                    asyncio.create_task(_execute_open_app(embedded_action["target"]))
                                 elif embedded_action["action"] == "prompt_project":
                                     target = embedded_action["target"]
                                     if "|||" in target:
