@@ -2,6 +2,7 @@
 JARVIS Action Executor — Windows + macOS compatible.
 
 Opens browsers, apps, games, terminals, and URLs on Windows 10/11 and macOS.
+Dynamically discovers every installed app on the PC via Start Menu shortcuts.
 """
 
 import asyncio
@@ -21,17 +22,15 @@ IS_WINDOWS = platform.system() == "Windows"
 DESKTOP_PATH = Path.home() / "Desktop"
 
 # ---------------------------------------------------------------------------
-# Windows app name aliases — maps what the user says to what Windows knows
+# Built-in aliases for common apps / system commands
 # ---------------------------------------------------------------------------
-WINDOWS_APP_ALIASES = {
-    # Browsers
+BUILTIN_ALIASES = {
     "chrome": "chrome",
     "google chrome": "chrome",
     "edge": "msedge",
     "microsoft edge": "msedge",
     "firefox": "firefox",
     "brave": "brave",
-    # Microsoft Office
     "word": "winword",
     "excel": "excel",
     "powerpoint": "powerpnt",
@@ -39,7 +38,6 @@ WINDOWS_APP_ALIASES = {
     "notepad": "notepad",
     "paint": "mspaint",
     "calculator": "calc",
-    # System
     "file explorer": "explorer",
     "explorer": "explorer",
     "task manager": "taskmgr",
@@ -48,40 +46,37 @@ WINDOWS_APP_ALIASES = {
     "cmd": "cmd",
     "command prompt": "cmd",
     "powershell": "powershell",
-    # Games / launchers
     "steam": "steam",
-    "epic games": "epicgameslauncher",
-    "epic": "epicgameslauncher",
-    "roblox": "roblox",
-    "minecraft": "minecraft",
     "discord": "discord",
     "spotify": "spotify",
-    "vlc": "vlc",
     "obs": "obs64",
+    "vlc": "vlc",
+    "roblox": "roblox",
+    "minecraft": "minecraft",
+    "epic": "epicgameslauncher",
+    "epic games": "epicgameslauncher",
+    "epicgames": "epicgameslauncher",
+    "epic games launcher": "epicgameslauncher",
+    "tiktok": "tiktok live studio",
+    "tiktok live": "tiktok live studio",
+    "tiktok studio": "tiktok live studio",
+    "tiktok live studio": "tiktok live studio",
+    "snipping tool": "snippingtool",
+    "snip": "snippingtool",
+    "wordpad": "wordpad",
+    "media player": "wmplayer",
+    "windows media player": "wmplayer",
+    "skype": "skype",
+    "teams": "msteams",
+    "microsoft teams": "msteams",
+    "zoom": "zoom",
+    "slack": "slack",
+    "telegram": "telegram",
+    "whatsapp": "whatsapp",
+    "itunes": "itunes",
 }
 
-# Common install paths for games/apps Windows can't find via PATH
-WINDOWS_APP_PATHS = {
-    "steam": [
-        r"C:\Program Files (x86)\Steam\steam.exe",
-        r"C:\Program Files\Steam\steam.exe",
-    ],
-    "epicgameslauncher": [
-        r"C:\Program Files (x86)\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe",
-        r"C:\Program Files\Epic Games\Launcher\Portal\Binaries\Win64\EpicGamesLauncher.exe",
-    ],
-    "discord": [
-        str(Path.home() / "AppData" / "Local" / "Discord" / "Update.exe"),
-    ],
-    "spotify": [
-        str(Path.home() / "AppData" / "Roaming" / "Spotify" / "Spotify.exe"),
-    ],
-    "roblox": [
-        str(Path.home() / "AppData" / "Local" / "Roblox" / "Versions"),
-    ],
-}
-
-# Websites triggered by name
+# Websites opened in browser by name
 WEBSITE_SHORTCUTS = {
     "youtube": "https://www.youtube.com",
     "google": "https://www.google.com",
@@ -97,28 +92,195 @@ WEBSITE_SHORTCUTS = {
     "github": "https://www.github.com",
     "chatgpt": "https://chat.openai.com",
     "claude": "https://claude.ai",
+    "tiktok website": "https://www.tiktok.com",
+    "hulu": "https://www.hulu.com",
+    "disney plus": "https://www.disneyplus.com",
+    "disney+": "https://www.disneyplus.com",
+    "crunchyroll": "https://www.crunchyroll.com",
+    "pornhub": "https://www.pornhub.com",
 }
 
+# ---------------------------------------------------------------------------
+# Dynamic app index — scans Start Menu shortcuts to find every installed app
+# ---------------------------------------------------------------------------
+_app_index: dict[str, str] = {}  # lowercase name -> full exe path
+_app_index_built = False
 
-def _find_windows_app(name: str) -> str | None:
-    """Find executable path for a Windows app."""
-    alias = WINDOWS_APP_ALIASES.get(name.lower(), name.lower())
-    # Check known paths
-    if alias in WINDOWS_APP_PATHS:
-        for path in WINDOWS_APP_PATHS[alias]:
-            p = Path(path)
-            if p.exists():
-                return str(p)
-            # For folders (like Roblox), find exe inside
-            if p.is_dir():
-                exes = list(p.glob("*.exe"))
-                if exes:
-                    return str(exes[0])
-    return alias  # fallback: hope it's in PATH
+
+def _build_app_index() -> dict[str, str]:
+    """Scan Windows Start Menu shortcuts to find all installed apps."""
+    global _app_index_built
+    if not IS_WINDOWS:
+        return {}
+
+    index: dict[str, str] = {}
+
+    # Start Menu locations
+    start_menu_dirs = [
+        Path(os.environ.get("ProgramData", "C:/ProgramData")) / "Microsoft/Windows/Start Menu/Programs",
+        Path(os.environ.get("APPDATA", "")) / "Microsoft/Windows/Start Menu/Programs",
+    ]
+
+    def _resolve_lnk(lnk_path: Path) -> str | None:
+        """Resolve a .lnk shortcut to its target exe path using PowerShell."""
+        try:
+            result = subprocess.run(
+                ["powershell", "-Command",
+                 f"(New-Object -ComObject WScript.Shell).CreateShortcut('{lnk_path}').TargetPath"],
+                capture_output=True, text=True, timeout=3
+            )
+            target = result.stdout.strip()
+            if target and Path(target).exists():
+                return target
+        except Exception:
+            pass
+        return None
+
+    for start_dir in start_menu_dirs:
+        if not start_dir.exists():
+            continue
+        for lnk in start_dir.rglob("*.lnk"):
+            name = lnk.stem.lower().strip()
+            if not name or name in ("uninstall", "readme", "help", "changelog"):
+                continue
+            target = _resolve_lnk(lnk)
+            if target:
+                index[name] = target
+                # Also index without common suffixes
+                for suffix in [" - shortcut", " launcher", " client", " app"]:
+                    if name.endswith(suffix):
+                        index[name[:-len(suffix)]] = target
+
+    # Also search common install directories directly
+    search_dirs = [
+        Path("C:/Program Files"),
+        Path("C:/Program Files (x86)"),
+        Path(os.environ.get("LOCALAPPDATA", "")),
+        Path(os.environ.get("APPDATA", "")),
+    ]
+
+    # Specific known executables to look for
+    known_exes = {
+        "epicgameslauncher": ["Epic Games/Launcher/Portal/Binaries/Win64/EpicGamesLauncher.exe",
+                               "Epic Games/Launcher/Portal/Binaries/Win32/EpicGamesLauncher.exe"],
+        "tiktok live studio": ["TikTok LIVE Studio/TikTok LIVE Studio.exe",
+                                "Programs/TikTok LIVE Studio/TikTok LIVE Studio.exe"],
+        "steam": ["Steam/steam.exe"],
+        "discord": ["Discord/Update.exe", "Discord/app-*/Discord.exe"],
+        "spotify": ["Spotify/Spotify.exe"],
+    }
+
+    for exe_name, paths in known_exes.items():
+        for search_base in search_dirs:
+            for rel_path in paths:
+                if "*" in rel_path:
+                    matches = list(search_base.glob(rel_path))
+                    if matches:
+                        index[exe_name] = str(matches[-1])
+                        break
+                else:
+                    full = search_base / rel_path
+                    if full.exists():
+                        index[exe_name] = str(full)
+                        break
+
+    _app_index_built = True
+    log.info(f"App index built: {len(index)} apps found")
+    return index
+
+
+def _get_app_index() -> dict[str, str]:
+    global _app_index, _app_index_built
+    if not _app_index_built:
+        _app_index = _build_app_index()
+    return _app_index
+
+
+def _fuzzy_find_app(name: str) -> tuple[str | None, str | None]:
+    """Find best matching app for a given name.
+
+    Returns (display_name, exe_path_or_command).
+    """
+    name_lower = name.lower().strip()
+
+    # 1. Check built-in aliases first
+    if name_lower in BUILTIN_ALIASES:
+        return name, BUILTIN_ALIASES[name_lower]
+
+    # 2. Check dynamic index — exact match
+    index = _get_app_index()
+    if name_lower in index:
+        return name, index[name_lower]
+
+    # 3. Partial match in index
+    matches = [(k, v) for k, v in index.items() if name_lower in k or k in name_lower]
+    if matches:
+        # Pick longest key match (most specific)
+        matches.sort(key=lambda x: len(x[0]), reverse=True)
+        return matches[0][0].title(), matches[0][1]
+
+    # 4. Word overlap match
+    name_words = set(name_lower.split())
+    best_score = 0
+    best_match = None
+    for k, v in index.items():
+        k_words = set(k.split())
+        overlap = len(name_words & k_words)
+        if overlap > best_score:
+            best_score = overlap
+            best_match = (k, v)
+    if best_match and best_score >= 1:
+        return best_match[0].title(), best_match[1]
+
+    return None, None
+
+
+async def open_app(app_name: str) -> dict:
+    """Open any app or game on Windows or macOS by name."""
+    if IS_WINDOWS:
+        display_name, target = _fuzzy_find_app(app_name)
+
+        if target is None:
+            # Last resort: try running it directly via start command
+            try:
+                subprocess.Popen(["cmd", "/c", "start", "", app_name], shell=False)
+                return {"success": True, "confirmation": f"Trying to open {app_name}, sir."}
+            except Exception:
+                return {"success": False, "confirmation": f"I couldn't find {app_name} on your system, sir. It may not be installed."}
+
+        try:
+            if target.startswith("ms-"):
+                subprocess.Popen(["cmd", "/c", "start", target])
+            elif Path(target).exists():
+                subprocess.Popen([target])
+            else:
+                subprocess.Popen(["cmd", "/c", "start", "", target], shell=False)
+            return {"success": True, "confirmation": f"Opening {display_name or app_name} for you, sir."}
+        except Exception as e:
+            log.error(f"open_app failed for '{app_name}': {e}")
+            return {"success": False, "confirmation": f"I had trouble launching {app_name}, sir."}
+
+    # macOS fallback
+    script = f'tell application "{app_name}"\n    activate\nend tell'
+    proc = await asyncio.create_subprocess_exec(
+        "osascript", "-e", script,
+        stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+    )
+    _, _ = await proc.communicate()
+    success = proc.returncode == 0
+    return {
+        "success": success,
+        "confirmation": f"Opening {app_name}, sir." if success else f"Couldn't open {app_name}, sir.",
+    }
+
+
+async def list_installed_apps() -> list[str]:
+    """Return list of all discovered app names for JARVIS context."""
+    index = _get_app_index()
+    return sorted(index.keys())
 
 
 async def open_terminal(command: str = "") -> dict:
-    """Open a terminal window on Windows or macOS."""
     if IS_WINDOWS:
         try:
             if command:
@@ -130,7 +292,6 @@ async def open_terminal(command: str = "") -> dict:
             log.error(f"open_terminal failed: {e}")
             return {"success": False, "confirmation": "Had trouble opening the terminal, sir."}
 
-    # macOS
     if command:
         escaped = command.replace('"', '\\"')
         script = f'tell application "Terminal"\n    activate\n    do script "{escaped}"\nend tell'
@@ -149,7 +310,6 @@ async def open_terminal(command: str = "") -> dict:
 
 
 async def open_browser(url: str, browser: str = "default") -> dict:
-    """Open a URL in a browser on Windows or macOS."""
     if IS_WINDOWS:
         try:
             browser_lower = browser.lower()
@@ -168,7 +328,6 @@ async def open_browser(url: str, browser: str = "default") -> dict:
             webbrowser.open(url)
             return {"success": True, "confirmation": "Pulled that up for you, sir."}
 
-    # macOS
     escaped_url = url.replace('"', '\\"')
     if browser.lower() == "firefox":
         script = f'tell application "Firefox"\n    activate\n    open location "{escaped_url}"\nend tell'
@@ -186,43 +345,11 @@ async def open_browser(url: str, browser: str = "default") -> dict:
     }
 
 
-async def open_app(app_name: str) -> dict:
-    """Open any app or game on Windows or macOS by name."""
-    if IS_WINDOWS:
-        try:
-            exe = _find_windows_app(app_name)
-            if exe and exe.startswith("ms-"):
-                # Windows Store / Settings URI
-                subprocess.Popen(["cmd", "/c", "start", exe])
-            elif exe and Path(exe).exists():
-                subprocess.Popen([exe])
-            else:
-                subprocess.Popen(["cmd", "/c", "start", exe], shell=True)
-            return {"success": True, "confirmation": f"Opening {app_name} for you, sir."}
-        except Exception as e:
-            log.error(f"open_app failed: {e}")
-            return {"success": False, "confirmation": f"I couldn't find {app_name} on your system, sir."}
-
-    # macOS
-    script = f'tell application "{app_name}"\n    activate\nend tell'
-    proc = await asyncio.create_subprocess_exec(
-        "osascript", "-e", script,
-        stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
-    )
-    _, stderr = await proc.communicate()
-    success = proc.returncode == 0
-    return {
-        "success": success,
-        "confirmation": f"Opening {app_name}, sir." if success else f"Couldn't open {app_name}, sir.",
-    }
-
-
 async def open_chrome(url: str) -> dict:
     return await open_browser(url, "chrome")
 
 
 async def open_claude_in_project(project_dir: str, prompt: str) -> dict:
-    """Open terminal in project directory and run Claude Code."""
     claude_md = Path(project_dir) / "CLAUDE.md"
     claude_md.write_text(f"# Task\n\n{prompt}\n\nBuild this completely. If web app, make index.html work standalone.\n")
 
@@ -256,9 +383,8 @@ async def open_claude_in_project(project_dir: str, prompt: str) -> dict:
 
 
 async def prompt_existing_terminal(project_name: str, prompt: str) -> dict:
-    """Not supported on Windows — always returns graceful fallback."""
     if IS_WINDOWS:
-        return {"success": False, "confirmation": f"Terminal prompting isn't supported on Windows yet, sir."}
+        return {"success": False, "confirmation": "Terminal prompting isn't supported on Windows yet, sir."}
 
     escaped_name = project_name.replace('"', '\\"')
     escaped_prompt = prompt.replace("\\", "\\\\").replace('"', '\\"')
@@ -305,7 +431,6 @@ return "OK"
 
 
 async def monitor_build(project_dir: str, ws=None, synthesize_fn=None) -> None:
-    """Monitor a Claude Code build for completion."""
     import base64
     output_file = Path(project_dir) / ".jarvis_output.txt"
     start = time.time()
@@ -335,7 +460,6 @@ async def monitor_build(project_dir: str, ws=None, synthesize_fn=None) -> None:
 
 
 async def execute_action(intent: dict, projects: list = None) -> dict:
-    """Route a classified intent to the right action."""
     action = intent.get("action", "chat")
     target = intent.get("target", "")
     target_lower = target.lower().strip()
@@ -351,20 +475,17 @@ async def execute_action(intent: dict, projects: list = None) -> dict:
         return result
 
     elif action == "browse":
-        # Check website shortcuts first
         for keyword, url in WEBSITE_SHORTCUTS.items():
             if keyword in target_lower:
                 result = await open_browser(url)
                 result["project_dir"] = None
                 return result
 
-        # Build URL
         if target.startswith("http://") or target.startswith("https://"):
             url = target
         else:
             url = f"https://www.google.com/search?q={quote(target)}"
 
-        # Detect browser preference
         if "firefox" in target_lower:
             browser = "firefox"
         elif "edge" in target_lower:
