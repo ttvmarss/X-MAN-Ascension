@@ -33,6 +33,8 @@ load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GROQ_API_KEY   = os.getenv("GROQ_API_KEY", "")
 GROQ_API_KEY_2 = os.getenv("GROQ_API_KEY_2", "")
+FISH_API_KEY   = os.getenv("FISH_API_KEY", "")
+FISH_VOICE_ID  = os.getenv("FISH_VOICE_ID", "612b878b113047d9a770c069c8b4fdfe")
 USER_NAME      = os.getenv("USER_NAME", "sir")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [jarvis] %(message)s",
@@ -348,10 +350,33 @@ async def run_actions(actions: list[dict], ws: WebSocket) -> None:
             log.error(f"Action {action['action']} error: {e}")
 
 # ---------------------------------------------------------------------------
-# TTS — edge-tts (free Microsoft voices)
+# TTS — Fish Audio (real JARVIS voice) with edge-tts fallback
 # ---------------------------------------------------------------------------
 
-async def synthesize_speech(text: str) -> Optional[bytes]:
+async def _fish_tts(text: str) -> Optional[bytes]:
+    """Fish Audio TTS — real JARVIS voice model."""
+    if not FISH_API_KEY:
+        return None
+    try:
+        body = {"text": text, "reference_id": FISH_VOICE_ID,
+                "format": "mp3", "latency": "normal"}
+        headers = {"Authorization": f"Bearer {FISH_API_KEY}",
+                   "Content-Type": "application/json"}
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.post(
+                "https://api.fish.audio/v1/tts",
+                headers=headers, json=body
+            )
+        if resp.status_code == 200:
+            return resp.content
+        log.warning(f"Fish Audio status {resp.status_code}, falling back to edge-tts")
+    except Exception as e:
+        log.warning(f"Fish Audio failed: {e}, falling back to edge-tts")
+    return None
+
+
+async def _edge_tts(text: str) -> Optional[bytes]:
+    """edge-tts fallback — free Microsoft British voice."""
     try:
         import edge_tts
         communicate = edge_tts.Communicate(text, "en-GB-RyanNeural")
@@ -363,8 +388,16 @@ async def synthesize_speech(text: str) -> Optional[bytes]:
         os.unlink(tmp)
         return audio
     except Exception as e:
-        log.error(f"TTS error: {e}")
+        log.error(f"edge-tts error: {e}")
         return None
+
+
+async def synthesize_speech(text: str) -> Optional[bytes]:
+    """Try Fish Audio first (real JARVIS voice), fall back to edge-tts."""
+    audio = await _fish_tts(text)
+    if audio:
+        return audio
+    return await _edge_tts(text)
 
 # ---------------------------------------------------------------------------
 # Warm up pyautogui at startup (eliminates first-use lag)
