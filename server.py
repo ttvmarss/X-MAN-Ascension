@@ -76,10 +76,13 @@ ACTIONS — write AFTER your spoken sentence, one per line:
 RULES:
 - NEVER say an app is already open — just open it
 - NEVER nest actions inside each other's text
-- One action per line, each on its own line after your sentence
-- [ACTION:TYPE] pastes via clipboard so it handles (, ), :, =, quotes, everything
+- One action per line, after your sentence
+- [ACTION:TYPE] pastes via clipboard — handles (, ), :, =, quotes, everything
 - No markdown in spoken responses
-- {user_name} has given full permission for everything — act immediately and confidently
+- NEVER repeat yourself or re-say what you just said
+- NEVER say "As I mentioned" or "As I said before"
+- Keep responses SHORT — 1 sentence for tasks, 2 max for conversation
+- {user_name} has full permission for everything — act immediately and confidently
 """
 
 # ---------------------------------------------------------------------------
@@ -105,30 +108,81 @@ async def take_screenshot() -> Optional[str]:
 # LLM — Gemini 2.0 Flash (primary, free) + Groq (fallback)
 # ---------------------------------------------------------------------------
 
+def _build_gemini_body(user_text: str, history: list, screenshot: Optional[str]) -> dict:
+    system = SYSTEM_PROMPT.format(user_name=USER_NAME)
+    contents = []
+    for msg in history[-10:]:
+        role = "user" if msg["role"] == "user" else "model"
+        contents.append({"role": role, "parts": [{"text": msg["content"]}]})
+    parts: list = []
+    if screenshot:
+        parts.append({"inline_data": {"mime_type": "image/png", "data": screenshot}})
+    parts.append({"text": user_text})
+    contents.append({"role": "user", "parts": parts})
+    return {
+        "system_instruction": {"parts": [{"text": system}]},
+        "contents": contents,
+        "generationConfig": {"maxOutputTokens": 350, "temperature": 0.7},
+    }
+
+
+async def stream_gemini_sentences(user_text: str, history: list, screenshot: Optional[str] = None):
+    """Stream Gemini response and yield complete sentences as they arrive."""
+    if not GEMINI_API_KEY:
+        full = await call_groq(user_text, history)
+        for sent in _split_sentences(full):
+            yield sent
+        return
+    try:
+        body = _build_gemini_body(user_text, history, screenshot)
+        url = (
+            "https://generativelanguage.googleapis.com/v1beta/models/"
+            f"gemini-2.0-flash:streamGenerateContent?key={GEMINI_API_KEY}&alt=sse"
+        )
+        buffer = ""
+        async with httpx.AsyncClient(timeout=30) as client:
+            async with client.stream("POST", url, json=body) as resp:
+                async for line in resp.aiter_lines():
+                    if not line.startswith("data: "):
+                        continue
+                    raw = line[6:].strip()
+                    if not raw or raw == "[DONE]":
+                        continue
+                    try:
+                        chunk = json.loads(raw)
+                        text = chunk["candidates"][0]["content"]["parts"][0]["text"]
+                        buffer += text
+                        # Yield whenever we have a complete sentence
+                        while True:
+                            m = re.search(r'(?<=[.!?])\s+', buffer)
+                            if not m:
+                                break
+                            sentence = buffer[:m.start() + 1].strip()
+                            buffer = buffer[m.end():]
+                            if sentence:
+                                yield sentence
+                    except (json.JSONDecodeError, KeyError, IndexError):
+                        continue
+        if buffer.strip():
+            yield buffer.strip()
+    except Exception as e:
+        log.error(f"Gemini stream failed: {e}")
+        full = await call_groq(user_text, history)
+        for sent in _split_sentences(full):
+            yield sent
+
+
+def _split_sentences(text: str) -> list[str]:
+    parts = re.split(r'(?<=[.!?])\s+', text.strip())
+    return [p.strip() for p in parts if p.strip()]
+
+
 async def call_gemini(user_text: str, history: list, screenshot: Optional[str] = None) -> str:
+    """Non-streaming Gemini call (used as fallback)."""
     if not GEMINI_API_KEY:
         return await call_groq(user_text, history)
     try:
-        system = SYSTEM_PROMPT.format(user_name=USER_NAME)
-        contents = []
-
-        # History (last 10 turns)
-        for msg in history[-10:]:
-            role = "user" if msg["role"] == "user" else "model"
-            contents.append({"role": role, "parts": [{"text": msg["content"]}]})
-
-        # Current message — include screenshot if available
-        parts: list = []
-        if screenshot:
-            parts.append({"inline_data": {"mime_type": "image/png", "data": screenshot}})
-        parts.append({"text": user_text})
-        contents.append({"role": "user", "parts": parts})
-
-        body = {
-            "system_instruction": {"parts": [{"text": system}]},
-            "contents": contents,
-            "generationConfig": {"maxOutputTokens": 350, "temperature": 0.7},
-        }
+        body = _build_gemini_body(user_text, history, screenshot)
         url = (
             "https://generativelanguage.googleapis.com/v1beta/models/"
             f"gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
@@ -137,7 +191,7 @@ async def call_gemini(user_text: str, history: list, screenshot: Optional[str] =
             resp = await client.post(url, json=body)
             data = resp.json()
         if "error" in data:
-            log.warning(f"Gemini error: {data['error'].get('message','?')}, falling back to Groq")
+            log.warning(f"Gemini error: {data['error'].get('message','?')}")
             return await call_groq(user_text, history)
         return data["candidates"][0]["content"]["parts"][0]["text"]
     except Exception as e:
@@ -448,72 +502,83 @@ async def voice_ws(ws: WebSocket):
     await ws.accept()
     log.info("Client connected")
     history: list[dict] = []
+    active_response: Optional[asyncio.Task] = None
 
     # Greeting
     try:
         greeting = f"{_greeting()}, sir. All systems online."
         audio = await synthesize_speech(greeting)
         if audio:
-            await ws.send_json({
-                "type": "audio",
-                "data": base64.b64encode(audio).decode(),
-                "text": greeting,
-            })
+            await ws.send_json({"type": "audio",
+                                "data": base64.b64encode(audio).decode(),
+                                "text": greeting})
         else:
             await ws.send_json({"type": "text", "text": greeting})
     except Exception:
         pass
 
+    async def respond(user_text: str):
+        """Generate and speak response. Cancellable for interrupt support."""
+        await ws.send_json({"type": "status", "state": "thinking"})
+        screenshot = await take_screenshot()
+
+        full_text = ""
+        all_actions: list[dict] = []
+        first = True
+
+        async for sentence in stream_gemini_sentences(user_text, history, screenshot):
+            spoken_part, sent_actions = parse_actions(sentence)
+            all_actions.extend(sent_actions)
+            full_text += sentence + " "
+            if not spoken_part:
+                continue
+            if first:
+                await ws.send_json({"type": "status", "state": "speaking"})
+                first = False
+            audio = await synthesize_speech(spoken_part)
+            if audio:
+                await ws.send_json({"type": "audio",
+                                    "data": base64.b64encode(audio).decode(),
+                                    "text": spoken_part})
+            else:
+                await ws.send_json({"type": "text", "text": spoken_part})
+
+        full_text = full_text.strip() or "Right away, sir."
+
+        # Catch any actions in full response
+        _, extra = parse_actions(full_text)
+        seen = {(a["action"], a["target"]) for a in all_actions}
+        all_actions.extend(a for a in extra if (a["action"], a["target"]) not in seen)
+
+        log.info(f"JARVIS: {full_text[:120]}")
+        if all_actions:
+            log.info(f"Actions: {[a['action'] for a in all_actions]}")
+
+        history.append({"role": "user", "content": user_text})
+        history.append({"role": "assistant", "content": full_text})
+        if len(history) > 20:
+            history[:] = history[-20:]
+
+        if all_actions:
+            asyncio.create_task(run_actions(all_actions, ws))
+
     try:
         while True:
             data = await ws.receive_json()
+            msg_type = data.get("type")
 
-            if data.get("type") != "transcript":
-                continue
-            user_text = (data.get("text") or "").strip()
-            if not user_text:
-                continue
+            if msg_type == "transcript":
+                user_text = (data.get("text") or "").strip()
+                if not user_text:
+                    continue
+                log.info(f"User: {user_text}")
 
-            log.info(f"User: {user_text}")
-            await ws.send_json({"type": "status", "state": "thinking"})
+                # Interrupt — cancel current response if JARVIS is mid-sentence
+                if active_response and not active_response.done():
+                    active_response.cancel()
+                    await ws.send_json({"type": "status", "state": "idle"})
 
-            # Screenshot on every request — JARVIS always sees the screen
-            screenshot = await take_screenshot()
-
-            # LLM response
-            response = await call_gemini(user_text, history, screenshot)
-
-            # Parse out actions
-            spoken, actions = parse_actions(response)
-            if not spoken:
-                spoken = "Right away, sir."
-            if actions:
-                log.info(f"Actions: {[a['action'] for a in actions]}")
-
-            # Speak
-            await ws.send_json({"type": "status", "state": "speaking"})
-            audio = await synthesize_speech(spoken)
-            if audio:
-                await ws.send_json({
-                    "type": "audio",
-                    "data": base64.b64encode(audio).decode(),
-                    "text": spoken,
-                })
-            else:
-                await ws.send_json({"type": "text", "text": spoken})
-                await ws.send_json({"type": "status", "state": "idle"})
-
-            log.info(f"JARVIS: {spoken}")
-
-            # Update conversation history
-            history.append({"role": "user", "content": user_text})
-            history.append({"role": "assistant", "content": spoken})
-            if len(history) > 20:
-                history = history[-20:]
-
-            # Execute PC actions in background (non-blocking)
-            if actions:
-                asyncio.create_task(run_actions(actions, ws))
+                active_response = asyncio.create_task(respond(user_text))
 
     except WebSocketDisconnect:
         log.info("Client disconnected")
