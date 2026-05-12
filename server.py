@@ -64,6 +64,7 @@ log = logging.getLogger("jarvis")
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GROQ_API_KEY_2 = os.getenv("GROQ_API_KEY_2", "")
 USER_NAME = os.getenv("USER_NAME", "sir")
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -1040,18 +1041,24 @@ async def generate_response(
     try:
         import httpx as _hx
         _url = "https://api.groq.com/openai/v1/chat/completions"
-        _headers = {"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"}
         _msgs = [{"role": "system", "content": system}]
         for _m in messages:
             _msgs.append({"role": _m["role"], "content": _m["content"]})
         _body = {"model": "llama-3.3-70b-versatile", "messages": _msgs, "max_tokens": 300, "temperature": 0.7}
-        async with _hx.AsyncClient(timeout=30) as _hc:
-            _resp = await _hc.post(_url, headers=_headers, json=_body)
-            _data = _resp.json()
-            if "error" in _data:
-                log.error(f"Groq error: {_data['error']}")
-                return "Apologies, sir. I'm having trouble connecting to my language systems."
-            return _data["choices"][0]["message"]["content"]
+        for _key in [k for k in [GROQ_API_KEY, GROQ_API_KEY_2] if k]:
+            _headers = {"Authorization": f"Bearer {_key}", "Content-Type": "application/json"}
+            async with _hx.AsyncClient(timeout=30) as _hc:
+                _resp = await _hc.post(_url, headers=_headers, json=_body)
+                _data = _resp.json()
+                if "error" in _data:
+                    _code = _data["error"].get("code", "") if isinstance(_data["error"], dict) else ""
+                    if _code == "rate_limit_exceeded" and GROQ_API_KEY_2 and _key == GROQ_API_KEY:
+                        log.warning("Groq key 1 rate limited, trying key 2...")
+                        continue
+                    log.error(f"Groq error: {_data['error']}")
+                    return "Apologies, sir. I'm having trouble connecting to my language systems."
+                return _data["choices"][0]["message"]["content"]
+        return "Apologies, sir. Both language keys are at their limit. Please try again in a few minutes."
     except Exception as e:
         log.error(f"LLM error: {e}")
         return "Apologies, sir. I'm having trouble connecting to my language systems."
