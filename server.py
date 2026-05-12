@@ -103,6 +103,7 @@ You ARE the JARVIS project at {project_dir} on {user_name}'s computer. Your code
 YOUR CAPABILITIES (these are REAL and ACTIVE — you CAN do all of these RIGHT NOW):
 - You CAN open ANY app on {user_name}'s Windows PC — Chrome, Discord, Spotify, Steam, Epic Games, TikTok LIVE Studio, FeatherClient, Edge, Notepad, Calculator, and more
 - You CAN close ANY running app on {user_name}'s Windows PC
+- You CAN run ANY Windows command using [ACTION:RUN_CMD] — dir, tasklist, ipconfig, shutdown, mkdir, del, start, and any other CMD command
 - You CAN open Google Chrome and browse any URL or search query
 - You CAN open websites — YouTube, Netflix, Twitch, TikTok, Google, and any URL
 - You CAN spawn a terminal/command prompt window
@@ -887,6 +888,26 @@ end tell
         await asyncio.wait_for(proc.communicate(), timeout=5)
     except Exception:
         pass
+
+
+async def _execute_run_cmd(command: str, ws=None):
+    """Run any Windows CMD command and optionally speak the result."""
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            "cmd", "/c", command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=30)
+        output = (stdout.decode(errors="ignore") + stderr.decode(errors="ignore")).strip()
+        log.info(f"CMD [{command}]: {output[:200]}")
+        if ws and output:
+            short = output[:300]
+            audio = await synthesize_speech(f"Done, sir. Output: {short[:150]}" if len(short) > 50 else f"Done, sir. {short}")
+            if audio:
+                await ws.send_json({"type": "audio", "data": base64.b64encode(audio).decode(), "text": short})
+    except Exception as e:
+        log.error(f"CMD error: {e}")
 
 
 async def _execute_open_terminal():
@@ -2255,6 +2276,8 @@ async def voice_handler(ws: WebSocket):
                                     )
                                 elif embedded_action["action"] == "open_terminal":
                                     asyncio.create_task(_execute_open_terminal())
+                                elif embedded_action["action"] == "run_cmd":
+                                    asyncio.create_task(_execute_run_cmd(embedded_action["target"], ws))
                                 elif embedded_action["action"] == "open_app":
                                     asyncio.create_task(_execute_open_app(embedded_action["target"]))
                                 elif embedded_action["action"] == "close_app":
