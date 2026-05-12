@@ -1,75 +1,58 @@
-/**
- * WebSocket client for JARVIS server communication.
- */
-
-export type MessageHandler = (msg: Record<string, unknown>) => void;
-
-export interface JarvisSocket {
-  send(data: Record<string, unknown>): void;
-  onMessage(handler: MessageHandler): void;
-  close(): void;
-  isConnected(): boolean;
-}
-
-export function createSocket(url: string): JarvisSocket {
+export function createSocket(url: string) {
   let ws: WebSocket | null = null;
-  let handlers: MessageHandler[] = [];
-  let reconnectDelay = 1000;
-  let closed = false;
-  let connected = false;
+  let messageHandler: ((msg: Record<string, unknown>) => void) | null = null;
+  let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
   function connect() {
-    if (closed) return;
+    try {
+      ws = new WebSocket(url);
+      ws.binaryType = "arraybuffer";
 
-    ws = new WebSocket(url);
+      ws.onopen = () => {
+        console.log("[ws] connected");
+        if (reconnectTimer) {
+          clearTimeout(reconnectTimer);
+          reconnectTimer = null;
+        }
+      };
 
-    ws.onopen = () => {
-      connected = true;
-      reconnectDelay = 1000;
-      console.log("[ws] connected");
-    };
+      ws.onmessage = (event) => {
+        if (typeof event.data === "string") {
+          try {
+            const msg = JSON.parse(event.data) as Record<string, unknown>;
+            messageHandler?.(msg);
+          } catch (e) {
+            console.error("[ws] bad JSON", e);
+          }
+        }
+      };
 
-    ws.onmessage = (event) => {
-      try {
-        const msg = JSON.parse(event.data);
-        for (const h of handlers) h(msg);
-      } catch {
-        console.warn("[ws] bad message", event.data);
-      }
-    };
+      ws.onclose = () => {
+        console.log("[ws] disconnected, reconnecting in 2s...");
+        reconnectTimer = setTimeout(connect, 2000);
+      };
 
-    ws.onclose = () => {
-      connected = false;
-      if (!closed) {
-        console.log(`[ws] reconnecting in ${reconnectDelay}ms`);
-        setTimeout(connect, reconnectDelay);
-        reconnectDelay = Math.min(reconnectDelay * 2, 30000);
-      }
-    };
-
-    ws.onerror = (err) => {
-      console.error("[ws] error", err);
-      ws?.close();
-    };
+      ws.onerror = (e) => {
+        console.error("[ws] error", e);
+      };
+    } catch (e) {
+      console.error("[ws] connect failed", e);
+      reconnectTimer = setTimeout(connect, 2000);
+    }
   }
 
   connect();
 
   return {
-    send(data) {
-      if (ws?.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify(data));
+    send(msg: Record<string, unknown>) {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(msg));
+      } else {
+        console.warn("[ws] not connected, dropping message", msg);
       }
     },
-    onMessage(handler) {
-      handlers.push(handler);
-    },
-    close() {
-      closed = true;
-      ws?.close();
-    },
-    isConnected() {
-      return connected;
+    onMessage(handler: (msg: Record<string, unknown>) => void) {
+      messageHandler = handler;
     },
   };
 }
