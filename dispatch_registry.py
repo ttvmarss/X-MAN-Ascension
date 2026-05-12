@@ -37,11 +37,18 @@ def init_dispatch_db():
             summary TEXT DEFAULT '',
             created_at REAL NOT NULL,
             updated_at REAL NOT NULL,
-            completed_at REAL
+            completed_at REAL,
+            expired INTEGER DEFAULT 0
         );
         CREATE INDEX IF NOT EXISTS idx_dispatch_status ON dispatches(status);
         CREATE INDEX IF NOT EXISTS idx_dispatch_updated ON dispatches(updated_at DESC);
     """)
+    # Add expired column if upgrading from older schema
+    try:
+        conn.execute("ALTER TABLE dispatches ADD COLUMN expired INTEGER DEFAULT 0")
+        conn.commit()
+    except Exception:
+        pass
     conn.close()
 
 
@@ -54,8 +61,8 @@ class DispatchRegistry:
         conn = _get_db()
         now = time.time()
         cur = conn.execute(
-            "INSERT INTO dispatches (project_name, project_path, original_prompt, status, created_at, updated_at) "
-            "VALUES (?, ?, ?, 'pending', ?, ?)",
+            "INSERT INTO dispatches (project_name, project_path, original_prompt, status, created_at, updated_at, expired) "
+            "VALUES (?, ?, ?, 'pending', ?, ?, 0)",
             (project_name, project_path, prompt, now, now)
         )
         dispatch_id = cur.lastrowid
@@ -84,6 +91,14 @@ class DispatchRegistry:
             )
         conn.commit()
         conn.close()
+
+    def expire(self, dispatch_id: int):
+        """Mark a dispatch as expired so it won't be returned by get_recent_for_project again."""
+        conn = _get_db()
+        conn.execute("UPDATE dispatches SET expired=1 WHERE id=?", (dispatch_id,))
+        conn.commit()
+        conn.close()
+        log.info(f"Expired dispatch #{dispatch_id}")
 
     def get_most_recent(self) -> dict | None:
         """Get the most recently updated dispatch."""
@@ -114,13 +129,13 @@ class DispatchRegistry:
         conn.close()
         return dict(row) if row else None
 
-    def get_recent_for_project(self, project_name: str, max_age_seconds: int = 300) -> dict | None:
-        """Return the most recent completed dispatch for a project if within max_age."""
+    def get_recent_for_project(self, project_name: str, max_age_seconds: int = 60) -> dict | None:
+        """Return the most recent completed dispatch for a project if within max_age and not expired."""
         conn = _get_db()
         cutoff = time.time() - max_age_seconds
         row = conn.execute(
             "SELECT * FROM dispatches WHERE project_name LIKE ? AND status = 'completed' "
-            "AND completed_at IS NOT NULL AND completed_at >= ? "
+            "AND completed_at IS NOT NULL AND completed_at >= ? AND expired = 0 "
             "ORDER BY completed_at DESC LIMIT 1",
             (f"%{project_name}%", cutoff)
         ).fetchone()
@@ -128,10 +143,10 @@ class DispatchRegistry:
         return dict(row) if row else None
 
     def get_recent(self, limit: int = 5) -> list[dict]:
-        """Get last N dispatches."""
+        """Get last N non-expired dispatches."""
         conn = _get_db()
         rows = conn.execute(
-            "SELECT * FROM dispatches ORDER BY updated_at DESC LIMIT ?", (limit,)
+            "SELECT * FROM dispatches WHERE expired = 0 ORDER BY updated_at DESC LIMIT ?", (limit,)
         ).fetchall()
         conn.close()
         return [dict(r) for r in rows]
