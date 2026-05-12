@@ -296,9 +296,81 @@ body {
 }
 .panel button:active { transform: translateY(1px); }
 .divider { border: none; border-top: 1px solid rgba(0, 234, 255, 0.1); margin: 16px 0; }
+
+/* ── PERMISSION GATE (first-tap overlay) ── */
+.gate {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at center, rgba(0, 30, 50, 0.95) 0%, rgba(0, 0, 0, 0.98) 70%);
+  backdrop-filter: blur(8px);
+  z-index: 200;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+}
+.gate.hidden { display: none; }
+.gate-logo {
+  font-weight: 200; letter-spacing: 16px;
+  font-size: 32px; color: #00eaff;
+  text-shadow: 0 0 30px rgba(0, 234, 255, 0.8);
+  margin-bottom: 18px; padding-left: 16px;
+  animation: gatePulse 2.5s ease-in-out infinite;
+}
+@keyframes gatePulse {
+  0%, 100% { text-shadow: 0 0 20px rgba(0, 234, 255, 0.6); opacity: 0.85; }
+  50%      { text-shadow: 0 0 40px rgba(0, 234, 255, 1.0); opacity: 1; }
+}
+.gate-sub {
+  color: #cfe8ff; font-size: 16px; max-width: 360px;
+  line-height: 1.5; margin-bottom: 28px; opacity: 0.85;
+}
+.gate-btn {
+  background: rgba(0, 234, 255, 0.15);
+  border: 1px solid rgba(0, 234, 255, 0.5);
+  color: #00eaff; font-size: 14px;
+  letter-spacing: 3px; padding: 16px 38px;
+  border-radius: 30px; cursor: pointer;
+  box-shadow: 0 0 30px rgba(0, 234, 255, 0.25);
+  transition: transform 0.1s, background 0.15s;
+}
+.gate-btn:active { transform: scale(0.96); background: rgba(0, 234, 255, 0.25); }
+.gate-help {
+  margin-top: 28px; max-width: 380px;
+  color: #5a7a98; font-size: 12px; line-height: 1.6;
+}
+.gate-help b { color: #8aaadc; }
+.gate-help code {
+  background: rgba(0, 234, 255, 0.08);
+  border: 1px solid rgba(0, 234, 255, 0.2);
+  padding: 1px 6px; border-radius: 4px;
+  color: #00eaff; font-size: 11px;
+}
+.gate-warn {
+  margin-top: 18px; padding: 12px 16px;
+  background: rgba(255, 100, 60, 0.1);
+  border: 1px solid rgba(255, 100, 60, 0.3);
+  border-radius: 10px; max-width: 380px;
+  color: #ffaa90; font-size: 12px; line-height: 1.5;
+  display: none;
+}
+.gate-warn.show { display: block; }
 </style>
 </head>
 <body>
+
+<!-- ── PERMISSION GATE ── -->
+<div id="gate" class="gate">
+  <div class="gate-logo">JARVIS</div>
+  <div class="gate-sub">Tap to begin — I'll need microphone access to hear you.</div>
+  <button id="gateBtn" class="gate-btn">ENGAGE</button>
+  <div id="gateWarn" class="gate-warn"></div>
+  <div class="gate-help">
+    <b>iPhone Safari:</b> When prompted, tap <code>Allow</code>. If you accidentally blocked it, go to <code>Settings → Safari → Microphone → Allow</code>, then refresh.
+    <br><br>
+    <b>Windows Chrome / Edge:</b> Click <code>Allow</code> on the popup. To re-enable later, click the lock icon in the address bar.
+  </div>
+</div>
 
 <canvas id="orb-canvas"></canvas>
 
@@ -1234,19 +1306,88 @@ document.addEventListener('keydown', e => {
 });
 
 /* ════════════════════════════════════════════════════
-   BOOT
+   PERMISSION GATE — must run on user gesture for iOS Safari
 ════════════════════════════════════════════════════ */
-initOrb();
-animate(0);
+const gateEl  = document.getElementById('gate');
+const gateBtn = document.getElementById('gateBtn');
+const gateWarn= document.getElementById('gateWarn');
 
-setTimeout(() => {
-  setState('idle');
-}, 800);
-
-// One-time greeting when settings exist
-if (S.name || S.provider !== 'none') {
-  setTimeout(() => { speak(greeting()); }, 1200);
+function isSecureContextOk() {
+  // mic only works on https:// or localhost
+  return window.isSecureContext ||
+         location.hostname === 'localhost' ||
+         location.hostname === '127.0.0.1' ||
+         location.protocol === 'https:';
 }
+
+function detectInsecure() {
+  if (!isSecureContextOk()) {
+    const isFile = location.protocol === 'file:';
+    gateWarn.innerHTML = isFile
+      ? '⚠️ Opened as a local file. Browsers block microphone access on <code>file://</code>. Host this page on <b>GitHub Pages</b> (free HTTPS) or any HTTPS server to enable voice.'
+      : '⚠️ Insecure connection. Browsers only allow microphone access on <b>HTTPS</b>. Reload via <code>https://</code> to enable voice.';
+    gateWarn.classList.add('show');
+    return false;
+  }
+  return true;
+}
+
+async function engageJarvis() {
+  gateBtn.disabled = true;
+  gateBtn.textContent = 'STARTING…';
+
+  // 1) Unlock TTS — iOS Safari requires speech to be triggered on user gesture
+  try {
+    const unlock = new SpeechSynthesisUtterance(' ');
+    unlock.volume = 0;
+    window.speechSynthesis.speak(unlock);
+  } catch {}
+
+  // 2) Request mic permission via getUserMedia — this triggers Safari's prompt
+  let micGranted = false;
+  if (isSecureContextOk()) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Permission granted — release tracks (SpeechRecognition will create its own)
+      stream.getTracks().forEach(t => t.stop());
+      micGranted = true;
+    } catch (err) {
+      gateBtn.disabled = false;
+      gateBtn.textContent = 'TRY AGAIN';
+      const isDenied = /denied|not.?allowed|permission/i.test(String(err.name || err.message || ''));
+      gateWarn.innerHTML = isDenied
+        ? '🎤 Microphone permission was denied.<br>On iPhone: <code>Settings → Safari → Microphone → Allow</code> then refresh.<br>On desktop: click the lock icon in the address bar and allow microphone.'
+        : '🎤 Could not access microphone: ' + (err.message || err.name);
+      gateWarn.classList.add('show');
+      return;
+    }
+  }
+
+  // 3) Hide gate, start the orb experience
+  gateEl.classList.add('hidden');
+  initOrb();
+  animate(0);
+  setState('idle');
+
+  // 4) Welcome message
+  setTimeout(() => {
+    const msg = (S.name || S.provider !== 'none')
+      ? greeting()
+      : (micGranted ? "I'm ready. Tap the orb or press Space to talk to me." : "I'm ready. Use the text input to chat.");
+    speak(msg);
+  }, 500);
+
+  // 5) If permission granted, auto-start listening on first engage
+  if (micGranted && S.wake) {
+    setTimeout(() => { if (!wantListen) startRec(); }, 1800);
+  }
+}
+
+gateBtn.addEventListener('click', engageJarvis);
+gateEl.addEventListener('click', e => { if (e.target === gateEl) engageJarvis(); });
+
+// Show HTTPS warning immediately if applicable
+detectInsecure();
 
 })();
 </script>
