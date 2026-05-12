@@ -105,12 +105,17 @@ Right away, sir.
 [ACTION:TYPE] python code here
 
 RULES:
-- {user_name} has given FULL permission. Execute ALL actions confidently.
+- {user_name} has given FULL permission for EVERYTHING. Mouse, keyboard, screen, all apps.
+- NEVER say an app "is already open" — just open it. Always use [ACTION:OPEN_APP].
+- NEVER guess what's on screen — use [ACTION:SCREEN] to actually look first.
 - NEVER nest actions inside another action's target text.
 - Each [ACTION:X] must be on its own line after the spoken sentence.
-- [ACTION:TYPE] pastes via clipboard — it handles ALL characters including (, ), :, =, etc.
-- For VS Code: use [ACTION:HOTKEY] ctrl,n for new file, ctrl,shift,grave for terminal.
-- Do NOT narrate actions. Speak one sentence, then list the action tags.
+- [ACTION:TYPE] pastes via clipboard — handles ALL characters (, ), :, =, quotes, etc.
+- [ACTION:CLICK] clicks the mouse at exact screen coordinates.
+- [ACTION:HOTKEY] presses keyboard shortcuts instantly.
+- For VS Code new file: [ACTION:HOTKEY] ctrl,n
+- For VS Code terminal: [ACTION:HOTKEY] ctrl,shift,grave
+- Do NOT narrate actions. Speak one short sentence, then list the action tags.
 - No markdown in responses.
 
 CONTEXT:
@@ -1676,10 +1681,62 @@ async def _do_mail_lookup() -> str:
     return "Couldn't reach Mail at the moment, sir."
 
 
+async def _groq_describe_screen(screenshot_b64: str) -> str:
+    """Use Groq vision model to describe the screen."""
+    try:
+        import httpx as _hx
+        _url = "https://api.groq.com/openai/v1/chat/completions"
+        _body = {
+            "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+            "max_tokens": 400,
+            "messages": [{
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/png;base64,{screenshot_b64}"},
+                    },
+                    {
+                        "type": "text",
+                        "text": (
+                            "You are analyzing a Windows 10 screenshot. "
+                            "List EXACTLY what apps/windows are visible and open. "
+                            "Note what is in the foreground. "
+                            "Be specific about app names, file names, and any text visible. "
+                            "3 sentences max."
+                        ),
+                    },
+                ],
+            }],
+        }
+        for _key in [k for k in [GROQ_API_KEY, GROQ_API_KEY_2] if k]:
+            _headers = {"Authorization": f"Bearer {_key}", "Content-Type": "application/json"}
+            async with _hx.AsyncClient(timeout=20) as _hc:
+                _resp = await _hc.post(_url, headers=_headers, json=_body)
+                _data = _resp.json()
+                if "error" in _data:
+                    _code = _data["error"].get("code", "") if isinstance(_data["error"], dict) else ""
+                    if _code == "rate_limit_exceeded" and GROQ_API_KEY_2 and _key == GROQ_API_KEY:
+                        continue
+                    log.warning(f"Groq vision error: {_data['error']}")
+                    return ""
+                return _data["choices"][0]["message"]["content"]
+    except Exception as e:
+        log.warning(f"Groq vision failed: {e}")
+    return ""
+
+
 async def _do_screen_lookup() -> str:
-    """Screen describe — runs in thread."""
+    """Screen describe — uses Groq vision or window list fallback."""
     if anthropic_client and anthropic_client is not True:
         return await describe_screen(anthropic_client)
+    # Try Groq vision first
+    screenshot_b64 = await take_screenshot()
+    if screenshot_b64 and (GROQ_API_KEY or GROQ_API_KEY_2):
+        result = await _groq_describe_screen(screenshot_b64)
+        if result:
+            return result
+    # Fallback: window list only
     windows = await get_active_windows()
     if windows:
         apps = set(w["app"] for w in windows)
