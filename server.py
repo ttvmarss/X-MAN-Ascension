@@ -1126,7 +1126,7 @@ async def generate_response(
         _msgs = [{"role": "system", "content": system}]
         for _m in messages:
             _msgs.append({"role": _m["role"], "content": _m["content"]})
-        _body = {"model": "llama-3.3-70b-versatile", "messages": _msgs, "max_tokens": 300, "temperature": 0.7}
+        _body = {"model": "llama-3.1-8b-instant", "messages": _msgs, "max_tokens": 300, "temperature": 0.7}
         for _key in [k for k in [GROQ_API_KEY, GROQ_API_KEY_2] if k]:
             _headers = {"Authorization": f"Bearer {_key}", "Content-Type": "application/json"}
             async with _hx.AsyncClient(timeout=30) as _hc:
