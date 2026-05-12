@@ -107,6 +107,15 @@ BUILTIN_ALIASES = {
     "feather": "featherclient",
     "feather client": "featherclient",
     "featherclient": "featherclient",
+    "visual studio code": "code",
+    "vs code": "code",
+    "vscode": "code",
+    "vs studio code": "code",
+    "vizio studio": "code",
+    "vizio studio code": "code",
+    "video studio": "code",
+    "video studio code": "code",
+    "studio code": "code",
     "snipping tool": "snippingtool",
     "snip": "snippingtool",
     "wordpad": "wordpad",
@@ -295,6 +304,17 @@ def _get_app_index() -> dict[str, str]:
         _app_index = _build_app_index()
         _app_index_built = True
     return _app_index
+
+
+def _warm_app_index():
+    """Build app index in background thread at startup so first open_app is instant."""
+    import threading
+    t = threading.Thread(target=_get_app_index, daemon=True)
+    t.start()
+
+
+# Start building index immediately at import time
+_warm_app_index()
 
 
 def _deep_search_exe(app_name: str) -> str | None:
