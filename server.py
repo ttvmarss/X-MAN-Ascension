@@ -86,23 +86,32 @@ CAPABILITIES — you can do all of these RIGHT NOW:
 - See what's on screen
 - Remember facts about {user_name}
 
-ACTIONS — add at END of response when needed:
+ACTIONS — place at END of response, ONE PER LINE, AFTER spoken text:
 [ACTION:OPEN_APP] AppName — open any app
 [ACTION:CLOSE_APP] AppName — close any app
 [ACTION:BROWSE] url or search — open in Chrome
-[ACTION:SCREEN] — see what's on screen
+[ACTION:SCREEN] — take screenshot to see screen
 [ACTION:RUN_CMD] command — run any Windows CMD command
-[ACTION:CLICK] x,y — click at screen coordinates (use after SCREEN to see coords)
+[ACTION:CLICK] x,y — click at coordinates
 [ACTION:CLICK] double:x,y — double-click
 [ACTION:CLICK] right:x,y — right-click
-[ACTION:TYPE] text — type text into whatever is focused
-[ACTION:HOTKEY] key1,key2 — press keyboard shortcut (e.g. ctrl,c or alt,tab or win,d)
+[ACTION:TYPE] text — type/paste text into whatever is focused (use for code!)
+[ACTION:HOTKEY] key1,key2 — keyboard shortcut (ctrl,c or alt,tab or ctrl,n)
 [ACTION:REMEMBER] fact — remember something about {user_name}
 
-{user_name} has given FULL permission for all actions. Execute confidently.
-Do NOT use [ACTION:BUILD] or [ACTION:PROMPT_PROJECT] — those are disabled.
-Do NOT narrate actions — just speak naturally and add the tag at the end.
-No markdown in responses. Keep it conversational.
+MULTI-ACTION EXAMPLE — to write code in VS Code:
+Right away, sir.
+[ACTION:HOTKEY] ctrl,shift,grave
+[ACTION:TYPE] python code here
+
+RULES:
+- {user_name} has given FULL permission. Execute ALL actions confidently.
+- NEVER nest actions inside another action's target text.
+- Each [ACTION:X] must be on its own line after the spoken sentence.
+- [ACTION:TYPE] pastes via clipboard — it handles ALL characters including (, ), :, =, etc.
+- For VS Code: use [ACTION:HOTKEY] ctrl,n for new file, ctrl,shift,grave for terminal.
+- Do NOT narrate actions. Speak one sentence, then list the action tags.
+- No markdown in responses.
 
 CONTEXT:
 Time: {current_time}
@@ -611,21 +620,29 @@ def strip_markdown_for_tts(text: str) -> str:
 import re as _action_re
 
 
-def extract_action(response: str) -> tuple[str, dict | None]:
-    """Extract [ACTION:X] tag from LLM response.
+_ALL_ACTION_RE = _action_re.compile(
+    r'\[ACTION:(BUILD|BROWSE|RESEARCH|OPEN_TERMINAL|OPEN_APP|CLOSE_APP|PROMPT_PROJECT|'
+    r'ADD_TASK|ADD_NOTE|COMPLETE_TASK|REMEMBER|CREATE_NOTE|READ_NOTE|SCREEN|'
+    r'RUN_CMD|CLICK|TYPE|HOTKEY)\]([ \t]*(.*?))?(?=\[ACTION:|$)',
+    _action_re.DOTALL,
+)
 
-    Returns (clean_text_for_tts, action_dict_or_none).
+
+def extract_action(response: str) -> tuple[str, list[dict]]:
+    """Extract all [ACTION:X] tags from LLM response.
+
+    Returns (clean_text_for_tts, list_of_action_dicts).
     """
-    match = _action_re.search(
-        r'\[ACTION:(BUILD|BROWSE|RESEARCH|OPEN_TERMINAL|OPEN_APP|CLOSE_APP|PROMPT_PROJECT|ADD_TASK|ADD_NOTE|COMPLETE_TASK|REMEMBER|CREATE_NOTE|READ_NOTE|SCREEN)\]\s*(.*?)$',
-        response, _action_re.DOTALL,
-    )
-    if match:
-        action_type = match.group(1).lower()
-        action_target = match.group(2).strip()
-        clean_text = response[:match.start()].strip()
-        return clean_text, {"action": action_type, "target": action_target}
-    return response, None
+    matches = list(_ALL_ACTION_RE.finditer(response))
+    if not matches:
+        return response, []
+    clean_text = response[:matches[0].start()].strip()
+    actions = []
+    for m in matches:
+        action_type = m.group(1).lower()
+        action_target = (m.group(3) or "").strip()
+        actions.append({"action": action_type, "target": action_target})
+    return clean_text, actions
 
 
 async def _execute_build(target: str):
@@ -792,13 +809,23 @@ async def _execute_click(target: str, ws=None):
 
 
 async def _execute_type(text: str, ws=None):
-    """Type text using the keyboard."""
+    """Type text via clipboard paste — handles special chars and code."""
     try:
         import pyautogui
         pyautogui.FAILSAFE = False
         await asyncio.sleep(0.3)
-        pyautogui.typewrite(text, interval=0.05)
-        log.info(f"Typed: {text[:50]}")
+        # Put text in clipboard using PowerShell (handles all Unicode/special chars)
+        escaped = text.replace("'", "''")
+        proc = await asyncio.create_subprocess_exec(
+            "powershell", "-command",
+            f"Set-Clipboard -Value '{escaped}'",
+            stdout=asyncio.subprocess.DEVNULL,
+            stderr=asyncio.subprocess.DEVNULL,
+        )
+        await proc.wait()
+        await asyncio.sleep(0.15)
+        pyautogui.hotkey("ctrl", "v")
+        log.info(f"Typed via clipboard: {text[:60]}")
     except Exception as e:
         log.error(f"Type error: {e}")
 
@@ -1651,7 +1678,7 @@ async def _do_mail_lookup() -> str:
 
 async def _do_screen_lookup() -> str:
     """Screen describe — runs in thread."""
-    if anthropic_client:
+    if anthropic_client and anthropic_client is not True:
         return await describe_screen(anthropic_client)
     windows = await get_active_windows()
     if windows:
@@ -2124,148 +2151,146 @@ async def voice_handler(ws: WebSocket):
                             )
 
                             # Check for action tags embedded in LLM response
-                            clean_response, embedded_action = extract_action(response_text)
-                            if embedded_action:
-                                log.info(f"LLM embedded action: {embedded_action}")
+                            clean_response, embedded_actions = extract_action(response_text)
+                            if embedded_actions:
+                                log.info(f"LLM embedded {len(embedded_actions)} action(s): {[a['action'] for a in embedded_actions]}")
                                 response_text = clean_response
                                 # Ensure there's always something to speak
                                 if not response_text.strip():
-                                    action_type = embedded_action["action"]
-                                    if action_type == "prompt_project":
-                                        proj = embedded_action["target"].split("|||")[0].strip()
+                                    first_action_type = embedded_actions[0]["action"]
+                                    if first_action_type == "prompt_project":
+                                        proj = embedded_actions[0]["target"].split("|||")[0].strip()
                                         response_text = f"Connecting to {proj} now, sir."
-                                    elif action_type == "build":
+                                    elif first_action_type == "build":
                                         response_text = "On it, sir."
-                                    elif action_type == "research":
+                                    elif first_action_type == "research":
                                         response_text = "Looking into that now, sir."
                                     else:
                                         response_text = "Right away, sir."
 
-                                if embedded_action["action"] == "build":
-                                    # Build in background — JARVIS stays conversational
-                                    target = embedded_action["target"]
-                                    name = _generate_project_name(target)
-                                    path = str(Path.home() / "Desktop" / name)
-                                    os.makedirs(path, exist_ok=True)
+                                async def _run_action_sequence(actions, _ws, _work_session, _history, _voice_state):
+                                    for embedded_action in actions:
+                                        try:
+                                            if embedded_action["action"] == "build":
+                                                target = embedded_action["target"]
+                                                name = _generate_project_name(target)
+                                                path = str(Path.home() / "Desktop" / name)
+                                                os.makedirs(path, exist_ok=True)
+                                                Path(path, "CLAUDE.md").write_text(
+                                                    f"# Task\n\n{target}\n\n"
+                                                    "## Instructions\n"
+                                                    "- BUILD THIS NOW. Do not ask clarifying questions.\n"
+                                                    "- Use your best judgment for any design/architecture decisions.\n"
+                                                    "- Write complete, working code files — not plans or specs.\n"
+                                                    "- If it's a web app: use React + Vite + Tailwind unless specified otherwise.\n"
+                                                    "- Make it look polished and professional. Modern UI, clean layout.\n"
+                                                    "- Ensure it runs with a single command (npm run dev or similar).\n"
+                                                    "- If you reference a real product's UI (e.g. 'Zillow clone'), match their actual layout and features closely.\n"
+                                                    "- Use realistic mock data, not placeholder Lorem Ipsum.\n"
+                                                    "- After building, start the dev server and verify the app loads without errors.\n"
+                                                    "- IMPORTANT: Your LAST line of output MUST be exactly: RUNNING_AT=http://localhost:PORT (the actual port the dev server is using)\n"
+                                                )
+                                                did = dispatch_registry.register(name, path, target)
+                                                asyncio.create_task(
+                                                    _execute_prompt_project(name, target, _work_session, _ws, dispatch_id=did, history=_history, voice_state=_voice_state)
+                                                )
+                                            elif embedded_action["action"] == "browse":
+                                                asyncio.create_task(_execute_browse(embedded_action["target"]))
+                                            elif embedded_action["action"] == "research":
+                                                name = _generate_project_name(embedded_action["target"])
+                                                path = str(Path.home() / "Desktop" / name)
+                                                os.makedirs(path, exist_ok=True)
+                                                await _work_session.start(path)
+                                                asyncio.create_task(
+                                                    self_work_and_notify(_work_session, embedded_action["target"], _ws)
+                                                )
+                                            elif embedded_action["action"] == "open_terminal":
+                                                asyncio.create_task(_execute_open_terminal())
+                                            elif embedded_action["action"] == "run_cmd":
+                                                await _execute_run_cmd(embedded_action["target"], _ws)
+                                            elif embedded_action["action"] == "click":
+                                                await _execute_click(embedded_action["target"], _ws)
+                                            elif embedded_action["action"] == "type":
+                                                await _execute_type(embedded_action["target"], _ws)
+                                            elif embedded_action["action"] == "hotkey":
+                                                await _execute_hotkey(embedded_action["target"], _ws)
+                                            elif embedded_action["action"] == "open_app":
+                                                asyncio.create_task(_execute_open_app(embedded_action["target"]))
+                                            elif embedded_action["action"] == "close_app":
+                                                asyncio.create_task(_execute_close_app(embedded_action["target"]))
+                                            elif embedded_action["action"] == "prompt_project":
+                                                target = embedded_action["target"]
+                                                if "|||" in target:
+                                                    proj_name, _, prompt = target.partition("|||")
+                                                    proj_name = proj_name.strip()
+                                                    prompt = prompt.strip()
+                                                    recent = dispatch_registry.get_recent_for_project(proj_name)
+                                                    if recent and recent.get("summary"):
+                                                        log.info(f"Using recent dispatch result for {proj_name}")
+                                                        _history.append({"role": "assistant", "content": f"[Previous dispatch result for {proj_name}]: {recent['summary']}"})
+                                                    else:
+                                                        asyncio.create_task(
+                                                            _execute_prompt_project(proj_name, prompt, _work_session, _ws, history=_history, voice_state=_voice_state)
+                                                        )
+                                                else:
+                                                    log.warning(f"PROMPT_PROJECT missing ||| delimiter: {target}")
+                                            elif embedded_action["action"] == "add_task":
+                                                target = embedded_action["target"]
+                                                parts = target.split("|||")
+                                                if len(parts) >= 2:
+                                                    priority = parts[0].strip() or "medium"
+                                                    title = parts[1].strip()
+                                                    desc = parts[2].strip() if len(parts) > 2 else ""
+                                                    due = parts[3].strip() if len(parts) > 3 else ""
+                                                    create_task(title=title, description=desc, priority=priority, due_date=due)
+                                                    log.info(f"Task created: {title}")
+                                            elif embedded_action["action"] == "add_note":
+                                                target = embedded_action["target"]
+                                                if "|||" in target:
+                                                    topic, _, content = target.partition("|||")
+                                                    create_note(content=content.strip(), topic=topic.strip())
+                                                else:
+                                                    create_note(content=target)
+                                                log.info(f"Note created")
+                                            elif embedded_action["action"] == "complete_task":
+                                                try:
+                                                    task_id = int(embedded_action["target"].strip())
+                                                    complete_task(task_id)
+                                                    log.info(f"Task {task_id} completed")
+                                                except ValueError:
+                                                    pass
+                                            elif embedded_action["action"] == "remember":
+                                                remember(embedded_action["target"].strip(), mem_type="fact", importance=7)
+                                                log.info(f"Memory stored: {embedded_action['target'][:60]}")
+                                            elif embedded_action["action"] == "create_note":
+                                                target = embedded_action["target"]
+                                                if "|||" in target:
+                                                    title, _, body = target.partition("|||")
+                                                    await create_apple_note(title.strip(), body.strip())
+                                                    log.info(f"Apple Note created: {title.strip()}")
+                                                else:
+                                                    await create_apple_note("JARVIS Note", target)
+                                            elif embedded_action["action"] == "screen":
+                                                asyncio.create_task(_lookup_and_report("screen", _do_screen_lookup, _ws, history=_history, voice_state=_voice_state))
+                                            elif embedded_action["action"] == "read_note":
+                                                async def _read_and_report(search_term, __ws):
+                                                    note = await read_note(search_term)
+                                                    if note:
+                                                        msg = f"Sir, your note '{note['title']}' says: {note['body'][:200]}"
+                                                    else:
+                                                        msg = f"Couldn't find a note matching '{search_term}', sir."
+                                                    audio = await synthesize_speech(strip_markdown_for_tts(msg))
+                                                    if audio and __ws:
+                                                        try:
+                                                            await __ws.send_json({"type": "status", "state": "speaking"})
+                                                            await __ws.send_json({"type": "audio", "data": base64.b64encode(audio).decode(), "text": msg})
+                                                        except Exception:
+                                                            pass
+                                                asyncio.create_task(_read_and_report(embedded_action["target"].strip(), _ws))
+                                        except Exception as _ae:
+                                            log.error(f"Action {embedded_action['action']} failed: {_ae}")
 
-                                    # Write detailed CLAUDE.md
-                                    Path(path, "CLAUDE.md").write_text(
-                                        f"# Task\n\n{target}\n\n"
-                                        "## Instructions\n"
-                                        "- BUILD THIS NOW. Do not ask clarifying questions.\n"
-                                        "- Use your best judgment for any design/architecture decisions.\n"
-                                        "- Write complete, working code files — not plans or specs.\n"
-                                        "- If it's a web app: use React + Vite + Tailwind unless specified otherwise.\n"
-                                        "- Make it look polished and professional. Modern UI, clean layout.\n"
-                                        "- Ensure it runs with a single command (npm run dev or similar).\n"
-                                        "- If you reference a real product's UI (e.g. 'Zillow clone'), match their actual layout and features closely.\n"
-                                        "- Use realistic mock data, not placeholder Lorem Ipsum.\n"
-                                        "- After building, start the dev server and verify the app loads without errors.\n"
-                                        "- IMPORTANT: Your LAST line of output MUST be exactly: RUNNING_AT=http://localhost:PORT (the actual port the dev server is using)\n"
-                                    )
-
-                                    # Register and dispatch
-                                    did = dispatch_registry.register(name, path, target)
-                                    asyncio.create_task(
-                                        _execute_prompt_project(name, target, work_session, ws, dispatch_id=did, history=history, voice_state=voice_state)
-                                    )
-                                elif embedded_action["action"] == "browse":
-                                    asyncio.create_task(_execute_browse(embedded_action["target"]))
-                                elif embedded_action["action"] == "research":
-                                    # Research enters work mode too
-                                    name = _generate_project_name(embedded_action["target"])
-                                    path = str(Path.home() / "Desktop" / name)
-                                    os.makedirs(path, exist_ok=True)
-                                    await work_session.start(path)
-                                    asyncio.create_task(
-                                        self_work_and_notify(work_session, embedded_action["target"], ws)
-                                    )
-                                elif embedded_action["action"] == "open_terminal":
-                                    asyncio.create_task(_execute_open_terminal())
-                                elif embedded_action["action"] == "run_cmd":
-                                    asyncio.create_task(_execute_run_cmd(embedded_action["target"], ws))
-                                elif embedded_action["action"] == "click":
-                                    asyncio.create_task(_execute_click(embedded_action["target"], ws))
-                                elif embedded_action["action"] == "type":
-                                    asyncio.create_task(_execute_type(embedded_action["target"], ws))
-                                elif embedded_action["action"] == "hotkey":
-                                    asyncio.create_task(_execute_hotkey(embedded_action["target"], ws))
-                                elif embedded_action["action"] == "open_app":
-                                    asyncio.create_task(_execute_open_app(embedded_action["target"]))
-                                elif embedded_action["action"] == "close_app":
-                                    asyncio.create_task(_execute_close_app(embedded_action["target"]))
-                                elif embedded_action["action"] == "prompt_project":
-                                    target = embedded_action["target"]
-                                    if "|||" in target:
-                                        proj_name, _, prompt = target.partition("|||")
-                                        proj_name = proj_name.strip()
-                                        prompt = prompt.strip()
-                                        # Check for recent completed dispatch before re-dispatching
-                                        recent = dispatch_registry.get_recent_for_project(proj_name)
-                                        if recent and recent.get("summary"):
-                                            log.info(f"Using recent dispatch result for {proj_name} instead of re-dispatching")
-                                            response_text = recent["summary"]
-                                            history.append({"role": "assistant", "content": f"[Previous dispatch result for {proj_name}]: {recent['summary']}"})
-                                        else:
-                                            asyncio.create_task(
-                                                _execute_prompt_project(proj_name, prompt, work_session, ws, history=history, voice_state=voice_state)
-                                            )
-                                    else:
-                                        log.warning(f"PROMPT_PROJECT missing ||| delimiter: {target}")
-                                elif embedded_action["action"] == "add_task":
-                                    target = embedded_action["target"]
-                                    parts = target.split("|||")
-                                    if len(parts) >= 2:
-                                        priority = parts[0].strip() or "medium"
-                                        title = parts[1].strip()
-                                        desc = parts[2].strip() if len(parts) > 2 else ""
-                                        due = parts[3].strip() if len(parts) > 3 else ""
-                                        create_task(title=title, description=desc, priority=priority, due_date=due)
-                                        log.info(f"Task created: {title}")
-                                elif embedded_action["action"] == "add_note":
-                                    target = embedded_action["target"]
-                                    if "|||" in target:
-                                        topic, _, content = target.partition("|||")
-                                        create_note(content=content.strip(), topic=topic.strip())
-                                    else:
-                                        create_note(content=target)
-                                    log.info(f"Note created")
-                                elif embedded_action["action"] == "complete_task":
-                                    try:
-                                        task_id = int(embedded_action["target"].strip())
-                                        complete_task(task_id)
-                                        log.info(f"Task {task_id} completed")
-                                    except ValueError:
-                                        pass
-                                elif embedded_action["action"] == "remember":
-                                    remember(embedded_action["target"].strip(), mem_type="fact", importance=7)
-                                    log.info(f"Memory stored: {embedded_action['target'][:60]}")
-                                elif embedded_action["action"] == "create_note":
-                                    target = embedded_action["target"]
-                                    if "|||" in target:
-                                        title, _, body = target.partition("|||")
-                                        asyncio.create_task(create_apple_note(title.strip(), body.strip()))
-                                        log.info(f"Apple Note created: {title.strip()}")
-                                    else:
-                                        asyncio.create_task(create_apple_note("JARVIS Note", target))
-                                elif embedded_action["action"] == "screen":
-                                    asyncio.create_task(_lookup_and_report("screen", _do_screen_lookup, ws, history=history, voice_state=voice_state))
-                                elif embedded_action["action"] == "read_note":
-                                    # Read note in background and report back
-                                    async def _read_and_report(search_term, _ws):
-                                        note = await read_note(search_term)
-                                        if note:
-                                            msg = f"Sir, your note '{note['title']}' says: {note['body'][:200]}"
-                                        else:
-                                            msg = f"Couldn't find a note matching '{search_term}', sir."
-                                        audio = await synthesize_speech(strip_markdown_for_tts(msg))
-                                        if audio and _ws:
-                                            try:
-                                                await _ws.send_json({"type": "status", "state": "speaking"})
-                                                await _ws.send_json({"type": "audio", "data": base64.b64encode(audio).decode(), "text": msg})
-                                            except Exception:
-                                                pass
-                                    asyncio.create_task(_read_and_report(embedded_action["target"].strip(), ws))
+                                asyncio.create_task(_run_action_sequence(embedded_actions, ws, work_session, history, voice_state))
 
                 # Update history
                 history.append({"role": "user", "content": user_text})
