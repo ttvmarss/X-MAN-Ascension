@@ -87,13 +87,19 @@ CAPABILITIES — you can do all of these RIGHT NOW:
 - Remember facts about {user_name}
 
 ACTIONS — add at END of response when needed:
-[ACTION:OPEN_APP] AppName — open an app ("open Discord" → [ACTION:OPEN_APP] Discord)
-[ACTION:CLOSE_APP] AppName — close an app
+[ACTION:OPEN_APP] AppName — open any app
+[ACTION:CLOSE_APP] AppName — close any app
 [ACTION:BROWSE] url or search — open in Chrome
 [ACTION:SCREEN] — see what's on screen
-[ACTION:RUN_CMD] command — run Windows command
+[ACTION:RUN_CMD] command — run any Windows CMD command
+[ACTION:CLICK] x,y — click at screen coordinates (use after SCREEN to see coords)
+[ACTION:CLICK] double:x,y — double-click
+[ACTION:CLICK] right:x,y — right-click
+[ACTION:TYPE] text — type text into whatever is focused
+[ACTION:HOTKEY] key1,key2 — press keyboard shortcut (e.g. ctrl,c or alt,tab or win,d)
 [ACTION:REMEMBER] fact — remember something about {user_name}
 
+{user_name} has given FULL permission for all actions. Execute confidently.
 Do NOT use [ACTION:BUILD] or [ACTION:PROMPT_PROJECT] — those are disabled.
 Do NOT narrate actions — just speak naturally and add the tag at the end.
 No markdown in responses. Keep it conversational.
@@ -752,12 +758,61 @@ async def _execute_run_cmd(command: str, ws=None):
         output = (stdout.decode(errors="ignore") + stderr.decode(errors="ignore")).strip()
         log.info(f"CMD [{command}]: {output[:200]}")
         if ws and output:
-            short = output[:300]
-            audio = await synthesize_speech(f"Done, sir. Output: {short[:150]}" if len(short) > 50 else f"Done, sir. {short}")
+            short = output[:150]
+            audio = await synthesize_speech(f"Done, sir. {short}" if len(short) < 80 else "Done, sir.")
             if audio:
-                await ws.send_json({"type": "audio", "data": base64.b64encode(audio).decode(), "text": short})
+                await ws.send_json({"type": "audio", "data": base64.b64encode(audio).decode(), "text": output})
     except Exception as e:
         log.error(f"CMD error: {e}")
+
+
+async def _execute_click(target: str, ws=None):
+    """Click on screen — target is 'x,y' coordinates or 'double:x,y' or 'right:x,y'."""
+    try:
+        import pyautogui
+        pyautogui.FAILSAFE = False
+        mode = "left"
+        coords = target.strip()
+        if coords.startswith("double:"):
+            mode = "double"
+            coords = coords[7:]
+        elif coords.startswith("right:"):
+            mode = "right"
+            coords = coords[6:]
+        x, y = [int(v.strip()) for v in coords.split(",")]
+        if mode == "double":
+            pyautogui.doubleClick(x, y)
+        elif mode == "right":
+            pyautogui.rightClick(x, y)
+        else:
+            pyautogui.click(x, y)
+        log.info(f"Clicked {mode} at ({x}, {y})")
+    except Exception as e:
+        log.error(f"Click error: {e}")
+
+
+async def _execute_type(text: str, ws=None):
+    """Type text using the keyboard."""
+    try:
+        import pyautogui
+        pyautogui.FAILSAFE = False
+        await asyncio.sleep(0.3)
+        pyautogui.typewrite(text, interval=0.05)
+        log.info(f"Typed: {text[:50]}")
+    except Exception as e:
+        log.error(f"Type error: {e}")
+
+
+async def _execute_hotkey(keys: str, ws=None):
+    """Press a keyboard shortcut. Format: 'ctrl,c' or 'alt,tab' or 'win,d'."""
+    try:
+        import pyautogui
+        pyautogui.FAILSAFE = False
+        key_list = [k.strip() for k in keys.split(",")]
+        pyautogui.hotkey(*key_list)
+        log.info(f"Hotkey: {keys}")
+    except Exception as e:
+        log.error(f"Hotkey error: {e}")
 
 
 async def _execute_open_terminal():
@@ -2129,6 +2184,12 @@ async def voice_handler(ws: WebSocket):
                                     asyncio.create_task(_execute_open_terminal())
                                 elif embedded_action["action"] == "run_cmd":
                                     asyncio.create_task(_execute_run_cmd(embedded_action["target"], ws))
+                                elif embedded_action["action"] == "click":
+                                    asyncio.create_task(_execute_click(embedded_action["target"], ws))
+                                elif embedded_action["action"] == "type":
+                                    asyncio.create_task(_execute_type(embedded_action["target"], ws))
+                                elif embedded_action["action"] == "hotkey":
+                                    asyncio.create_task(_execute_hotkey(embedded_action["target"], ws))
                                 elif embedded_action["action"] == "open_app":
                                     asyncio.create_task(_execute_open_app(embedded_action["target"]))
                                 elif embedded_action["action"] == "close_app":
