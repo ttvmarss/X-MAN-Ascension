@@ -63,6 +63,7 @@ log = logging.getLogger("jarvis")
 # ---------------------------------------------------------------------------
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 USER_NAME = os.getenv("USER_NAME", "sir")
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -1172,14 +1173,20 @@ async def generate_response(
         messages = messages + [{"role": "user", "content": text}]
 
     try:
-        response = await client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=250,  # Extra room for [ACTION:X] tags
-            system=system,
-            messages=messages,
-        )
-        track_usage(response)
-        return response.content[0].text
+        import httpx as _hx
+        _url = "https://api.groq.com/openai/v1/chat/completions"
+        _headers = {"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"}
+        _msgs = [{"role": "system", "content": system}]
+        for _m in messages:
+            _msgs.append({"role": _m["role"], "content": _m["content"]})
+        _body = {"model": "llama-3.3-70b-versatile", "messages": _msgs, "max_tokens": 300, "temperature": 0.7}
+        async with _hx.AsyncClient(timeout=30) as _hc:
+            _resp = await _hc.post(_url, headers=_headers, json=_body)
+            _data = _resp.json()
+            if "error" in _data:
+                log.error(f"Groq error: {_data['error']}")
+                return "Apologies, sir. I'm having trouble connecting to my language systems."
+            return _data["choices"][0]["message"]["content"]
     except Exception as e:
         log.error(f"LLM error: {e}")
         return "Apologies, sir. I'm having trouble connecting to my language systems."
@@ -1369,8 +1376,11 @@ async def lifespan(application: FastAPI):
     global anthropic_client, cached_projects
     if ANTHROPIC_API_KEY:
         anthropic_client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+    elif GROQ_API_KEY:
+        anthropic_client = True
+        log.info("Using Groq API (free tier)")
     else:
-        log.warning("ANTHROPIC_API_KEY not set — LLM features disabled")
+        log.warning("No API key set — LLM features disabled")
     cached_projects = []
 
     # Start context refresh in a separate thread (never touches event loop)
