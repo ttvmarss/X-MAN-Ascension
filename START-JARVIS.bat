@@ -65,13 +65,15 @@ if exist "%REPO_DIR%\.git" (
 :: ---- Folder exists but is not a git repo ----
 if exist "%REPO_DIR%" (
     echo Old folder found without a working copy. Renaming it...
-    set "BACKUP=%REPO_DIR%.old.%RANDOM%"
-    ren "%REPO_DIR%" "%BACKUP:~0,-0%" 2>nul
+    pushd "%USERPROFILE%\Documents"
+    if exist "X-MAN-Ascension.old" rmdir /s /q "X-MAN-Ascension.old"
+    ren "X-MAN-Ascension" "X-MAN-Ascension.old"
+    popd
     if exist "%REPO_DIR%" (
-        echo Could not rename old folder. Trying ZIP download into it...
+        echo Could not rename old folder. Will try ZIP download instead...
         goto :zip_download
     )
-    echo Renamed to backup folder.
+    echo Renamed old folder to X-MAN-Ascension.old
     echo.
 )
 
