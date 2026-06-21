@@ -17,19 +17,63 @@ Production-quality Windows desktop assistant built with **C#**, **.NET 8**, and 
 - Windows 10/11
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 
+## Get the code (first time only)
+
+If you do not have the repo yet, clone it and open the Jarvis folder:
+
+```powershell
+cd $HOME\Documents
+git clone https://github.com/ttvmarss/X-MAN-Ascension.git
+cd X-MAN-Ascension\Jarvis
+```
+
+If you already cloned the repo, go to the `Jarvis` folder inside it (not `C:\Windows\System32`):
+
+```powershell
+cd C:\path\to\X-MAN-Ascension\Jarvis
+```
+
+Verify the project file exists:
+
+```powershell
+Test-Path .\src\Jarvis\Jarvis.csproj
+```
+
+This must print `True` before you build or run.
+
+## Run (Windows — easiest)
+
+From the `Jarvis` folder:
+
+```powershell
+.\run.ps1
+```
+
+If PowerShell blocks the script:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+.\run.ps1
+```
+
 ## Build
 
-```bash
-cd Jarvis
-dotnet restore
-dotnet build src/Jarvis/Jarvis.csproj -c Release
+From the `Jarvis` folder:
+
+```powershell
+.\build.ps1
 ```
 
-## Run (Windows)
+Or manually:
 
-```bash
-dotnet run --project src/Jarvis/Jarvis.csproj
+```powershell
+cd path\to\X-MAN-Ascension\Jarvis
+dotnet restore .\src\Jarvis\Jarvis.csproj
+dotnet build .\src\Jarvis\Jarvis.csproj -c Release
+dotnet run --project .\src\Jarvis\Jarvis.csproj -c Release
 ```
+
+**Important:** Run these commands in order, and only after `cd` into the `Jarvis` folder. Running from `C:\Windows\System32` will fail because the project is not there.
 
 ## Project structure
 
