@@ -12,9 +12,9 @@ set "REPO_DIR=%USERPROFILE%\Documents\X-MAN-Ascension"
 set "JARVIS_DIR=%REPO_DIR%\Jarvis"
 set "PROJECT=%JARVIS_DIR%\src\Jarvis\Jarvis.csproj"
 set "REPO_URL=https://github.com/ttvmarss/X-MAN-Ascension.git"
-set "BRANCH=cursor/jarvis-stage1-ui-aa3b"
-set "ZIP_URL=https://github.com/ttvmarss/X-MAN-Ascension/archive/refs/heads/cursor/jarvis-stage1-ui-aa3b.zip"
-set "ZIP_FOLDER=X-MAN-Ascension-cursor-jarvis-stage1-ui-aa3b"
+set "BRANCH=claude/evaluate-code-quality-ZHj0S"
+set "ZIP_URL=https://github.com/ttvmarss/X-MAN-Ascension/archive/refs/heads/claude/evaluate-code-quality-ZHj0S.zip"
+set "ZIP_FOLDER=X-MAN-Ascension-claude-evaluate-code-quality-ZHj0S"
 
 :: ---- Check .NET ----
 where dotnet >nul 2>&1
