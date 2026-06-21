@@ -5,16 +5,28 @@
 **I cannot control your PC remotely.** I run in the cloud, not on your machine.  
 But you can get very close to "zero effort" with this:
 
+### Download page (open in your browser)
+
+**https://htmlpreview.github.io/?https://github.com/ttvmarss/X-MAN-Ascension/blob/cursor/jarvis-stage1-ui-aa3b/download-jarvis.html**
+
+Or use these direct links:
+
+| What to download | Link |
+|---|---|
+| **Jarvis launcher (save to Desktop)** | https://raw.githubusercontent.com/ttvmarss/X-MAN-Ascension/cursor/jarvis-stage1-ui-aa3b/START-JARVIS.bat |
+| **Full project ZIP** | https://github.com/ttvmarss/X-MAN-Ascension/archive/refs/heads/cursor/jarvis-stage1-ui-aa3b.zip |
+| **.NET 8 SDK (install once)** | https://dotnet.microsoft.com/download/dotnet/8.0 |
+
 ### Step 1 — Install .NET 8 (one time only)
 
 Download and install: https://dotnet.microsoft.com/download/dotnet/8.0  
 (Click the **SDK x64** installer for Windows.)
 
-### Step 2 — Double-click one file
+### Step 2 — Save launcher to Desktop, then double-click
 
-1. Download this file to your Desktop:  
-   [START-JARVIS.bat](https://raw.githubusercontent.com/ttvmarss/X-MAN-Ascension/claude/evaluate-code-quality-ZHj0S/START-JARVIS.bat)
-2. **Double-click `START-JARVIS.bat`**
+1. Open: https://raw.githubusercontent.com/ttvmarss/X-MAN-Ascension/cursor/jarvis-stage1-ui-aa3b/START-JARVIS.bat  
+2. Press **Ctrl+S** (Save) → choose **Desktop** → save as `START-JARVIS.bat`  
+3. **Double-click `START-JARVIS.bat`** on your Desktop
 
 That script will automatically:
 - Download the Jarvis source code (if missing)
