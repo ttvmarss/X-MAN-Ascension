@@ -1,8 +1,45 @@
 # Run Jarvis on Windows
 
-You must **leave `C:\Windows\System32`** and **clone the repository** before running anything.
+## Easiest way (2 steps total)
 
-Copy and paste this entire block into PowerShell **one line at a time**, or paste the whole block at once:
+**I cannot control your PC remotely.** I run in the cloud, not on your machine.  
+But you can get very close to "zero effort" with this:
+
+### Step 1 — Install .NET 8 (one time only)
+
+Download and install: https://dotnet.microsoft.com/download/dotnet/8.0  
+(Click the **SDK x64** installer for Windows.)
+
+### Step 2 — Double-click one file
+
+1. Download this file to your Desktop:  
+   [START-JARVIS.bat](https://raw.githubusercontent.com/ttvmarss/X-MAN-Ascension/claude/evaluate-code-quality-ZHj0S/START-JARVIS.bat)
+2. **Double-click `START-JARVIS.bat`**
+
+That script will automatically:
+- Download the Jarvis source code (if missing)
+- Restore packages
+- Build the app
+- Launch Jarvis
+
+You do not need to open PowerShell or type commands.
+
+---
+
+## Why I can't click things on your PC
+
+| What I can do | What I cannot do |
+|---|---|
+| Write and test code in the cloud | Log into your Windows PC |
+| Build the project remotely | Run PowerShell on your machine |
+| Create one-click scripts for you | Install .NET for you |
+| Fix bugs and push updates to GitHub | Double-click files on your desktop |
+
+Cursor Cloud Agents run on a remote server. There is no way to hand over full control of your computer through this chat.
+
+---
+
+## Manual setup (if you prefer PowerShell)
 
 ```powershell
 cd $HOME\Documents
