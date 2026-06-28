@@ -9,12 +9,21 @@
 
 This folder contains everything you need to play the X-Man Ascension Horror Survival mod:
 
+### **Installation Files (Choose One):**
+
+| File | What It Does | Best For |
+|------|--------------|----------|
+| `X-Man-Ascension-Horror-Survival.mcaddon` | **COMPLETE** — All gameplay + textures/sounds | ✅ Most users (easiest) |
+| `X-Man-Ascension-Behavior-Pack.mcpack` | Just gameplay systems (no textures) | Advanced users |
+| `X-Man-Ascension-Resource-Pack.mcpack` | Just textures/sounds (no gameplay) | Resource pack only |
+
+### **Documentation:**
+
 | File | Purpose |
 |------|---------|
-| `X-Man-Ascension-Horror-Survival.mcaddon` | **← INSTALL THIS** (drag into Minecraft) |
-| `START-HERE.md` | Quick start guide |
+| `START-HERE.md` | Quick start guide (read this first) |
 | `INSTALL.md` | Detailed installation steps |
-| `README.md` | This file |
+| `README.md` | This file — full system documentation |
 
 ---
 
@@ -22,11 +31,17 @@ This folder contains everything you need to play the X-Man Ascension Horror Surv
 
 ### **Windows / Mac / Mobile:**
 
-1. **Drag** `X-Man-Ascension-Horror-Survival.mcaddon` onto Minecraft window
-2. **Click** "Import" when prompted
-3. **Play!**
+1. **Download** `X-Man-Ascension-Horror-Survival.mcaddon` (complete package)
+2. **Drag it** onto your Minecraft window
+3. **Click** "Import" when prompted
+4. **Play!**
 
 That's it. Everything installs automatically.
+
+### **Alternative: Separate Packs**
+If you want just the gameplay or just the textures:
+- Drag `X-Man-Ascension-Behavior-Pack.mcpack` + `X-Man-Ascension-Resource-Pack.mcpack` separately
+- Both will install and work together
 
 ---
 

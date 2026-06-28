@@ -2,17 +2,31 @@
 
 ## 🎮 DRAG & DROP INSTALLATION (Windows/Mac/Mobile)
 
-### **EASIEST METHOD:**
+### **EASIEST METHOD (Recommended):**
 
-1. **Download the file:** `X-Man-Ascension-Horror-Survival.mcaddon`
-2. **Locate your Downloads folder** (or wherever you saved it)
+1. **Download:** `X-Man-Ascension-Horror-Survival.mcaddon` (complete package)
+2. **Locate** your Downloads folder
 3. **Open Minecraft Bedrock Edition**
-4. **Drag the .mcaddon file** and **drop it directly into your Minecraft window**
+4. **Drag the .mcaddon file** directly into your Minecraft window
 5. A popup will appear asking to confirm import
 6. **Click "Import"** 
-7. **Game restarts with addon enabled**
+7. **Minecraft restarts with addon enabled**
 
-That's it! The horror mod is now active.
+Done! The horror mod is now active.
+
+### **ALTERNATIVE: Separate Resource & Behavior Packs**
+
+If you prefer separate installation:
+
+1. **Download both files:**
+   - `X-Man-Ascension-Behavior-Pack.mcpack` (gameplay systems)
+   - `X-Man-Ascension-Resource-Pack.mcpack` (textures/sounds)
+
+2. **Drag both .mcpack files** into your Minecraft window (one at a time)
+
+3. **Click "Import"** for each
+
+Both packs will work together to provide the complete mod experience.
 
 ---
 
