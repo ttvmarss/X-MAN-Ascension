@@ -1,0 +1,36 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_shotgun"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "ABC",
+      " DE"
+    ],
+    "key": {
+      "A": {
+        "item": "knws:silver_ingot"
+      },
+      "B": {
+        "item": "minecraft:iron_ingot"
+      },
+      "C": {
+        "item": "knws:silver_ingot"
+      },
+      "D": {
+        "item": "minecraft:stick"
+      },
+      "E": {
+        "item": "minecraft:oak_planks"
+      }
+    },
+    "result": {
+      "item": "knws:shotgun",
+      "count": 1
+    }
+  }
+}

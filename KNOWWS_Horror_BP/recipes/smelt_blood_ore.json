@@ -1,0 +1,14 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_furnace": {
+    "description": {
+      "identifier": "knws:smelt_blood_ore"
+    },
+    "tags": [
+      "furnace",
+      "blast_furnace"
+    ],
+    "input": "knws:blood_ore",
+    "output": "knws:blood_ingot"
+  }
+}

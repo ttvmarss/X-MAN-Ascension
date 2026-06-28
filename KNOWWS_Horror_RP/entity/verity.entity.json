@@ -1,0 +1,30 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "knws:verity",
+      "materials": { "default": "entity_alphatest" },
+      "textures": {
+        "nice": "textures/entity/verity_nice",
+        "zesty": "textures/entity/verity_zesty",
+        "weird": "textures/entity/verity_weird",
+        "scary": "textures/entity/verity_scary"
+      },
+      "geometry": { "default": "geometry.knws.verity_sphere" },
+      "render_controllers": ["controller.render.knws_verity"],
+      "spawn_egg": {
+        "base_color": "#FFDC32",
+        "overlay_color": "#333333"
+      },
+      "animations": {
+        "bob": "animation.knws.verity_bob"
+      },
+      "scripts": {
+        "pre_animation": [
+          "variable.phase = query.property('knws:phase');"
+        ],
+        "animate": ["bob"]
+      }
+    }
+  }
+}

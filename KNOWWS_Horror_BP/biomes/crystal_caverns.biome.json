@@ -1,0 +1,50 @@
+{
+  "format_version": "1.21.40",
+  "minecraft:biome": {
+    "description": {
+      "identifier": "knws:crystal_caverns"
+    },
+    "components": {
+      "minecraft:climate": {
+        "temperature": 0.3,
+        "downfall": 0.0,
+        "snow_accumulation": [
+          0.0,
+          0.0
+        ]
+      },
+      "minecraft:overworld_height": {
+        "noise_type": "lowlands"
+      },
+      "minecraft:surface_parameters": {
+        "sea_floor_depth": 7,
+        "sea_floor_material": "minecraft:gravel",
+        "foundation_material": "minecraft:stone",
+        "mid_material": "minecraft:stone",
+        "top_material": "knws:crystal_grass",
+        "sea_material": "minecraft:water"
+      },
+      "minecraft:overworld_generation_rules": {
+        "hills_transformation": "knws:crystal_caverns",
+        "generate_for_climates": [
+          [
+            "cold",
+            2
+          ],
+          [
+            "frozen",
+            1
+          ]
+        ]
+      },
+      "minecraft:tags": {
+        "tags": [
+          "overworld",
+          "monster",
+          "crystal_caverns",
+          "no_legacy_worldgen"
+        ]
+      }
+    }
+  }
+}

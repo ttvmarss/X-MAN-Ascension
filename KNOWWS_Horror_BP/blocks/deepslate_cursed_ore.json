@@ -1,0 +1,27 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:block": {
+    "description": {
+      "identifier": "knws:deepslate_cursed_ore",
+      "menu_category": {
+        "category": "nature"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 3
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 3
+      },
+      "minecraft:map_color": "#8B0000",
+      "minecraft:loot": "loot_tables/blocks/deepslate_cursed_ore.json",
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "knws_deepslate_cursed_ore",
+          "render_method": "opaque"
+        }
+      }
+    }
+  }
+}

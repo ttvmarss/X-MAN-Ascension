@@ -1,0 +1,39 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_chainsaw"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "ABC",
+      "DEF"
+    ],
+    "key": {
+      "A": {
+        "item": "knws:blood_ingot"
+      },
+      "B": {
+        "item": "minecraft:iron_ingot"
+      },
+      "C": {
+        "item": "knws:blood_ingot"
+      },
+      "D": {
+        "item": "minecraft:redstone"
+      },
+      "E": {
+        "item": "minecraft:iron_ingot"
+      },
+      "F": {
+        "item": "minecraft:redstone"
+      }
+    },
+    "result": {
+      "item": "knws:chainsaw",
+      "count": 1
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "knws:survivor_boots",
+      "menu_category": {
+        "category": "Equipment"
+      }
+    },
+    "components": {
+      "minecraft:icon": "knws_survivor_boots",
+      "minecraft:display_name": {
+        "value": "\u00a7aSurvivor Boots"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:wearable": {
+        "slot": "slot.armor.feet",
+        "protection": 2
+      },
+      "minecraft:enchantable": {
+        "slot": "feet",
+        "value": 15
+      }
+    }
+  }
+}

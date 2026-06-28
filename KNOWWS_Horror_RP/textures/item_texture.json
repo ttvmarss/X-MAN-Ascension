@@ -1,0 +1,153 @@
+{
+  "resource_pack_name": "knowws_horror",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "knws_pistol": {
+      "textures": "textures/items/pistol"
+    },
+    "knws_shotgun": {
+      "textures": "textures/items/shotgun"
+    },
+    "knws_assault_rifle": {
+      "textures": "textures/items/assault_rifle"
+    },
+    "knws_sniper_rifle": {
+      "textures": "textures/items/sniper_rifle"
+    },
+    "knws_flamethrower": {
+      "textures": "textures/items/flamethrower"
+    },
+    "knws_silver_sword": {
+      "textures": "textures/items/silver_sword"
+    },
+    "knws_holy_mace": {
+      "textures": "textures/items/holy_mace"
+    },
+    "knws_chainsaw": {
+      "textures": "textures/items/chainsaw"
+    },
+    "knws_combat_knife": {
+      "textures": "textures/items/combat_knife"
+    },
+    "knws_crossbow_silver": {
+      "textures": "textures/items/crossbow_silver"
+    },
+    "knws_pistol_ammo": {
+      "textures": "textures/items/pistol_ammo"
+    },
+    "knws_shotgun_shells": {
+      "textures": "textures/items/shotgun_shells"
+    },
+    "knws_rifle_ammo": {
+      "textures": "textures/items/rifle_ammo"
+    },
+    "knws_flashlight": {
+      "textures": "textures/items/flashlight"
+    },
+    "knws_medkit": {
+      "textures": "textures/items/medkit"
+    },
+    "knws_holy_water": {
+      "textures": "textures/items/holy_water"
+    },
+    "knws_blood_stew": {
+      "textures": "textures/items/blood_stew"
+    },
+    "knws_survivor_rations": {
+      "textures": "textures/items/survivor_rations"
+    },
+    "knws_blood_ingot": {
+      "textures": "textures/items/blood_ingot"
+    },
+    "knws_silver_ingot": {
+      "textures": "textures/items/silver_ingot"
+    },
+    "knws_horror_crystal": {
+      "textures": "textures/items/horror_crystal"
+    },
+    "knws_exorcist_essence": {
+      "textures": "textures/items/exorcist_essence"
+    },
+    "knws_survivor_helmet": {
+      "textures": "textures/items/survivor_helmet"
+    },
+    "knws_survivor_chestplate": {
+      "textures": "textures/items/survivor_chestplate"
+    },
+    "knws_survivor_leggings": {
+      "textures": "textures/items/survivor_leggings"
+    },
+    "knws_survivor_boots": {
+      "textures": "textures/items/survivor_boots"
+    },
+    "knws_exorcist_helmet": {
+      "textures": "textures/items/exorcist_helmet"
+    },
+    "knws_exorcist_chestplate": {
+      "textures": "textures/items/exorcist_chestplate"
+    },
+    "knws_exorcist_leggings": {
+      "textures": "textures/items/exorcist_leggings"
+    },
+    "knws_exorcist_boots": {
+      "textures": "textures/items/exorcist_boots"
+    },
+    "knws_nightmare_helmet": {
+      "textures": "textures/items/nightmare_helmet"
+    },
+    "knws_nightmare_chestplate": {
+      "textures": "textures/items/nightmare_chestplate"
+    },
+    "knws_nightmare_leggings": {
+      "textures": "textures/items/nightmare_leggings"
+    },
+    "knws_nightmare_boots": {
+      "textures": "textures/items/nightmare_boots"
+    },
+    "knws_glow_torch": {
+      "textures": "textures/items/glow_torch"
+    },
+    "knws_cave_lantern": {
+      "textures": "textures/items/cave_lantern"
+    },
+    "knws_soul_flame_torch": {
+      "textures": "textures/items/soul_flame_torch"
+    },
+    "knws_verity_companion": {
+      "textures": "textures/items/verity_companion"
+    },
+    "knws_verity_mic": {
+      "textures": "textures/items/verity_mic"
+    },
+    "knws_cursed_ingot": {
+      "textures": "textures/items/cursed_ingot"
+    },
+    "knws_nightmare_shard": {
+      "textures": "textures/items/nightmare_shard"
+    },
+    "knws_plague_ingot": {
+      "textures": "textures/items/plague_ingot"
+    },
+    "knws_cursed_blade": {
+      "textures": "textures/items/cursed_blade"
+    },
+    "knws_nightmare_scythe": {
+      "textures": "textures/items/nightmare_scythe"
+    },
+    "knws_plague_cannon": {
+      "textures": "textures/items/plague_cannon"
+    },
+    "knws_cursed_helmet": {
+      "textures": "textures/items/cursed_helmet"
+    },
+    "knws_cursed_chestplate": {
+      "textures": "textures/items/cursed_chestplate"
+    },
+    "knws_cursed_leggings": {
+      "textures": "textures/items/cursed_leggings"
+    },
+    "knws_cursed_boots": {
+      "textures": "textures/items/cursed_boots"
+    }
+  }
+}

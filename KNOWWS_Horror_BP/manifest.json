@@ -1,0 +1,38 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "KNOWWS Horror Pack BP",
+    "description": "§4KNOWWS Horror Pack§r - Horror mobs, guns, armor, ores & variety content. Apply to your existing world!",
+    "uuid": "648b8260-ef91-41c7-95e7-3f62c8fd8c33",
+    "version": [5, 1, 0],
+    "min_engine_version": [1, 21, 0]
+  },
+  "modules": [
+    {
+      "type": "data",
+      "uuid": "ceee6731-7461-43ce-8d87-f527bbd2ec23",
+      "version": [5, 0, 0]
+    },
+    {
+      "type": "script",
+      "language": "javascript",
+      "uuid": "c7392af4-086c-4350-aa03-1141cb230ddf",
+      "version": [5, 1, 0],
+      "entry": "scripts/main.js"
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "99bed64d-60e4-4735-9c43-f194de00b54a",
+      "version": [5, 1, 0]
+    },
+    {
+      "module_name": "@minecraft/server",
+      "version": "1.17.0"
+    },
+    {
+      "module_name": "@minecraft/server-ui",
+      "version": "1.3.0"
+    }
+  ]
+}

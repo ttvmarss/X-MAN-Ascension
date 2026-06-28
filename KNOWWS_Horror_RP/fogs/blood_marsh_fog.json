@@ -1,0 +1,22 @@
+{
+  "format_version": "1.21.40",
+  "minecraft:fog_settings": {
+    "description": {
+      "identifier": "knws:blood_marsh_fog"
+    },
+    "distance": {
+      "air": {
+        "fog_start": 8.0,
+        "fog_end": 96.0,
+        "fog_color": "#3a0707",
+        "render_distance_type": "render"
+      },
+      "water": {
+        "fog_start": 0.0,
+        "fog_end": 48.0,
+        "fog_color": "#1a3040",
+        "render_distance_type": "render"
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_cursed_chestplate"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "A B",
+      "CDE",
+      "FGH"
+    ],
+    "key": {
+      "A": {
+        "item": "knws:cursed_ingot"
+      },
+      "B": {
+        "item": "knws:cursed_ingot"
+      },
+      "C": {
+        "item": "knws:cursed_ingot"
+      },
+      "D": {
+        "item": "knws:cursed_ingot"
+      },
+      "E": {
+        "item": "knws:cursed_ingot"
+      },
+      "F": {
+        "item": "knws:cursed_ingot"
+      },
+      "G": {
+        "item": "knws:cursed_ingot"
+      },
+      "H": {
+        "item": "knws:cursed_ingot"
+      }
+    },
+    "result": {
+      "item": "knws:cursed_chestplate",
+      "count": 1
+    }
+  }
+}

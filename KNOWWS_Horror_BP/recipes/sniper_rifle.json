@@ -1,0 +1,40 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_sniper_rifle"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "A B",
+      "CDE",
+      " F "
+    ],
+    "key": {
+      "A": {
+        "item": "knws:silver_ingot"
+      },
+      "B": {
+        "item": "knws:silver_ingot"
+      },
+      "C": {
+        "item": "minecraft:iron_ingot"
+      },
+      "D": {
+        "item": "minecraft:spyglass"
+      },
+      "E": {
+        "item": "minecraft:iron_ingot"
+      },
+      "F": {
+        "item": "minecraft:stick"
+      }
+    },
+    "result": {
+      "item": "knws:sniper_rifle",
+      "count": 1
+    }
+  }
+}

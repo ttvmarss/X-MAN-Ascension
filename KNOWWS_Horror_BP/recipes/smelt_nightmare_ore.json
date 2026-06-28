@@ -1,0 +1,14 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_furnace": {
+    "description": {
+      "identifier": "knws:smelt_nightmare_ore"
+    },
+    "tags": [
+      "furnace",
+      "blast_furnace"
+    ],
+    "input": "knws:nightmare_ore",
+    "output": "knws:nightmare_shard"
+  }
+}

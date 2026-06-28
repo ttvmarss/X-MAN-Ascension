@@ -1,0 +1,23 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "knws:combat_knife",
+      "menu_category": {
+        "category": "Equipment"
+      }
+    },
+    "components": {
+      "minecraft:icon": "knws_combat_knife",
+      "minecraft:display_name": {
+        "value": "\u00a77Combat Knife"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:hand_equipped": true,
+      "minecraft:durability": {
+        "max_durability": 300
+      },
+      "knws:combat_knife_melee": {}
+    }
+  }
+}

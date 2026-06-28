@@ -1,0 +1,18 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "knws:horror_crystal",
+      "menu_category": {
+        "category": "Items"
+      }
+    },
+    "components": {
+      "minecraft:icon": "knws_horror_crystal",
+      "minecraft:display_name": {
+        "value": "\u00a75Horror Crystal"
+      },
+      "minecraft:max_stack_size": 64
+    }
+  }
+}

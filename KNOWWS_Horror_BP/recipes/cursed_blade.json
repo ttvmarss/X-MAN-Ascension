@@ -1,0 +1,31 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_cursed_blade"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      " A ",
+      " B ",
+      " C "
+    ],
+    "key": {
+      "A": {
+        "item": "knws:cursed_ingot"
+      },
+      "B": {
+        "item": "knws:cursed_ingot"
+      },
+      "C": {
+        "item": "minecraft:stick"
+      }
+    },
+    "result": {
+      "item": "knws:cursed_blade",
+      "count": 1
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_pistol_ammo"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "A  ",
+      "BCD"
+    ],
+    "key": {
+      "A": {
+        "item": "knws:silver_ingot"
+      },
+      "B": {
+        "item": "minecraft:gunpowder"
+      },
+      "C": {
+        "item": "minecraft:gunpowder"
+      },
+      "D": {
+        "item": "minecraft:gunpowder"
+      }
+    },
+    "result": {
+      "item": "knws:pistol_ammo",
+      "count": 8
+    }
+  }
+}

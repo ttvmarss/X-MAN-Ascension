@@ -1,0 +1,46 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_nightmare_chestplate"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "A B",
+      "CDE",
+      "FGH"
+    ],
+    "key": {
+      "A": {
+        "item": "knws:horror_crystal"
+      },
+      "B": {
+        "item": "knws:horror_crystal"
+      },
+      "C": {
+        "item": "knws:blood_ingot"
+      },
+      "D": {
+        "item": "knws:horror_crystal"
+      },
+      "E": {
+        "item": "knws:blood_ingot"
+      },
+      "F": {
+        "item": "knws:horror_crystal"
+      },
+      "G": {
+        "item": "knws:horror_crystal"
+      },
+      "H": {
+        "item": "knws:horror_crystal"
+      }
+    },
+    "result": {
+      "item": "knws:nightmare_chestplate",
+      "count": 1
+    }
+  }
+}

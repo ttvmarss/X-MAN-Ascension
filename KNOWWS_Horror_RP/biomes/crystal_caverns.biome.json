@@ -1,0 +1,25 @@
+{
+  "format_version": "1.21.40",
+  "minecraft:client_biome": {
+    "description": {
+      "identifier": "knws:crystal_caverns"
+    },
+    "components": {
+      "minecraft:fog_appearance": {
+        "fog_identifier": "knws:crystal_caverns_fog"
+      },
+      "minecraft:water_appearance": {
+        "surface_color": "#3a5a8a"
+      },
+      "minecraft:foliage_appearance": {
+        "color": "#4a8acc"
+      },
+      "minecraft:grass_appearance": {
+        "color": "#4a8acc"
+      },
+      "minecraft:sky_color": {
+        "sky_color": "#1a2a4a"
+      }
+    }
+  }
+}

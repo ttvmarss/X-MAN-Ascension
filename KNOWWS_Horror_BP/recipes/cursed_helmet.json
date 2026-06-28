@@ -1,0 +1,36 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_cursed_helmet"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "ABC",
+      "D E"
+    ],
+    "key": {
+      "A": {
+        "item": "knws:cursed_ingot"
+      },
+      "B": {
+        "item": "knws:cursed_ingot"
+      },
+      "C": {
+        "item": "knws:cursed_ingot"
+      },
+      "D": {
+        "item": "knws:cursed_ingot"
+      },
+      "E": {
+        "item": "knws:cursed_ingot"
+      }
+    },
+    "result": {
+      "item": "knws:cursed_helmet",
+      "count": 1
+    }
+  }
+}

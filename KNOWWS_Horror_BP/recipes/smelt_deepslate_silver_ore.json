@@ -1,0 +1,14 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_furnace": {
+    "description": {
+      "identifier": "knws:smelt_deepslate_silver_ore"
+    },
+    "tags": [
+      "furnace",
+      "blast_furnace"
+    ],
+    "input": "knws:deepslate_silver_ore",
+    "output": "knws:silver_ingot"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "format_version": "1.10.0",
+  "controller.render.knws_verity": {
+    "arrays": {
+      "textures": {
+        "Array.skins": ["Texture.nice", "Texture.zesty", "Texture.weird", "Texture.scary"]
+      }
+    },
+    "geometry": "Geometry.default",
+    "materials": [{ "*": "Material.default" }],
+    "textures": ["Array.skins[math.min(query.property('knws:phase'), 3)]"]
+  }
+}

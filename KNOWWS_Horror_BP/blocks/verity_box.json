@@ -1,0 +1,18 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:block": {
+    "description": {
+      "identifier": "knws:verity_box",
+      "menu_category": { "category": "items" }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": { "seconds_to_destroy": 1.5 },
+      "minecraft:destructible_by_explosion": { "explosion_resistance": 1 },
+      "minecraft:map_color": "#785028",
+      "minecraft:material_instances": {
+        "*": { "texture": "knws_verity_box", "render_method": "opaque" }
+      },
+      "minecraft:geometry": "minecraft:geometry.full_block"
+    }
+  }
+}

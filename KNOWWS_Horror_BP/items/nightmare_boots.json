@@ -1,0 +1,26 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "knws:nightmare_boots",
+      "menu_category": {
+        "category": "Equipment"
+      }
+    },
+    "components": {
+      "minecraft:icon": "knws_nightmare_boots",
+      "minecraft:display_name": {
+        "value": "\u00a75Nightmare Boots"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:wearable": {
+        "slot": "slot.armor.feet",
+        "protection": 4
+      },
+      "minecraft:enchantable": {
+        "slot": "feet",
+        "value": 15
+      }
+    }
+  }
+}

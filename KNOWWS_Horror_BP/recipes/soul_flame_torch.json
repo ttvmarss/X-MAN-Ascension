@@ -1,0 +1,33 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_soul_flame_torch"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      " A ",
+      "BCD"
+    ],
+    "key": {
+      "A": {
+        "item": "minecraft:soul_torch"
+      },
+      "B": {
+        "item": "minecraft:soul_torch"
+      },
+      "C": {
+        "item": "knws:exorcist_essence"
+      },
+      "D": {
+        "item": "minecraft:soul_torch"
+      }
+    },
+    "result": {
+      "item": "knws:soul_flame_torch",
+      "count": 4
+    }
+  }
+}

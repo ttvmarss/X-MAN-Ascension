@@ -1,0 +1,51 @@
+{
+  "format_version": "1.21.50",
+  "knws:blood_ore": {
+    "sound": "stone"
+  },
+  "knws:silver_ore": {
+    "sound": "stone"
+  },
+  "knws:deepslate_blood_ore": {
+    "sound": "deepslate"
+  },
+  "knws:deepslate_silver_ore": {
+    "sound": "deepslate"
+  },
+  "knws:horror_crystal_block": {
+    "sound": "glass"
+  },
+  "knws:cursed_grass": {
+    "sound": "grass"
+  },
+  "knws:blood_mushroom": {
+    "sound": "grass"
+  },
+  "knws:wasteland_soil": {
+    "sound": "grass"
+  },
+  "knws:crystal_grass": {
+    "sound": "grass"
+  },
+  "knws:verity_box": {
+    "sound": "stone"
+  },
+  "knws:cursed_ore": {
+    "sound": "stone"
+  },
+  "knws:deepslate_cursed_ore": {
+    "sound": "deepslate"
+  },
+  "knws:nightmare_ore": {
+    "sound": "stone"
+  },
+  "knws:deepslate_nightmare_ore": {
+    "sound": "deepslate"
+  },
+  "knws:plague_ore": {
+    "sound": "stone"
+  },
+  "knws:deepslate_plague_ore": {
+    "sound": "deepslate"
+  }
+}

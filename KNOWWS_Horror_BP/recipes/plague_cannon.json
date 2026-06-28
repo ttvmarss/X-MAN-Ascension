@@ -1,0 +1,39 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_plague_cannon"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "ABC",
+      "DEF"
+    ],
+    "key": {
+      "A": {
+        "item": "knws:plague_ingot"
+      },
+      "B": {
+        "item": "knws:blood_ingot"
+      },
+      "C": {
+        "item": "knws:plague_ingot"
+      },
+      "D": {
+        "item": "minecraft:iron_ingot"
+      },
+      "E": {
+        "item": "minecraft:redstone"
+      },
+      "F": {
+        "item": "minecraft:iron_ingot"
+      }
+    },
+    "result": {
+      "item": "knws:plague_cannon",
+      "count": 1
+    }
+  }
+}

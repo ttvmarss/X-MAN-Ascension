@@ -1,0 +1,27 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:block": {
+    "description": {
+      "identifier": "knws:horror_crystal_block",
+      "menu_category": {
+        "category": "nature"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 3
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 3
+      },
+      "minecraft:map_color": "#8B0000",
+      "minecraft:loot": "loot_tables/blocks/horror_crystal_block.json",
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "knws_horror_crystal_block",
+          "render_method": "opaque"
+        }
+      }
+    }
+  }
+}

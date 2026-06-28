@@ -1,0 +1,56 @@
+{
+  "resource_pack_name": "knowws_horror",
+  "texture_name": "atlas.terrain",
+  "padding": 8,
+  "num_mip_levels": 4,
+  "texture_data": {
+    "knws_blood_ore": {
+      "textures": "textures/blocks/blood_ore"
+    },
+    "knws_silver_ore": {
+      "textures": "textures/blocks/silver_ore"
+    },
+    "knws_deepslate_blood_ore": {
+      "textures": "textures/blocks/deepslate_blood_ore"
+    },
+    "knws_deepslate_silver_ore": {
+      "textures": "textures/blocks/deepslate_silver_ore"
+    },
+    "knws_horror_crystal_block": {
+      "textures": "textures/blocks/horror_crystal_block"
+    },
+    "knws_cursed_grass": {
+      "textures": "textures/blocks/cursed_grass"
+    },
+    "knws_blood_mushroom": {
+      "textures": "textures/blocks/blood_mushroom"
+    },
+    "knws_wasteland_soil": {
+      "textures": "textures/blocks/wasteland_soil"
+    },
+    "knws_crystal_grass": {
+      "textures": "textures/blocks/crystal_grass"
+    },
+    "knws_verity_box": {
+      "textures": "textures/blocks/verity_box"
+    },
+    "knws_cursed_ore": {
+      "textures": "textures/blocks/cursed_ore"
+    },
+    "knws_deepslate_cursed_ore": {
+      "textures": "textures/blocks/deepslate_cursed_ore"
+    },
+    "knws_nightmare_ore": {
+      "textures": "textures/blocks/nightmare_ore"
+    },
+    "knws_deepslate_nightmare_ore": {
+      "textures": "textures/blocks/deepslate_nightmare_ore"
+    },
+    "knws_plague_ore": {
+      "textures": "textures/blocks/plague_ore"
+    },
+    "knws_deepslate_plague_ore": {
+      "textures": "textures/blocks/deepslate_plague_ore"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "format_version": "1.21.40",
+  "minecraft:client_biome": {
+    "description": {
+      "identifier": "knws:horror_wastes"
+    },
+    "components": {
+      "minecraft:fog_appearance": {
+        "fog_identifier": "knws:horror_wastes_fog"
+      },
+      "minecraft:water_appearance": {
+        "surface_color": "#4a3a2a"
+      },
+      "minecraft:foliage_appearance": {
+        "color": "#5a4a30"
+      },
+      "minecraft:grass_appearance": {
+        "color": "#5a4a30"
+      },
+      "minecraft:sky_color": {
+        "sky_color": "#2a2018"
+      }
+    }
+  }
+}

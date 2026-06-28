@@ -1,0 +1,49 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_horror_crystal_block"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "ABC",
+      "DEF",
+      "GHI"
+    ],
+    "key": {
+      "A": {
+        "item": "knws:horror_crystal"
+      },
+      "B": {
+        "item": "knws:horror_crystal"
+      },
+      "C": {
+        "item": "knws:horror_crystal"
+      },
+      "D": {
+        "item": "knws:horror_crystal"
+      },
+      "E": {
+        "item": "knws:horror_crystal"
+      },
+      "F": {
+        "item": "knws:horror_crystal"
+      },
+      "G": {
+        "item": "knws:horror_crystal"
+      },
+      "H": {
+        "item": "knws:horror_crystal"
+      },
+      "I": {
+        "item": "knws:horror_crystal"
+      }
+    },
+    "result": {
+      "item": "knws:horror_crystal_block",
+      "count": 1
+    }
+  }
+}

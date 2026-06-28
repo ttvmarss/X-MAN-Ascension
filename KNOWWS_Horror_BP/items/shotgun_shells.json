@@ -1,0 +1,18 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "knws:shotgun_shells",
+      "menu_category": {
+        "category": "Items"
+      }
+    },
+    "components": {
+      "minecraft:icon": "knws_shotgun_shells",
+      "minecraft:display_name": {
+        "value": "\u00a76Shotgun Shells"
+      },
+      "minecraft:max_stack_size": 32
+    }
+  }
+}
