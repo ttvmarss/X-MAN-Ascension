@@ -4,7 +4,7 @@
     "name": "KNOWWS Horror Pack RP",
     "description": "§4KNOWWS Horror Pack§r - Textures, sounds & models for the ultimate Bedrock horror experience.",
     "uuid": "99bed64d-60e4-4735-9c43-f194de00b54a",
-    "version": [4, 0, 0],
+    "version": [5, 0, 0],
     "min_engine_version": [1, 21, 0]
   },
   "modules": [

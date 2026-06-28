@@ -1,0 +1,27 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:ore_feature": {
+    "description": {
+      "identifier": "knws:nightmare_ore_feature"
+    },
+    "count": 4,
+    "replace_rules": [
+      {
+        "places_block": "knws:nightmare_ore",
+        "may_replace": [
+          {
+            "name": "minecraft:stone"
+          }
+        ]
+      },
+      {
+        "places_block": "knws:deepslate_nightmare_ore",
+        "may_replace": [
+          {
+            "name": "minecraft:deepslate"
+          }
+        ]
+      }
+    ]
+  }
+}

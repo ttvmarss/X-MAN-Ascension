@@ -170,6 +170,27 @@ def main():
     block_texture("blood_mushroom", rgba(80, 20, 20), rgba(160, 40, 40))
     block_texture("wasteland_soil", rgba(70, 55, 35), rgba(110, 85, 50))
     block_texture("crystal_grass", rgba(40, 60, 100), rgba(80, 140, 200))
+    block_texture("cursed_ore", rgba(50, 30, 60), rgba(140, 60, 180))
+    block_texture("deepslate_cursed_ore", rgba(35, 35, 42), rgba(100, 40, 140))
+    block_texture("nightmare_ore", rgba(40, 20, 30), rgba(120, 20, 40))
+    block_texture("deepslate_nightmare_ore", rgba(30, 30, 35), rgba(90, 15, 30))
+    block_texture("plague_ore", rgba(40, 55, 30), rgba(80, 140, 50))
+    block_texture("deepslate_plague_ore", rgba(32, 38, 30), rgba(60, 110, 40))
+
+    item_texture("cursed_ingot", [rgba(60, 20, 80), rgba(120, 40, 160), rgba(180, 80, 220)])
+    item_texture("nightmare_shard", [rgba(40, 10, 20), rgba(100, 20, 40), rgba(180, 40, 60)])
+    item_texture("plague_ingot", [rgba(30, 50, 20), rgba(60, 100, 40), rgba(100, 180, 70)])
+    item_texture("cursed_blade", [rgba(50, 20, 70), rgba(140, 60, 180), rgba(200, 120, 255)])
+    item_texture("nightmare_scythe", [rgba(30, 10, 15), rgba(100, 20, 30), rgba(180, 40, 50)])
+    item_texture("plague_cannon", [rgba(40, 50, 30), rgba(80, 120, 50), rgba(140, 200, 80)])
+    item_texture("verity_mic", [rgba(40, 40, 45), rgba(180, 180, 190), rgba(255, 80, 80)])
+    for piece, colors in {
+        "cursed_helmet": [rgba(50, 20, 70), rgba(100, 40, 130), rgba(150, 70, 190)],
+        "cursed_chestplate": [rgba(45, 15, 65), rgba(90, 35, 120), rgba(140, 60, 180)],
+        "cursed_leggings": [rgba(40, 10, 60), rgba(80, 30, 110), rgba(130, 50, 170)],
+        "cursed_boots": [rgba(35, 5, 55), rgba(70, 25, 100), rgba(120, 40, 160)],
+    }.items():
+        item_texture(piece, colors)
 
     print("Textures generated.")
 

@@ -1,0 +1,14 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_furnace": {
+    "description": {
+      "identifier": "knws:smelt_deepslate_cursed_ore"
+    },
+    "tags": [
+      "furnace",
+      "blast_furnace"
+    ],
+    "input": "knws:deepslate_cursed_ore",
+    "output": "knws:cursed_ingot"
+  }
+}

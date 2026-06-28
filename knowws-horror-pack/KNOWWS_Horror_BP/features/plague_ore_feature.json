@@ -1,0 +1,27 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:ore_feature": {
+    "description": {
+      "identifier": "knws:plague_ore_feature"
+    },
+    "count": 5,
+    "replace_rules": [
+      {
+        "places_block": "knws:plague_ore",
+        "may_replace": [
+          {
+            "name": "minecraft:stone"
+          }
+        ]
+      },
+      {
+        "places_block": "knws:deepslate_plague_ore",
+        "may_replace": [
+          {
+            "name": "minecraft:deepslate"
+          }
+        ]
+      }
+    ]
+  }
+}

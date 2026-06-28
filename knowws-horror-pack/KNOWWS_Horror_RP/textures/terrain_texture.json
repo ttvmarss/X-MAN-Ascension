@@ -33,6 +33,24 @@
     },
     "knws_verity_box": {
       "textures": "textures/blocks/verity_box"
+    },
+    "knws_cursed_ore": {
+      "textures": "textures/blocks/cursed_ore"
+    },
+    "knws_deepslate_cursed_ore": {
+      "textures": "textures/blocks/deepslate_cursed_ore"
+    },
+    "knws_nightmare_ore": {
+      "textures": "textures/blocks/nightmare_ore"
+    },
+    "knws_deepslate_nightmare_ore": {
+      "textures": "textures/blocks/deepslate_nightmare_ore"
+    },
+    "knws_plague_ore": {
+      "textures": "textures/blocks/plague_ore"
+    },
+    "knws_deepslate_plague_ore": {
+      "textures": "textures/blocks/deepslate_plague_ore"
     }
   }
 }

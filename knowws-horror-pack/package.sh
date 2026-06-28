@@ -17,6 +17,7 @@ zip -r KNOWWS_Horror_Pack.mcaddon KNOWWS_Horror_BP KNOWWS_Horror_RP -x "*.DS_Sto
 # Copy to web-accessible locations
 cp KNOWWS_Horror_Pack.mcaddon ../KNOWWS_Horror_Pack.mcaddon 2>/dev/null || true
 cp download.html ../download-knowws-pack.html 2>/dev/null || true
+cp verity-voice.html ../verity-voice.html 2>/dev/null || true
 
 echo ""
 echo "============================================"

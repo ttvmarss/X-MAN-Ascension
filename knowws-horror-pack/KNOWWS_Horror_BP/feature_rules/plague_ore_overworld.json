@@ -1,0 +1,43 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:feature_rules": {
+    "description": {
+      "identifier": "knws:plague_ore_overworld",
+      "places_feature": "knws:plague_ore_feature"
+    },
+    "conditions": {
+      "placement_pass": "underground_pass",
+      "minecraft:biome_filter": [
+        {
+          "test": "has_biome_tag",
+          "operator": "==",
+          "value": "overworld"
+        }
+      ]
+    },
+    "distribution": {
+      "iterations": 5,
+      "x": {
+        "distribution": "uniform",
+        "extent": [
+          0,
+          16
+        ]
+      },
+      "y": {
+        "distribution": "uniform",
+        "extent": [
+          0,
+          48
+        ]
+      },
+      "z": {
+        "distribution": "uniform",
+        "extent": [
+          0,
+          16
+        ]
+      }
+    }
+  }
+}

@@ -326,6 +326,9 @@ def generate_items():
         ("knws:silver_ingot", "§fSilver Ingot", "knws_silver_ingot", "Items", 64),
         ("knws:horror_crystal", "§5Horror Crystal", "knws_horror_crystal", "Items", 64),
         ("knws:exorcist_essence", "§eExorcist Essence", "knws_exorcist_essence", "Items", 16),
+        ("knws:cursed_ingot", "§5Cursed Ingot", "knws_cursed_ingot", "Items", 64),
+        ("knws:nightmare_shard", "§4Nightmare Shard", "knws_nightmare_shard", "Items", 64),
+        ("knws:plague_ingot", "§2Plague Ingot", "knws_plague_ingot", "Items", 64),
     ]
     for ident, name, icon, cat, stack in util:
         comps = {}
@@ -334,6 +337,30 @@ def generate_items():
         if ident in ("knws:blood_stew", "knws:survivor_rations"):
             comps = {"minecraft:food": {"nutrition": 8, "saturation_modifier": 0.6}}
         write_json(BP / "items" / f"{ident.split(':')[1]}.json", item_def(ident, name, icon, cat, stack, comps or None))
+
+    # Verity microphone
+    write_json(BP / "items" / "verity_mic.json", item_def("knws:verity_mic", "§e§lVerity Microphone", "knws_verity_mic", "Equipment", 1, {
+        "minecraft:hand_equipped": True,
+        "knws:verity_mic_use": {},
+        "minecraft:use_modifiers": {"use_duration": 0.1},
+    }))
+
+    # Ore-crafted weapons
+    for ident, name, icon, comp in [
+        ("knws:cursed_blade", "§5Cursed Blade", "knws_cursed_blade", "cursed_blade"),
+        ("knws:nightmare_scythe", "§4Nightmare Scythe", "knws_nightmare_scythe", "nightmare_scythe"),
+    ]:
+        write_json(BP / "items" / f"{ident.split(':')[1]}.json", melee_item(ident, name, icon, comp, 700))
+    write_json(BP / "items" / "plague_cannon.json", gun_item("knws:plague_cannon", "§2Plague Cannon", "knws_plague_cannon", "plague_cannon"))
+
+    # Cursed armor set
+    for ident, name, icon, slot, prot in [
+        ("knws:cursed_helmet", "§5Cursed Helmet", "knws_cursed_helmet", "slot.armor.head", 3),
+        ("knws:cursed_chestplate", "§5Cursed Plate", "knws_cursed_chestplate", "slot.armor.chest", 8),
+        ("knws:cursed_leggings", "§5Cursed Leggings", "knws_cursed_leggings", "slot.armor.legs", 6),
+        ("knws:cursed_boots", "§5Cursed Boots", "knws_cursed_boots", "slot.armor.feet", 3),
+    ]:
+        write_json(BP / "items" / f"{ident.split(':')[1]}.json", armor_item(ident, name, icon, slot, prot))
 
     armors = [
         ("knws:survivor_helmet", "§aSurvivor Helmet", "knws_survivor_helmet", "slot.armor.head", 2),
@@ -427,11 +454,28 @@ def generate_blocks():
         ("knws:blood_mushroom", "knws_blood_mushroom"),
         ("knws:wasteland_soil", "knws_wasteland_soil"),
         ("knws:crystal_grass", "knws_crystal_grass"),
+        ("knws:cursed_ore", "knws_cursed_ore"),
+        ("knws:deepslate_cursed_ore", "knws_deepslate_cursed_ore"),
+        ("knws:nightmare_ore", "knws_nightmare_ore"),
+        ("knws:deepslate_nightmare_ore", "knws_deepslate_nightmare_ore"),
+        ("knws:plague_ore", "knws_plague_ore"),
+        ("knws:deepslate_plague_ore", "knws_deepslate_plague_ore"),
     ]
+    drop_map = {
+        "blood": "knws:blood_ingot", "silver": "knws:silver_ingot", "crystal_block": "knws:horror_crystal",
+        "cursed": "knws:cursed_ingot", "nightmare": "knws:nightmare_shard", "plague": "knws:plague_ingot",
+        "cursed_grass": "knws:cursed_grass", "wasteland": "knws:wasteland_soil", "crystal_grass": "knws:crystal_grass",
+        "mushroom": "knws:blood_mushroom", "verity_box": "knws:verity_box",
+    }
     for ident, tex in blocks:
         write_json(BP / "blocks" / f"{ident.split(':')[1]}.json", block_def(ident, tex))
-        drop = "knws:blood_ingot" if "blood" in ident and "mushroom" not in ident else "knws:silver_ingot" if "silver" in ident else "knws:horror_crystal" if "crystal" in ident else "knws:cursed_grass" if "cursed" in ident or "wasteland" in ident or "crystal_grass" in ident else "knws:blood_mushroom"
-        write_json(BP / "loot_tables/blocks" / f"{ident.split(':')[1]}.json", loot_table(ident.split(":")[1], [{"item": drop, "min": 1, "max": 1}]))
+        short = ident.split(":")[1]
+        drop = "knws:horror_crystal"
+        for key, val in drop_map.items():
+            if key in short:
+                drop = val
+                break
+        write_json(BP / "loot_tables/blocks" / f"{short}.json", loot_table(short, [{"item": drop, "min": 1, "max": 3}]))
 
 
 def generate_recipes():
@@ -465,10 +509,43 @@ def generate_recipes():
         recipe("knws:glow_torch", 4, [[None, "minecraft:torch", None], ["minecraft:torch", "minecraft:glowstone_dust", "minecraft:torch"]]),
         recipe("knws:cave_lantern", 2, [[None, "minecraft:glowstone", None], ["minecraft:iron_ingot", "knws:horror_crystal", "minecraft:iron_ingot"], [None, "minecraft:torch", None]]),
         recipe("knws:soul_flame_torch", 4, [[None, "minecraft:soul_torch", None], ["minecraft:soul_torch", "knws:exorcist_essence", "minecraft:soul_torch"]]),
+        recipe("knws:verity_mic", 1, [[None, "minecraft:redstone", None], ["minecraft:iron_ingot", "knws:horror_crystal", "minecraft:iron_ingot"], [None, "minecraft:stick", None]]),
+        recipe("knws:cursed_blade", 1, [[None, "knws:cursed_ingot", None], [None, "knws:cursed_ingot", None], [None, "minecraft:stick", None]]),
+        recipe("knws:nightmare_scythe", 1, [["knws:nightmare_shard", "knws:nightmare_shard", None], [None, "knws:nightmare_shard", None], [None, "minecraft:stick", None]]),
+        recipe("knws:plague_cannon", 1, [["knws:plague_ingot", "knws:blood_ingot", "knws:plague_ingot"], ["minecraft:iron_ingot", "minecraft:redstone", "minecraft:iron_ingot"]]),
+        recipe("knws:cursed_helmet", 1, [["knws:cursed_ingot", "knws:cursed_ingot", "knws:cursed_ingot"], ["knws:cursed_ingot", None, "knws:cursed_ingot"]]),
+        recipe("knws:cursed_chestplate", 1, [["knws:cursed_ingot", None, "knws:cursed_ingot"], ["knws:cursed_ingot", "knws:cursed_ingot", "knws:cursed_ingot"], ["knws:cursed_ingot", "knws:cursed_ingot", "knws:cursed_ingot"]]),
+        recipe("knws:cursed_leggings", 1, [["knws:cursed_ingot", "knws:cursed_ingot", "knws:cursed_ingot"], ["knws:cursed_ingot", None, "knws:cursed_ingot"], [None, None, None]]),
+        recipe("knws:cursed_boots", 1, [[None, None, None], ["knws:cursed_ingot", None, "knws:cursed_ingot"], ["knws:cursed_ingot", None, "knws:cursed_ingot"]]),
     ]
     for r in recipes:
         rid = r["minecraft:recipe_shaped"]["result"]["item"].split(":")[1]
         write_json(BP / "recipes" / f"{rid}.json", r)
+
+
+def generate_furnace_recipes():
+    pairs = [
+        ("knws:blood_ore", "knws:blood_ingot"),
+        ("knws:deepslate_blood_ore", "knws:blood_ingot"),
+        ("knws:silver_ore", "knws:silver_ingot"),
+        ("knws:deepslate_silver_ore", "knws:silver_ingot"),
+        ("knws:cursed_ore", "knws:cursed_ingot"),
+        ("knws:deepslate_cursed_ore", "knws:cursed_ingot"),
+        ("knws:nightmare_ore", "knws:nightmare_shard"),
+        ("knws:deepslate_nightmare_ore", "knws:nightmare_shard"),
+        ("knws:plague_ore", "knws:plague_ingot"),
+        ("knws:deepslate_plague_ore", "knws:plague_ingot"),
+    ]
+    for inp, out in pairs:
+        write_json(BP / "recipes" / f"smelt_{inp.split(':')[1]}.json", {
+            "format_version": "1.21.50",
+            "minecraft:recipe_furnace": {
+                "description": {"identifier": f"knws:smelt_{inp.split(':')[1]}"},
+                "tags": ["furnace", "blast_furnace"],
+                "input": inp,
+                "output": out,
+            },
+        })
 
 
 def generate_rp_catalogs():
@@ -482,21 +559,30 @@ def generate_rp_catalogs():
         "survivor_helmet", "survivor_chestplate", "survivor_leggings", "survivor_boots",
         "exorcist_helmet", "exorcist_chestplate", "exorcist_leggings", "exorcist_boots",
         "nightmare_helmet", "nightmare_chestplate", "nightmare_leggings", "nightmare_boots",
-        "glow_torch", "cave_lantern", "soul_flame_torch", "verity_companion",
+        "glow_torch", "cave_lantern", "soul_flame_torch", "verity_companion", "verity_mic",
+        "cursed_ingot", "nightmare_shard", "plague_ingot",
+        "cursed_blade", "nightmare_scythe", "plague_cannon",
+        "cursed_helmet", "cursed_chestplate", "cursed_leggings", "cursed_boots",
     ]
     for name in items:
         item_textures["texture_data"][f"knws_{name}"] = {"textures": f"textures/items/{name}"}
     write_json(RP / "textures/item_texture.json", {"resource_pack_name": "knowws_horror", "texture_name": "atlas.items", "texture_data": item_textures["texture_data"]})
 
     terrain = {"resource_pack_name": "knowws_horror", "texture_name": "atlas.terrain", "padding": 8, "num_mip_levels": 4, "texture_data": {}}
-    for name in ["blood_ore", "silver_ore", "deepslate_blood_ore", "deepslate_silver_ore", "horror_crystal_block",
-                 "cursed_grass", "blood_mushroom", "wasteland_soil", "crystal_grass", "verity_box"]:
+    ore_blocks = ["blood_ore", "silver_ore", "deepslate_blood_ore", "deepslate_silver_ore", "horror_crystal_block",
+                 "cursed_grass", "blood_mushroom", "wasteland_soil", "crystal_grass", "verity_box",
+                 "cursed_ore", "deepslate_cursed_ore", "nightmare_ore", "deepslate_nightmare_ore",
+                 "plague_ore", "deepslate_plague_ore"]
+    for name in ore_blocks:
         terrain["texture_data"][f"knws_{name}"] = {"textures": f"textures/blocks/{name}"}
     write_json(RP / "textures/terrain_texture.json", terrain)
 
     blocks_catalog = {"format_version": "1.21.50"}
-    for name in ["blood_ore", "silver_ore", "deepslate_blood_ore", "deepslate_silver_ore", "horror_crystal_block",
-                 "cursed_grass", "blood_mushroom", "wasteland_soil", "crystal_grass", "verity_box"]:
+    ore_blocks = ["blood_ore", "silver_ore", "deepslate_blood_ore", "deepslate_silver_ore", "horror_crystal_block",
+                 "cursed_grass", "blood_mushroom", "wasteland_soil", "crystal_grass", "verity_box",
+                 "cursed_ore", "deepslate_cursed_ore", "nightmare_ore", "deepslate_nightmare_ore",
+                 "plague_ore", "deepslate_plague_ore"]
+    for name in ore_blocks:
         sound = "grass" if "grass" in name or "mushroom" in name or "soil" in name else "glass" if "crystal" in name else "deepslate" if "deepslate" in name else "stone"
         blocks_catalog[f"knws:{name}"] = {"sound": sound}
     write_json(RP / "blocks.json", blocks_catalog)
@@ -544,6 +630,31 @@ def generate_feature_rules():
             "replace_rules": [{"places_block": "knws:silver_ore", "may_replace": [{"name": "minecraft:stone"}]}, {"places_block": "knws:deepslate_silver_ore", "may_replace": [{"name": "minecraft:deepslate"}]}],
         },
     })
+    for ore_name, block, y_range, count in [
+        ("cursed", "knws:cursed_ore", [-32, 16], 5),
+        ("nightmare", "knws:nightmare_ore", [-64, 0], 4),
+        ("plague", "knws:plague_ore", [0, 48], 5),
+    ]:
+        deepslate_block = f"knws:deepslate_{ore_name}_ore"
+        write_json(BP / f"features/{ore_name}_ore_feature.json", {
+            "format_version": "1.21.50",
+            "minecraft:ore_feature": {
+                "description": {"identifier": f"knws:{ore_name}_ore_feature"},
+                "count": count,
+                "replace_rules": [
+                    {"places_block": block, "may_replace": [{"name": "minecraft:stone"}]},
+                    {"places_block": deepslate_block, "may_replace": [{"name": "minecraft:deepslate"}]},
+                ],
+            },
+        })
+        write_json(BP / f"feature_rules/{ore_name}_ore_overworld.json", {
+            "format_version": "1.21.50",
+            "minecraft:feature_rules": {
+                "description": {"identifier": f"knws:{ore_name}_ore_overworld", "places_feature": f"knws:{ore_name}_ore_feature"},
+                "conditions": {"placement_pass": "underground_pass", "minecraft:biome_filter": [{"test": "has_biome_tag", "operator": "==", "value": "overworld"}]},
+                "distribution": {"iterations": 5, "x": {"distribution": "uniform", "extent": [0, 16]}, "y": {"distribution": "uniform", "extent": y_range}, "z": {"distribution": "uniform", "extent": [0, 16]}},
+            },
+        })
 
 
 def generate_biomes():
@@ -629,6 +740,7 @@ def main():
     generate_entities()
     generate_blocks()
     generate_recipes()
+    generate_furnace_recipes()
     generate_rp_catalogs()
     generate_feature_rules()
     generate_biomes()

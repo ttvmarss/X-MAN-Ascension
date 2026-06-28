@@ -115,6 +115,39 @@
     },
     "knws_verity_companion": {
       "textures": "textures/items/verity_companion"
+    },
+    "knws_verity_mic": {
+      "textures": "textures/items/verity_mic"
+    },
+    "knws_cursed_ingot": {
+      "textures": "textures/items/cursed_ingot"
+    },
+    "knws_nightmare_shard": {
+      "textures": "textures/items/nightmare_shard"
+    },
+    "knws_plague_ingot": {
+      "textures": "textures/items/plague_ingot"
+    },
+    "knws_cursed_blade": {
+      "textures": "textures/items/cursed_blade"
+    },
+    "knws_nightmare_scythe": {
+      "textures": "textures/items/nightmare_scythe"
+    },
+    "knws_plague_cannon": {
+      "textures": "textures/items/plague_cannon"
+    },
+    "knws_cursed_helmet": {
+      "textures": "textures/items/cursed_helmet"
+    },
+    "knws_cursed_chestplate": {
+      "textures": "textures/items/cursed_chestplate"
+    },
+    "knws_cursed_leggings": {
+      "textures": "textures/items/cursed_leggings"
+    },
+    "knws_cursed_boots": {
+      "textures": "textures/items/cursed_boots"
     }
   }
 }

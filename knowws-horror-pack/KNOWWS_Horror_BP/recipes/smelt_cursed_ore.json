@@ -1,0 +1,14 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_furnace": {
+    "description": {
+      "identifier": "knws:smelt_cursed_ore"
+    },
+    "tags": [
+      "furnace",
+      "blast_furnace"
+    ],
+    "input": "knws:cursed_ore",
+    "output": "knws:cursed_ingot"
+  }
+}

@@ -6,6 +6,7 @@ const WEAPON_CONFIG = {
   "knws:assault_rifle": { damage: 6, cooldown: 4, ammo: "knws:rifle_ammo", sound: "random.bow", spread: 0.05, projectile: "minecraft:arrow" },
   "knws:sniper_rifle": { damage: 25, cooldown: 30, ammo: "knws:rifle_ammo", sound: "random.bow", spread: 0.0, projectile: "minecraft:arrow" },
   "knws:flamethrower": { damage: 4, cooldown: 2, ammo: "knws:rifle_ammo", sound: "fire.fire", spread: 0.2, projectile: "minecraft:small_fireball" },
+  "knws:plague_cannon": { damage: 18, cooldown: 25, ammo: "knws:rifle_ammo", sound: "random.explode", spread: 0.08, projectile: "minecraft:small_fireball" },
 };
 
 const MELEE_CONFIG = {
@@ -13,6 +14,8 @@ const MELEE_CONFIG = {
   "knws:holy_mace": { damage: 14, cooldown: 15 },
   "knws:chainsaw": { damage: 8, cooldown: 5 },
   "knws:combat_knife": { damage: 6, cooldown: 6 },
+  "knws:cursed_blade": { damage: 12, cooldown: 8 },
+  "knws:nightmare_scythe": { damage: 16, cooldown: 12 },
 };
 
 const cooldowns = new Map();

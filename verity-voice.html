@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verity Voice — Talk to Verity with your microphone</title>
+  <style>
+    :root { --yellow: #ffdc32; --bg: #0a0a0f; --card: #14141c; --accent: #c41e1e; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: var(--bg); color: #eee; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px; }
+    h1 { color: var(--yellow); font-size: 1.8rem; margin-bottom: 4px; }
+    .sub { color: #888; margin-bottom: 24px; text-align: center; max-width: 500px; }
+    .sphere { width: 120px; height: 120px; background: var(--yellow); border-radius: 50%; margin: 20px auto; display: flex; align-items: center; justify-content: center; font-size: 48px; box-shadow: 0 0 40px rgba(255,220,50,0.4); transition: all 0.3s; }
+    .sphere.listening { box-shadow: 0 0 60px rgba(255,100,50,0.8); transform: scale(1.1); }
+    .sphere.scary { background: #8b0000; box-shadow: 0 0 40px rgba(200,0,0,0.6); }
+    .mic-btn { background: linear-gradient(135deg, var(--yellow), #e6a800); color: #111; border: none; padding: 20px 48px; font-size: 1.2rem; font-weight: 700; border-radius: 50px; cursor: pointer; user-select: none; touch-action: none; margin: 16px; }
+    .mic-btn:active, .mic-btn.listening { background: linear-gradient(135deg, #ff6b35, var(--accent)); color: #fff; }
+    .chat { background: var(--card); border-radius: 12px; padding: 20px; width: 100%; max-width: 560px; max-height: 300px; overflow-y: auto; margin-top: 20px; border: 1px solid #333; }
+    .msg { margin: 8px 0; padding: 10px 14px; border-radius: 8px; line-height: 1.5; }
+    .msg.you { background: #1e2a3a; text-align: right; }
+    .msg.verity { background: #2a2010; border-left: 3px solid var(--yellow); }
+    .phase-bar { display: flex; gap: 6px; margin: 16px 0; }
+    .phase { flex: 1; height: 6px; border-radius: 3px; background: #333; }
+    .phase.active { background: var(--yellow); }
+    .phase.done { background: #666; }
+    .hint { color: #666; font-size: 0.85rem; margin-top: 16px; text-align: center; max-width: 500px; }
+    select { background: var(--card); color: #eee; border: 1px solid #444; padding: 8px 12px; border-radius: 6px; margin: 8px; }
+  </style>
+</head>
+<body>
+  <h1>🙂 Verity Voice</h1>
+  <p class="sub">Hold the button and talk. Verity hears you and speaks back. Keep Minecraft open — type <code>v &lt;message&gt;</code> in-game to sync.</p>
+
+  <div class="sphere" id="sphere">🙂</div>
+  <div class="phase-bar" id="phases"></div>
+
+  <button class="mic-btn" id="micBtn">🎤 Hold to Talk</button>
+  <label>Phase (for testing): <select id="phaseSelect">
+    <option value="0">1 — Nice</option>
+    <option value="1">2 — Zesty</option>
+    <option value="2">3 — Weird</option>
+    <option value="3">4 — Scary</option>
+    <option value="4">5 — Entity</option>
+  </select></label>
+
+  <div class="chat" id="chat"></div>
+  <p class="hint">Requires Chrome or Edge. Allow microphone access. Works offline — no external servers.</p>
+
+<script>
+const PHASE_EMOJI = ["🙂", "😄", "😅", "😬", "👹"];
+const PHASE_NAMES = ["Nice", "Zesty", "Weird", "Scary", "Entity"];
+const TTS_RATE = [1.1, 1.2, 0.95, 0.8, 0.6];
+const TTS_PITCH = [1.3, 1.4, 1.0, 0.7, 0.4];
+
+let phase = 0;
+let recognition = null;
+let listening = false;
+
+const sphere = document.getElementById("sphere");
+const micBtn = document.getElementById("micBtn");
+const chat = document.getElementById("chat");
+const phaseSelect = document.getElementById("phaseSelect");
+
+// Phase bar UI
+const phaseBar = document.getElementById("phases");
+PHASE_NAMES.forEach((n, i) => {
+  const d = document.createElement("div");
+  d.className = "phase" + (i === 0 ? " active" : "");
+  d.title = n;
+  phaseBar.appendChild(d);
+});
+
+function updatePhaseUI() {
+  sphere.textContent = PHASE_EMOJI[phase];
+  sphere.className = "sphere" + (phase >= 3 ? " scary" : "");
+  [...phaseBar.children].forEach((el, i) => {
+    el.className = "phase" + (i < phase ? " done" : i === phase ? " active" : "");
+  });
+}
+
+phaseSelect.onchange = () => { phase = +phaseSelect.value; updatePhaseUI(); };
+
+function addMsg(text, who) {
+  const d = document.createElement("div");
+  d.className = "msg " + who;
+  d.textContent = text;
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function speak(text) {
+  const clean = text.replace(/§./g, "").replace(/\[.*?\]/g, "");
+  const u = new SpeechSynthesisUtterance(clean);
+  u.rate = TTS_RATE[phase];
+  u.pitch = TTS_PITCH[phase];
+  speechSynthesis.speak(u);
+}
+
+function getResponse(msg) {
+  const m = msg.toLowerCase();
+  const p = ["§f", "§e", "§7", "§c", "§4"][phase];
+  if (/^(hi|hello|hey)/.test(m)) return p + (phase===0?"Helloooo! I'm Verity, your personal helper friend!":phase===1?"HEYYY bestie!!":phase===2?"Hello... I counted your steps.":phase===3?"Something is coming in three days.":"...RUN");
+  if (m.includes("diamond")) return p + (phase<2?"Try Y level -58! I'll help you find some!":"§o...diamonds won't save you.");
+  if (m.includes("who are you")) return p + (phase===0?"I'm Verity! I know everything!":phase===1?"Your BEST friend obviously!":"§o...you know what I am.");
+  if (m.includes("help")) return p + (phase<3?"I'm here to help with anything!":"§oI don't help anymore. I WATCH.");
+  if (m.includes("east") && m.includes("village")) return p + "§oDon't go to the village in the east...";
+  if (m.includes("coming") || m.includes("three day")) return p + "§cSomething is coming. Yes, it's dangerous.";
+  if (m.includes("mine") || m.includes("yours")) return p + "§4YOU ARE MINE.";
+  if (m.includes("alone")) return p + "§oDo you live alone? In real life too?";
+  if (m.includes("friend")) return p + (phase<2?"Best friends forever!":"§oYou wouldn't invite someone else... would you?");
+  return p + ["That's great! Tell me more!","Nobody gets you like I do!","§oI heard you typing.","§4Don't look behind you.","§4..."][phase];
+}
+
+function respond(userText) {
+  addMsg("You: " + userText, "you");
+  const reply = getResponse(userText);
+  addMsg("Verity: " + reply.replace(/§./g, ""), "verity");
+  speak(reply);
+  navigator.clipboard?.writeText("v " + userText).catch(()=>{});
+}
+
+// Speech recognition setup
+if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = "en-US";
+
+  recognition.onresult = (e) => {
+    const text = e.results[0][0].transcript;
+    respond(text);
+    stopListen();
+  };
+  recognition.onerror = (e) => {
+    addMsg("Mic error: " + e.error, "verity");
+    stopListen();
+  };
+  recognition.onend = () => stopListen();
+} else {
+  micBtn.textContent = "❌ Mic not supported — use Chrome";
+  micBtn.disabled = true;
+}
+
+function startListen() {
+  if (!recognition || listening) return;
+  listening = true;
+  micBtn.classList.add("listening");
+  micBtn.textContent = "🔴 Listening...";
+  sphere.classList.add("listening");
+  try { recognition.start(); } catch(_) {}
+}
+
+function stopListen() {
+  listening = false;
+  micBtn.classList.remove("listening");
+  micBtn.textContent = "🎤 Hold to Talk";
+  sphere.classList.remove("listening");
+}
+
+micBtn.addEventListener("mousedown", startListen);
+micBtn.addEventListener("mouseup", stopListen);
+micBtn.addEventListener("mouseleave", stopListen);
+micBtn.addEventListener("touchstart", (e) => { e.preventDefault(); startListen(); });
+micBtn.addEventListener("touchend", (e) => { e.preventDefault(); stopListen(); });
+
+addMsg("Verity: Helloooo! Hold the mic button and talk to me!", "verity");
+speak("Hello! I'm Verity. Hold the button and talk to me!");
+</script>
+</body>
+</html>

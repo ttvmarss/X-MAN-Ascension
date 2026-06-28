@@ -29,5 +29,23 @@
   },
   "knws:verity_box": {
     "sound": "stone"
+  },
+  "knws:cursed_ore": {
+    "sound": "stone"
+  },
+  "knws:deepslate_cursed_ore": {
+    "sound": "deepslate"
+  },
+  "knws:nightmare_ore": {
+    "sound": "stone"
+  },
+  "knws:deepslate_nightmare_ore": {
+    "sound": "deepslate"
+  },
+  "knws:plague_ore": {
+    "sound": "stone"
+  },
+  "knws:deepslate_plague_ore": {
+    "sound": "deepslate"
   }
 }
