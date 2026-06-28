@@ -1,0 +1,18 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "xman:ak_rifle"
+    },
+    "components": {
+      "minecraft:max_stack_size": 1,
+      "minecraft:display_name": {
+        "value": "Ak Rifle"
+      },
+      "minecraft:damage": 12,
+      "minecraft:durability": {
+        "max_durability": 1000
+      }
+    }
+  }
+}
