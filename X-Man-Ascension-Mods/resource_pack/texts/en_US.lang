@@ -1,0 +1,83 @@
+# Guns
+item.xman:pistol=Pistol
+item.xman:revolver=Revolver
+item.xman:smg=SMG
+item.xman:ak_rifle=AK Rifle
+item.xman:assault_rifle=Assault Rifle
+item.xman:heavy_rifle=Heavy Rifle
+item.xman:shotgun=Shotgun
+item.xman:sniper_rifle=Sniper Rifle
+item.xman:explosive_launcher=Explosive Launcher
+
+# Melee Weapons
+item.xman:blood_sword=Blood Sword
+item.xman:shadow_sword=Shadow Sword
+item.xman:mutant_bone_axe=Mutant Bone Axe
+item.xman:cursed_scythe=Cursed Scythe
+item.xman:heavy_hammer=Heavy Hammer
+item.xman:spear=Spear
+item.xman:dagger=Dagger
+item.xman:lightning_blade=Lightning Blade
+item.xman:fire_katana=Fire Katana
+item.xman:void_greatsword=Void Greatsword
+
+# Armor Sets
+item.xman:shadow_helmet=Shadow Helmet
+item.xman:shadow_chestplate=Shadow Chestplate
+item.xman:shadow_leggings=Shadow Leggings
+item.xman:shadow_boots=Shadow Boots
+
+item.xman:blood_helmet=Blood Helmet
+item.xman:blood_chestplate=Blood Chestplate
+item.xman:blood_leggings=Blood Leggings
+item.xman:blood_boots=Blood Boots
+
+item.xman:titanium_helmet=Titanium Helmet
+item.xman:titanium_chestplate=Titanium Chestplate
+item.xman:titanium_leggings=Titanium Leggings
+item.xman:titanium_boots=Titanium Boots
+
+item.xman:void_helmet=Void Helmet
+item.xman:void_chestplate=Void Chestplate
+item.xman:void_leggings=Void Leggings
+item.xman:void_boots=Void Boots
+
+item.xman:infernal_helmet=Infernal Helmet
+item.xman:infernal_chestplate=Infernal Chestplate
+item.xman:infernal_leggings=Infernal Leggings
+item.xman:infernal_boots=Infernal Boots
+
+# Ammo
+item.xman:pistol_ammo=Pistol Ammo
+item.xman:rifle_ammo=Rifle Ammo
+item.xman:shotgun_shells=Shotgun Shells
+item.xman:sniper_rounds=Sniper Rounds
+
+# Special Items
+item.xman:affinity_gauntlet=Affinity Gauntlet
+item.xman:power_stone=Power Stone
+item.xman:space_stone=Space Stone
+item.xman:reality_stone=Reality Stone
+item.xman:mind_stone=Mind Stone
+item.xman:time_stone=Time Stone
+item.xman:soul_stone=Soul Stone
+item.xman:guide_book=Horror Survival Guide
+
+# Materials
+item.xman:refined_fuel=Refined Fuel
+item.xman:repair_kit=Repair Kit
+item.xman:oil_resource=Oil
+item.xman:titanium_ingot=Titanium Ingot
+item.xman:infernal_ingot=Infernal Ingot
+item.xman:void_ingot=Void Ingot
+item.xman:mutant_crystal=Mutant Crystal
+
+# Blocks
+tile.xman:shadow_ore=Shadow Ore
+tile.xman:bloodstone_ore=Bloodstone Ore
+tile.xman:titanium_ore=Titanium Ore
+tile.xman:toxic_ore=Toxic Ore
+tile.xman:void_ore=Void Ore
+tile.xman:infernal_ore=Infernal Ore
+tile.xman:mutant_crystal_ore=Mutant Crystal Ore
+tile.xman:ancient_steel_ore=Ancient Steel Ore
