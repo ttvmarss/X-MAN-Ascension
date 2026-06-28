@@ -3,9 +3,10 @@
 set -e
 cd "$(dirname "$0")"
 
-echo "Building textures..."
-python3 build_pack.py
+echo "Building textures & models..."
+python3 build_art.py
 python3 build_verity.py
+python3 build_models.py
 
 echo "Generating definitions..."
 python3 generate_definitions.py

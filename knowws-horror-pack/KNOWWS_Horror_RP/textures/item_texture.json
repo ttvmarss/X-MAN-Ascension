@@ -5,17 +5,32 @@
     "knws_pistol": {
       "textures": "textures/items/pistol"
     },
+    "knws_revolver": {
+      "textures": "textures/items/revolver"
+    },
     "knws_shotgun": {
       "textures": "textures/items/shotgun"
     },
     "knws_assault_rifle": {
       "textures": "textures/items/assault_rifle"
     },
+    "knws_smg": {
+      "textures": "textures/items/smg"
+    },
     "knws_sniper_rifle": {
       "textures": "textures/items/sniper_rifle"
     },
+    "knws_minigun": {
+      "textures": "textures/items/minigun"
+    },
     "knws_flamethrower": {
       "textures": "textures/items/flamethrower"
+    },
+    "knws_rpg": {
+      "textures": "textures/items/rpg"
+    },
+    "knws_plague_cannon": {
+      "textures": "textures/items/plague_cannon"
     },
     "knws_silver_sword": {
       "textures": "textures/items/silver_sword"
@@ -40,6 +55,9 @@
     },
     "knws_rifle_ammo": {
       "textures": "textures/items/rifle_ammo"
+    },
+    "knws_rocket": {
+      "textures": "textures/items/rocket"
     },
     "knws_flashlight": {
       "textures": "textures/items/flashlight"
@@ -133,9 +151,6 @@
     },
     "knws_nightmare_scythe": {
       "textures": "textures/items/nightmare_scythe"
-    },
-    "knws_plague_cannon": {
-      "textures": "textures/items/plague_cannon"
     },
     "knws_cursed_helmet": {
       "textures": "textures/items/cursed_helmet"

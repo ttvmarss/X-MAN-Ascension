@@ -10,7 +10,7 @@
     "components": {
       "minecraft:icon": "knws_sniper_rifle",
       "minecraft:display_name": {
-        "value": "\u00a7bSniper Rifle"
+        "value": "\u00a7b\u00a7lSniper Rifle"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

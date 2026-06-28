@@ -1,7 +1,7 @@
 import { world, system } from "@minecraft/server";
 import { ActionFormData } from "@minecraft/server-ui";
 
-const PACK_VERSION = "5.1.0";
+const PACK_VERSION = "6.0.0";
 const DOWNLOAD_URL = "https://github.com/ttvmarss/X-MAN-Ascension/releases/latest/download/KNOWWS_Horror_Pack.mcaddon";
 
 const verifiedPlayers = new Set();
@@ -57,7 +57,7 @@ async function showPackWelcome(player) {
   });
 
   player.sendMessage("§4§lKNOWWS HORROR PACK§r §7— textures, mobs, Verity & guns active!");
-  player.sendMessage("§eTip: §7Put a §eGlow Torch§7 in your §foff-hand§7 for cave lighting.");
+  player.sendMessage("§eTip: §7Right-click a §eGlow Torch§7 to auto-equip to §foff-hand§7 — or type §e!offhand");
 
   if (isMultiplayer) {
     player.sendMessage("§6§l[MULTIPLAYER]§r §fPlaying with a friend!");

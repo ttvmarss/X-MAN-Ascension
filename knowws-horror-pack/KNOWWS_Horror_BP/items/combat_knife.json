@@ -10,7 +10,7 @@
     "components": {
       "minecraft:icon": "knws_combat_knife",
       "minecraft:display_name": {
-        "value": "\u00a77Combat Knife"
+        "value": "\u00a77\u00a7lCombat Knife"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

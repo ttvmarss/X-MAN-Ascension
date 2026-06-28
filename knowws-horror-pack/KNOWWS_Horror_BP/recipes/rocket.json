@@ -1,0 +1,33 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_rocket"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      " A ",
+      "BCD"
+    ],
+    "key": {
+      "A": {
+        "item": "knws:blood_ingot"
+      },
+      "B": {
+        "item": "minecraft:gunpowder"
+      },
+      "C": {
+        "item": "minecraft:fire_charge"
+      },
+      "D": {
+        "item": "minecraft:gunpowder"
+      }
+    },
+    "result": {
+      "item": "knws:rocket",
+      "count": 4
+    }
+  }
+}

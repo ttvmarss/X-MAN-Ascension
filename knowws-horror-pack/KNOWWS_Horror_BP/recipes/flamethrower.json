@@ -1,0 +1,39 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_flamethrower"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "ABC",
+      "DEF"
+    ],
+    "key": {
+      "A": {
+        "item": "knws:blood_ingot"
+      },
+      "B": {
+        "item": "minecraft:iron_ingot"
+      },
+      "C": {
+        "item": "knws:blood_ingot"
+      },
+      "D": {
+        "item": "minecraft:iron_ingot"
+      },
+      "E": {
+        "item": "minecraft:lava_bucket"
+      },
+      "F": {
+        "item": "minecraft:iron_ingot"
+      }
+    },
+    "result": {
+      "item": "knws:flamethrower",
+      "count": 1
+    }
+  }
+}

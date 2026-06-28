@@ -4,7 +4,7 @@
     "name": "KNOWWS Horror Pack BP",
     "description": "§4KNOWWS Horror Pack§r - Horror mobs, guns, armor, ores & variety content. Apply to your existing world!",
     "uuid": "648b8260-ef91-41c7-95e7-3f62c8fd8c33",
-    "version": [5, 1, 0],
+    "version": [6, 0, 0],
     "min_engine_version": [1, 21, 0]
   },
   "modules": [
@@ -17,14 +17,14 @@
       "type": "script",
       "language": "javascript",
       "uuid": "c7392af4-086c-4350-aa03-1141cb230ddf",
-      "version": [5, 1, 0],
+      "version": [6, 0, 0],
       "entry": "scripts/main.js"
     }
   ],
   "dependencies": [
     {
       "uuid": "99bed64d-60e4-4735-9c43-f194de00b54a",
-      "version": [5, 1, 0]
+      "version": [6, 0, 0]
     },
     {
       "module_name": "@minecraft/server",

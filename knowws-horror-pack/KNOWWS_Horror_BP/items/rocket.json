@@ -1,0 +1,18 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "knws:rocket",
+      "menu_category": {
+        "category": "Items"
+      }
+    },
+    "components": {
+      "minecraft:icon": "knws_rocket",
+      "minecraft:display_name": {
+        "value": "\u00a74\u00a7lRocket"
+      },
+      "minecraft:max_stack_size": 16
+    }
+  }
+}

@@ -10,7 +10,7 @@
     "components": {
       "minecraft:icon": "knws_flamethrower",
       "minecraft:display_name": {
-        "value": "\u00a7cFlamethrower"
+        "value": "\u00a7c\u00a7lFlamethrower"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

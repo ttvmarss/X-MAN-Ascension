@@ -6,7 +6,7 @@ import { registerCaveBrightness } from "./cave_brightness.js";
 import { registerVarietySystem } from "./variety_system.js";
 import { registerVeritySystem } from "./verity_system.js";
 import { registerVerityVoice } from "./verity_voice.js";
-import { registerMultiplayerSync } from "./multiplayer_sync.js";
+import { registerTorchOffhand } from "./torch_offhand.js";
 
 system.beforeEvents.startup.subscribe((event) => {
   registerWeapons(event.itemComponentRegistry);
@@ -45,5 +45,6 @@ registerVarietySystem();
 registerVeritySystem();
 registerVerityVoice();
 registerMultiplayerSync();
+registerTorchOffhand();
 
-console.warn("[KNOWWS Horror Pack v5.1] Loaded — multiplayer sync, Verity, ores & horror active!");
+console.warn("[KNOWWS Horror Pack v6] Loaded — guns, off-hand torch, horror active!");

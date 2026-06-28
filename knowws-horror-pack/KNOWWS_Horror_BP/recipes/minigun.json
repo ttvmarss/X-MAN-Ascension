@@ -1,0 +1,43 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_minigun"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "ABC",
+      "DEF",
+      " G "
+    ],
+    "key": {
+      "A": {
+        "item": "knws:blood_ingot"
+      },
+      "B": {
+        "item": "minecraft:iron_ingot"
+      },
+      "C": {
+        "item": "knws:blood_ingot"
+      },
+      "D": {
+        "item": "minecraft:iron_ingot"
+      },
+      "E": {
+        "item": "minecraft:redstone_block"
+      },
+      "F": {
+        "item": "minecraft:iron_ingot"
+      },
+      "G": {
+        "item": "minecraft:iron_block"
+      }
+    },
+    "result": {
+      "item": "knws:minigun",
+      "count": 1
+    }
+  }
+}

@@ -10,14 +10,14 @@
     "components": {
       "minecraft:icon": "knws_crossbow_silver",
       "minecraft:display_name": {
-        "value": "\u00a7fSilver Crossbow"
+        "value": "\u00a7f\u00a7lSilver Crossbow"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,
-      "minecraft:durability": {
-        "max_durability": 500
+      "minecraft:use_modifiers": {
+        "use_duration": 0.1
       },
-      "knws:silver_sword_melee": {}
+      "knws:crossbow_silver_fire": {}
     }
   }
 }

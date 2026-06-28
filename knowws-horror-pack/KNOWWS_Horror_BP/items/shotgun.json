@@ -10,7 +10,7 @@
     "components": {
       "minecraft:icon": "knws_shotgun",
       "minecraft:display_name": {
-        "value": "\u00a76Shotgun"
+        "value": "\u00a76\u00a7lShotgun"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

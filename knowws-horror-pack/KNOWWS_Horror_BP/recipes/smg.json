@@ -1,0 +1,37 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_smg"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "AB ",
+      "CD ",
+      " E "
+    ],
+    "key": {
+      "A": {
+        "item": "knws:silver_ingot"
+      },
+      "B": {
+        "item": "knws:silver_ingot"
+      },
+      "C": {
+        "item": "minecraft:iron_ingot"
+      },
+      "D": {
+        "item": "minecraft:redstone"
+      },
+      "E": {
+        "item": "minecraft:stick"
+      }
+    },
+    "result": {
+      "item": "knws:smg",
+      "count": 1
+    }
+  }
+}

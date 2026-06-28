@@ -10,7 +10,7 @@
     "components": {
       "minecraft:icon": "knws_pistol",
       "minecraft:display_name": {
-        "value": "\u00a77Pistol"
+        "value": "\u00a77\u00a7lPistol"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

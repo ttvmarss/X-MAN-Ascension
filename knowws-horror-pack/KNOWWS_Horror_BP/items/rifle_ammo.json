@@ -10,7 +10,7 @@
     "components": {
       "minecraft:icon": "knws_rifle_ammo",
       "minecraft:display_name": {
-        "value": "\u00a77Rifle Ammo"
+        "value": "\u00a77\u00a7lRifle Ammo"
       },
       "minecraft:max_stack_size": 64
     }

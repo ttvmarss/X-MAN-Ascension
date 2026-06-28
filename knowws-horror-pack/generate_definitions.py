@@ -293,11 +293,15 @@ def client_entity(identifier, texture, geometry="geometry.humanoid"):
 
 def generate_items():
     guns = [
-        ("knws:pistol", "§7Pistol", "knws_pistol", "pistol"),
-        ("knws:shotgun", "§6Shotgun", "knws_shotgun", "shotgun"),
-        ("knws:assault_rifle", "§2Assault Rifle", "knws_assault_rifle", "assault_rifle"),
-        ("knws:sniper_rifle", "§bSniper Rifle", "knws_sniper_rifle", "sniper_rifle"),
-        ("knws:flamethrower", "§cFlamethrower", "knws_flamethrower", "flamethrower"),
+        ("knws:pistol", "§7§lPistol", "knws_pistol", "pistol"),
+        ("knws:revolver", "§8§lRevolver", "knws_revolver", "revolver"),
+        ("knws:shotgun", "§6§lShotgun", "knws_shotgun", "shotgun"),
+        ("knws:assault_rifle", "§2§lAssault Rifle", "knws_assault_rifle", "assault_rifle"),
+        ("knws:smg", "§a§lSMG", "knws_smg", "smg"),
+        ("knws:sniper_rifle", "§b§lSniper Rifle", "knws_sniper_rifle", "sniper_rifle"),
+        ("knws:minigun", "§c§lMinigun", "knws_minigun", "minigun"),
+        ("knws:flamethrower", "§c§lFlamethrower", "knws_flamethrower", "flamethrower"),
+        ("knws:rpg", "§4§lRPG", "knws_rpg", "rpg"),
     ]
     for ident, name, icon, comp in guns:
         write_json(BP / "items" / f"{ident.split(':')[1]}.json", gun_item(ident, name, icon, comp))
@@ -306,16 +310,17 @@ def generate_items():
         ("knws:silver_sword", "§fSilver Sword", "knws_silver_sword", "silver_sword", 800),
         ("knws:holy_mace", "§eHoly Mace", "knws_holy_mace", "holy_mace", 600),
         ("knws:chainsaw", "§cChainsaw", "knws_chainsaw", "chainsaw", 400),
-        ("knws:combat_knife", "§7Combat Knife", "knws_combat_knife", "combat_knife", 300),
-        ("knws:crossbow_silver", "§fSilver Crossbow", "knws_crossbow_silver", "silver_sword", 500),
+        ("knws:combat_knife", "§7§lCombat Knife", "knws_combat_knife", "combat_knife", 300),
     ]
     for ident, name, icon, comp, dur in melees:
         write_json(BP / "items" / f"{ident.split(':')[1]}.json", melee_item(ident, name, icon, comp, dur))
+    write_json(BP / "items" / "crossbow_silver.json", gun_item("knws:crossbow_silver", "§f§lSilver Crossbow", "knws_crossbow_silver", "crossbow_silver"))
 
     ammo = [
-        ("knws:pistol_ammo", "§ePistol Ammo", "knws_pistol_ammo", 64),
-        ("knws:shotgun_shells", "§6Shotgun Shells", "knws_shotgun_shells", 32),
-        ("knws:rifle_ammo", "§7Rifle Ammo", "knws_rifle_ammo", 64),
+        ("knws:pistol_ammo", "§e§lPistol Ammo", "knws_pistol_ammo", 64),
+        ("knws:shotgun_shells", "§6§lShotgun Shells", "knws_shotgun_shells", 32),
+        ("knws:rifle_ammo", "§7§lRifle Ammo", "knws_rifle_ammo", 64),
+        ("knws:rocket", "§4§lRocket", "knws_rocket", 16),
     ]
     for ident, name, icon, stack in ammo:
         write_json(BP / "items" / f"{ident.split(':')[1]}.json", item_def(ident, name, icon, "Items", stack))
@@ -389,11 +394,13 @@ def generate_items():
         ("knws:soul_flame_torch", "§5Soul Flame Torch", "knws_soul_flame_torch", 64),
     ]
     for ident, name, icon, stack in torches:
-        write_json(BP / "items" / f"{ident.split(':')[1]}.json", item_def(ident, name, icon, "Items", stack, {
-            "minecraft:hand_equipped": True,
+        comps = {
             "minecraft:allow_off_hand": True,
             "minecraft:max_stack_size": stack,
-        }))
+        }
+        if "glow" in ident or "lantern" in ident or "soul" in ident:
+            comps["minecraft:glint"] = True
+        write_json(BP / "items" / f"{ident.split(':')[1]}.json", item_def(ident, name, icon, "Items", stack, comps))
 
 
 def generate_entities():
@@ -488,9 +495,15 @@ def generate_blocks():
 def generate_recipes():
     recipes = [
         recipe("knws:pistol", 1, [["minecraft:iron_ingot", "knws:silver_ingot", None], [None, "minecraft:stick", None]]),
+        recipe("knws:revolver", 1, [["knws:silver_ingot", "minecraft:iron_ingot", "knws:silver_ingot"], [None, "minecraft:stick", None]]),
         recipe("knws:shotgun", 1, [["knws:silver_ingot", "minecraft:iron_ingot", "knws:silver_ingot"], [None, "minecraft:stick", "minecraft:oak_planks"]]),
         recipe("knws:assault_rifle", 1, [["knws:silver_ingot", "knws:blood_ingot", "knws:silver_ingot"], ["minecraft:iron_ingot", "minecraft:redstone", "minecraft:iron_ingot"], [None, "minecraft:stick", None]]),
+        recipe("knws:smg", 1, [["knws:silver_ingot", "knws:silver_ingot", None], ["minecraft:iron_ingot", "minecraft:redstone", None], [None, "minecraft:stick", None]]),
         recipe("knws:sniper_rifle", 1, [["knws:silver_ingot", None, "knws:silver_ingot"], ["minecraft:iron_ingot", "minecraft:spyglass", "minecraft:iron_ingot"], [None, "minecraft:stick", None]]),
+        recipe("knws:minigun", 1, [["knws:blood_ingot", "minecraft:iron_ingot", "knws:blood_ingot"], ["minecraft:iron_ingot", "minecraft:redstone_block", "minecraft:iron_ingot"], [None, "minecraft:iron_block", None]]),
+        recipe("knws:flamethrower", 1, [["knws:blood_ingot", "minecraft:iron_ingot", "knws:blood_ingot"], ["minecraft:iron_ingot", "minecraft:lava_bucket", "minecraft:iron_ingot"]]),
+        recipe("knws:rpg", 1, [["knws:blood_ingot", "minecraft:iron_block", "knws:blood_ingot"], [None, "minecraft:stick", None], [None, "knws:rocket", None]]),
+        recipe("knws:rocket", 4, [[None, "knws:blood_ingot", None], ["minecraft:gunpowder", "minecraft:fire_charge", "minecraft:gunpowder"]]),
         recipe("knws:silver_sword", 1, [[None, "knws:silver_ingot", None], [None, "knws:silver_ingot", None], [None, "minecraft:stick", None]]),
         recipe("knws:holy_mace", 1, [["knws:exorcist_essence", "knws:silver_ingot", "knws:exorcist_essence"], [None, "minecraft:stick", None], [None, "minecraft:stick", None]]),
         recipe("knws:chainsaw", 1, [["knws:blood_ingot", "minecraft:iron_ingot", "knws:blood_ingot"], ["minecraft:redstone", "minecraft:iron_ingot", "minecraft:redstone"]]),
@@ -558,9 +571,10 @@ def generate_furnace_recipes():
 def generate_rp_catalogs():
     item_textures = {"texture_data": {}}
     items = [
-        "pistol", "shotgun", "assault_rifle", "sniper_rifle", "flamethrower",
+        "pistol", "revolver", "shotgun", "assault_rifle", "smg", "sniper_rifle", "minigun",
+        "flamethrower", "rpg", "plague_cannon",
         "silver_sword", "holy_mace", "chainsaw", "combat_knife", "crossbow_silver",
-        "pistol_ammo", "shotgun_shells", "rifle_ammo", "flashlight", "medkit",
+        "pistol_ammo", "shotgun_shells", "rifle_ammo", "rocket", "flashlight", "medkit",
         "holy_water", "blood_stew", "survivor_rations", "blood_ingot", "silver_ingot",
         "horror_crystal", "exorcist_essence",
         "survivor_helmet", "survivor_chestplate", "survivor_leggings", "survivor_boots",
@@ -767,6 +781,40 @@ def attachable_def(identifier, texture, geometry, hide_layer="chest"):
     }
 
 
+def gun_attachable(identifier, texture, geometry):
+    return {
+        "format_version": "1.10.0",
+        "minecraft:attachable": {
+            "description": {
+                "identifier": identifier,
+                "materials": {"default": "entity_alphatest"},
+                "textures": {"default": texture},
+                "geometry": {"default": geometry},
+                "render_controllers": ["controller.render.item_default"],
+            },
+        },
+    }
+
+
+def generate_gun_attachables():
+    guns = [
+        ("knws:pistol", "textures/items/pistol", "geometry.knws.pistol"),
+        ("knws:revolver", "textures/items/revolver", "geometry.knws.pistol"),
+        ("knws:shotgun", "textures/items/shotgun", "geometry.knws.shotgun"),
+        ("knws:assault_rifle", "textures/items/assault_rifle", "geometry.knws.rifle"),
+        ("knws:smg", "textures/items/smg", "geometry.knws.smg"),
+        ("knws:sniper_rifle", "textures/items/sniper_rifle", "geometry.knws.sniper"),
+        ("knws:minigun", "textures/items/minigun", "geometry.knws.minigun"),
+        ("knws:flamethrower", "textures/items/flamethrower", "geometry.knws.flamethrower"),
+        ("knws:rpg", "textures/items/rpg", "geometry.knws.rpg"),
+        ("knws:plague_cannon", "textures/items/plague_cannon", "geometry.knws.rpg"),
+        ("knws:crossbow_silver", "textures/items/crossbow_silver", "geometry.knws.rifle"),
+    ]
+    for ident, tex, geo in guns:
+        short = ident.split(":")[1]
+        write_json(RP / "attachables" / f"{short}.attachable.json", gun_attachable(ident, tex, geo))
+
+
 def generate_attachables():
     sets = [
         ("survivor", "knws_survivor_1"),
@@ -800,6 +848,7 @@ def main():
     generate_biomes()
     generate_fog()
     generate_attachables()
+    generate_gun_attachables()
     print("JSON definitions generated.")
 
 
