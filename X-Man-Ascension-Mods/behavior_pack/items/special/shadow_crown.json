@@ -1,0 +1,14 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "xman:shadow_crown"
+    },
+    "components": {
+      "minecraft:max_stack_size": 16,
+      "minecraft:display_name": {
+        "value": "Shadow Crown"
+      }
+    }
+  }
+}

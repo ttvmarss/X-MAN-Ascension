@@ -1,0 +1,21 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:block": {
+    "description": {
+      "identifier": "xman:rusted_metal"
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1.5
+      },
+      "minecraft:display_name": {
+        "value": "Rusted Metal"
+      },
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "xman:rusted_metal"
+        }
+      }
+    }
+  }
+}
