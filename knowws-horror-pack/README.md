@@ -11,7 +11,7 @@ The ultimate horror & variety mod pack for Minecraft Bedrock. Verity companion, 
 | File | Link |
 |------|------|
 | **Full mod pack (.mcaddon)** | [**Download KNOWWS_Horror_Pack.mcaddon**](https://github.com/ttvmarss/X-MAN-Ascension/releases/latest/download/KNOWWS_Horror_Pack.mcaddon) |
-| **Latest release page** | [github.com/ttvmarss/X-MAN-Ascension/releases](https://github.com/ttvmarss/X-MAN-Ascension/releases/tag/v5.0.0) |
+| **Latest release page** | [github.com/ttvmarss/X-MAN-Ascension/releases](https://github.com/ttvmarss/X-MAN-Ascension/releases/tag/v5.1.0) |
 | **Mod pack hub** | [github.com/ttvmarss/X-MAN-Ascension/tree/knowws-horror-pack](https://github.com/ttvmarss/X-MAN-Ascension/tree/knowws-horror-pack) |
 | **Verity voice (PC mic)** | [Open verity-voice.html](https://github.com/ttvmarss/X-MAN-Ascension/releases/latest/download/verity-voice.html) |
 | **Install guide** | [download.html](download.html) |

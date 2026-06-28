@@ -54,9 +54,12 @@
       "minecraft:movement.basic": {},
       "minecraft:jump.static": {},
       "minecraft:can_climb": {},
+      "minecraft:scale": {
+        "value": 0.85
+      },
       "minecraft:collision_box": {
-        "width": 0.6,
-        "height": 1.9
+        "width": 0.51,
+        "height": 0.935
       },
       "minecraft:nameable": {},
       "minecraft:loot": {

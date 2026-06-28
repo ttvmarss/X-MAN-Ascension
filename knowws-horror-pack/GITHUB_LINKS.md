@@ -12,7 +12,7 @@ Share these links with friends to download and install the mod pack.
 
 ## Release page (all versions)
 
-**https://github.com/ttvmarss/X-MAN-Ascension/releases/tag/v5.0.0**
+**https://github.com/ttvmarss/X-MAN-Ascension/releases/tag/v5.1.0**
 
 ## Verity voice chat (PC microphone)
 

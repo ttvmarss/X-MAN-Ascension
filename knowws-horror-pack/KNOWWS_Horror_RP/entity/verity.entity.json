@@ -16,15 +16,15 @@
         "base_color": "#FFDC32",
         "overlay_color": "#333333"
       },
-      "scripts": {
-        "pre_animation": [
-          "variable.phase = query.property('knws:phase');"
-        ]
-      },
       "animations": {
         "bob": "animation.knws.verity_bob"
       },
-      "scripts_animations": ["bob"]
+      "scripts": {
+        "pre_animation": [
+          "variable.phase = query.property('knws:phase');"
+        ],
+        "animate": ["bob"]
+      }
     }
   }
 }

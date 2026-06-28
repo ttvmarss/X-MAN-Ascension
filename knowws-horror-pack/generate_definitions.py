@@ -140,10 +140,32 @@ def biome_def(identifier, tag, top_mat, mid_mat, climate_temp, climate_downfall,
     }
 
 
-def entity_def(identifier, name, health, damage, speed, family_extra=None):
+def entity_def(identifier, name, health, damage, speed, family_extra=None, scale=1.0, height=1.9, width=0.6):
     families = ["monster", "knws_horror"]
     if family_extra:
         families.append(family_extra)
+    components = {
+        "minecraft:type_family": {"family": families},
+        "minecraft:health": {"value": health, "max": health},
+        "minecraft:movement": {"value": speed},
+        "minecraft:navigation.walk": {"can_path_over_water": True, "avoid_water": True},
+        "minecraft:movement.basic": {},
+        "minecraft:jump.static": {},
+        "minecraft:can_climb": {},
+        "minecraft:scale": {"value": scale},
+        "minecraft:collision_box": {"width": width * scale, "height": height * scale},
+        "minecraft:nameable": {},
+        "minecraft:loot": {"table": f"loot_tables/entities/{identifier.split(':')[1]}.json"},
+        "minecraft:behavior.float": {"priority": 0},
+        "minecraft:behavior.random_stroll": {"priority": 6, "speed_multiplier": 0.8},
+        "minecraft:behavior.look_at_player": {"priority": 7, "look_distance": 8},
+        "minecraft:behavior.random_look_around": {"priority": 8},
+        "minecraft:physics": {},
+        "minecraft:pushable": {"is_pushable": True, "is_pushable_by_piston": True},
+        "minecraft:conditional_bandwidth_optimization": {},
+    }
+    if scale >= 1.2:
+        components["minecraft:ambient_sound_interval"] = {"value": 12.0, "range": 6.0, "event_name": "ambient.cave"}
     return {
         "format_version": "1.21.50",
         "minecraft:entity": {
@@ -163,25 +185,7 @@ def entity_def(identifier, name, health, damage, speed, family_extra=None):
                     "minecraft:attack": {"damage": damage},
                 },
             },
-            "components": {
-                "minecraft:type_family": {"family": families},
-                "minecraft:health": {"value": health, "max": health},
-                "minecraft:movement": {"value": speed},
-                "minecraft:navigation.walk": {"can_path_over_water": True, "avoid_water": True},
-                "minecraft:movement.basic": {},
-                "minecraft:jump.static": {},
-                "minecraft:can_climb": {},
-                "minecraft:collision_box": {"width": 0.6, "height": 1.9},
-                "minecraft:nameable": {},
-                "minecraft:loot": {"table": f"loot_tables/entities/{identifier.split(':')[1]}.json"},
-                "minecraft:behavior.float": {"priority": 0},
-                "minecraft:behavior.random_stroll": {"priority": 6, "speed_multiplier": 0.8},
-                "minecraft:behavior.look_at_player": {"priority": 7, "look_distance": 8},
-                "minecraft:behavior.random_look_around": {"priority": 8},
-                "minecraft:physics": {},
-                "minecraft:pushable": {"is_pushable": True, "is_pushable_by_piston": True},
-                "minecraft:conditional_bandwidth_optimization": {},
-            },
+            "components": components,
             "events": {
                 "minecraft:entity_spawned": {"add": {"component_groups": ["knws:hostile"]}},
             },
@@ -394,23 +398,26 @@ def generate_items():
 
 def generate_entities():
     mobs = [
-        ("knws:knocker", 40, 8, 0.35, "knocker"),
-        ("knws:shadow_stalker", 30, 10, 0.42, "shadow"),
-        ("knws:wendigo", 60, 14, 0.38, "wendigo"),
-        ("knws:crawler", 25, 6, 0.28, "crawler"),
-        ("knws:blood_hound", 35, 9, 0.45, "hound"),
-        ("knws:phantom_doll", 20, 5, 0.3, "doll"),
-        ("knws:screamer", 28, 7, 0.4, "screamer"),
-        ("knws:the_watcher", 50, 12, 0.25, "watcher"),
+        ("knws:knocker", 40, 8, 0.35, "knocker", 1.0),
+        ("knws:shadow_stalker", 30, 10, 0.42, "shadow", 1.1),
+        ("knws:wendigo", 60, 14, 0.38, "wendigo", 1.45, 2.2),
+        ("knws:crawler", 25, 6, 0.28, "crawler", 0.65, 1.0),
+        ("knws:blood_hound", 35, 9, 0.45, "hound", 0.85, 1.1),
+        ("knws:phantom_doll", 20, 5, 0.3, "doll", 0.9),
+        ("knws:screamer", 28, 7, 0.4, "screamer", 1.15),
+        ("knws:the_watcher", 50, 12, 0.25, "watcher", 1.3, 2.0),
     ]
-    for ident, hp, dmg, spd, fam in mobs:
-        write_json(BP / "entities" / f"{ident.split(':')[1]}.json", entity_def(ident, ident, hp, dmg, spd, fam))
+    for entry in mobs:
+        ident, hp, dmg, spd, fam = entry[:5]
+        scale = entry[5] if len(entry) > 5 else 1.0
+        height = entry[6] if len(entry) > 6 else 1.9
+        write_json(BP / "entities" / f"{ident.split(':')[1]}.json", entity_def(ident, ident, hp, dmg, spd, fam, scale, height))
         write_json(BP / "loot_tables/entities" / f"{ident.split(':')[1]}.json", loot_table(ident.split(":")[1], [
             {"item": "knws:horror_crystal", "weight": 3, "min": 1, "max": 2},
             {"item": "knws:blood_ingot", "weight": 2, "min": 1, "max": 3},
             {"item": "knws:exorcist_essence", "weight": 1},
         ]))
-        write_json(BP / "spawn_rules" / f"{ident.split(':')[1]}.json", spawn_rule(ident, 8 + mobs.index((ident, hp, dmg, spd, fam))))
+        write_json(BP / "spawn_rules" / f"{ident.split(':')[1]}.json", spawn_rule(ident, 8 + mobs.index(entry)))
         write_json(RP / "entity" / f"{ident.split(':')[1]}.entity.json", client_entity(ident, ident.split(":")[1]))
 
     # Biome-specific horror mobs
@@ -735,6 +742,53 @@ def generate_fog():
         })
 
 
+def attachable_def(identifier, texture, geometry, hide_layer="chest"):
+    layer_var = {
+        "helmet": "helmet_layer_visible",
+        "chest": "chest_layer_visible",
+        "legs": "leg_layer_visible",
+        "feet": "boot_layer_visible",
+    }.get(hide_layer, "chest_layer_visible")
+    return {
+        "format_version": "1.10.0",
+        "minecraft:attachable": {
+            "description": {
+                "identifier": identifier,
+                "materials": {"default": "armor", "enchanted": "armor_enchanted"},
+                "textures": {
+                    "default": texture,
+                    "enchanted": "textures/misc/enchanted_item_glint",
+                },
+                "geometry": {"default": geometry},
+                "scripts": {"parent_setup": f"variable.{layer_var} = 0.0;"},
+                "render_controllers": ["controller.render.armor"],
+            },
+        },
+    }
+
+
+def generate_attachables():
+    sets = [
+        ("survivor", "knws_survivor_1"),
+        ("exorcist", "knws_exorcist_1"),
+        ("nightmare", "knws_nightmare_1"),
+        ("cursed", "knws_cursed_1"),
+    ]
+    slots = [
+        ("helmet", "geometry.humanoid.armor.helmet"),
+        ("chestplate", "geometry.humanoid.armor.chestplate"),
+        ("leggings", "geometry.humanoid.armor.leggings"),
+        ("boots", "geometry.humanoid.armor.boots"),
+    ]
+    for prefix, tex in sets:
+        for slot, geo in slots:
+            ident = f"knws:{prefix}_{slot}"
+            write_json(
+                RP / "attachables" / f"{prefix}_{slot}.attachable.json",
+                attachable_def(ident, f"textures/models/armor/{tex}", geo, slot.replace("plate", "").replace("s", "")),
+            )
+
+
 def main():
     generate_items()
     generate_entities()
@@ -745,6 +799,7 @@ def main():
     generate_feature_rules()
     generate_biomes()
     generate_fog()
+    generate_attachables()
     print("JSON definitions generated.")
 
 

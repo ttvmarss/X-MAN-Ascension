@@ -1,91 +1,58 @@
-# Multiplayer & Installation Guide — KNOWWS Horror Pack
+# Multiplayer & Installation Guide — KNOWWS Horror Pack v5.1
 
-## How to add the pack to your EXISTING world (drag & drop)
+## PC host + laptop friend (recommended setup)
 
-### Step 1 — Import the pack (one time)
-1. Download `KNOWWS_Horror_Pack.mcaddon`
-2. **Double-click** it (Windows) or open it with Minecraft
-3. Minecraft imports both Behavior Pack + Resource Pack automatically
+This is the most reliable way to play together with all textures, mobs, guns, and Verity working.
 
-### Step 2 — Attach to your current world
-1. Open Minecraft → **Settings** → **Storage**
-2. Find your world → tap **Manage** (pencil icon)
-3. Scroll to **Behavior Packs** → find **KNOWWS Horror Pack BP** → tap **+**
-4. Confirm **Resource Pack** also activated (should auto-link)
-5. Enable experiments:
-   - **Holiday Creator Features**
-   - **Beta APIs**
-   - **Custom Biomes**
-6. **Re-enter your world**
+### On YOUR PC (host)
 
-That's it — same world, all new content in new chunks.
+1. Download and install the pack once:  
+   https://github.com/ttvmarss/X-MAN-Ascension/releases/latest/download/KNOWWS_Horror_Pack.mcaddon
+2. Open Minecraft → **Settings** → **Storage** → your world → **Manage**
+3. Add **KNOWWS Horror Pack BP** (+ resource pack if prompted)
+4. Enable experiments: **Beta APIs**, **Holiday Creator Features**, **Custom Biomes**
+5. Re-enter your world
+6. Invite your friend (Friends tab / LAN)
 
----
+### On your FRIEND'S laptop
 
-## Can my friend see everything WITHOUT installing on their laptop?
+1. **Before joining**, download the same `.mcaddon` link on their laptop
+2. Double-click it to import into Minecraft Bedrock on the laptop
+3. Join your world when you invite them
+4. When Minecraft asks **"Download packs to join?"** → tap **Download** (always say yes)
+5. In-game, type `!packok` once everything looks correct
 
-### Short answer: **No manual install needed, but they MUST download packs when joining YOU.**
+### Why both steps?
 
-Minecraft Bedrock works like this:
+| Step | What it does |
+|------|----------------|
+| Friend installs `.mcaddon` on laptop | Pack is on their device — backup if auto-sync glitches |
+| Friend taps **Download** when joining | Syncs the exact pack version from your world |
 
-| Scenario | What happens |
-|----------|--------------|
-| **You host, friend joins your world** | Friend gets a popup: *"Download packs to join?"* — they tap **Download**. Packs sync automatically from YOUR world. |
-| **Friend skips download** | They see broken textures, missing mobs, can't use custom items. **Won't work.** |
-| **Friend installs .mcaddon themselves AND joins your world** | Also works — both methods are fine. |
-| **Friend hosts their own world without packs** | They won't see any custom content. |
-
-### What YOU need to do (host on PC):
-1. Apply packs to **your** world (steps above)
-2. Open world to **LAN** or invite friend via Xbox Friends
-3. Tell friend: **"When you join, tap DOWNLOAD on the pack prompt"**
-4. Friend does NOT need to find the file — Minecraft sends it from your world
-
-### For Xbox / PlayStation / Switch friends:
-- Same rule: they must **accept pack download** when joining
-- Console players cannot drag `.mcaddon` files easily — joining YOUR world with pack download is the easiest way
-
-### For Realms:
-1. You upload packs to the Realm in Realm settings
-2. All members get packs automatically
+If your friend skips the download, they will see broken purple/black textures and missing horror mobs. **There is no way around this in Minecraft Bedrock** — the game requires packs on every player's device.
 
 ---
 
-## Off-hand torch (the "glow in off-hand" feature)
+## Add pack to your EXISTING world
 
-1. Craft **Glow Torch**: torch + glowstone dust (4 torches)
-2. Open inventory → move Glow Torch to **off-hand slot** (shield slot)
-3. Real light blocks appear around you in caves
-4. Works with vanilla torch, soul torch, Cave Lantern too
+1. Import `KNOWWS_Horror_Pack.mcaddon` (one time)
+2. Settings → Storage → your world → Manage
+3. Behavior Packs → **KNOWWS Horror Pack BP** → **+**
+4. Enable **Beta APIs**, **Holiday Creator Features**, **Custom Biomes**
+5. Re-enter world
 
----
-
-## Talk to Verity with your microphone
-
-### In-game (works inside Minecraft):
-- Craft **Verity Microphone** (iron + redstone + horror crystal)
-- **Right-click** to open voice phrase menu — instant responses
-- Or type: `v hello` or `mic where are diamonds` in chat
-
-### Real PC microphone (best experience):
-1. Open **`verity-voice.html`** in Chrome or Edge (same folder as download)
-2. Click **🎤 Hold to Talk**
-3. Speak — Verity hears you and **talks back with voice**
-4. Keep Minecraft open on the other monitor — responses also show in-game if you type `v <what you said>`
-
-> **Why two methods?** Minecraft Bedrock addons cannot access your PC microphone directly (Mojang limitation). The voice webpage uses your browser's mic and speaks Verity's replies aloud.
+Custom biomes and ores only appear in **new chunks** — explore farther out. Horror mobs spawn at night everywhere.
 
 ---
 
-## New custom ores (mine underground)
+## In-game commands
 
-| Ore | Y Level | Smelts to | Used for |
-|-----|---------|-----------|----------|
-| Blood Ore | -64 to 32 | Blood Ingot | Guns, horror gear |
-| Silver Ore | -48 to 48 | Silver Ingot | Armor, ammo |
-| Cursed Ore | -32 to 16 | Cursed Ingot | Cursed Blade & armor |
-| Nightmare Ore | -64 to 0 | Nightmare Shard | Nightmare Scythe |
-| Plague Ore | 0 to 48 | Plague Ingot | Plague Cannon |
+| Command | What it does |
+|---------|----------------|
+| `!pack` | Shows download link in chat |
+| `!packok` | Confirms pack is working |
+| `Verity hello` | Talk to Verity |
+| `!spawnbox` | Spawn Verity mystery box (debug) |
 
 ---
 
@@ -93,8 +60,14 @@ Minecraft Bedrock works like this:
 
 | Problem | Fix |
 |---------|-----|
-| Friend sees vanilla mobs only | They didn't download packs — rejoin and tap Download |
-| Guns don't work | Enable Beta APIs |
-| No custom ores | Enable Holiday Creator Features, explore NEW chunks |
-| Verity voice menu won't open | Enable Beta APIs |
-| Mic webpage doesn't hear me | Use Chrome/Edge, allow microphone permission |
+| Purple/black missing textures | Reinstall `.mcaddon` on BOTH devices, rejoin and tap Download |
+| Friend sees vanilla mobs only | They skipped pack download — leave world, rejoin, tap Download |
+| Guns / Verity don't work | Enable **Beta APIs** in world experiments |
+| No custom ores | Enable **Holiday Creator Features**, mine in **new** areas |
+| Pack popup never appears | Friend should install `.mcaddon` manually first, then rejoin |
+
+---
+
+## Download link (share with friend)
+
+**https://github.com/ttvmarss/X-MAN-Ascension/releases/latest/download/KNOWWS_Horror_Pack.mcaddon**

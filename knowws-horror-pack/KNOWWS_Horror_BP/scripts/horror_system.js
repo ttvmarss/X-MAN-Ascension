@@ -32,8 +32,7 @@ export function registerHorrorSystem() {
 
   world.afterEvents.playerSpawn.subscribe((event) => {
     if (event.initialSpawn) {
-      event.player.sendMessage("§4§lKNOWWS HORROR PACK§r §7loaded. Good luck surviving the night...");
-      event.player.sendMessage("§eTip: §7Put a §eGlow Torch§7 in your §foff-hand§7 for real dynamic lighting in caves!");
+      event.player.sendMessage("§8§oThe night feels different now...");
     }
   });
 
