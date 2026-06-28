@@ -1,0 +1,18 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "xman:heavy_hammer"
+    },
+    "components": {
+      "minecraft:max_stack_size": 1,
+      "minecraft:display_name": {
+        "value": "Heavy Hammer"
+      },
+      "minecraft:damage": 20,
+      "minecraft:durability": {
+        "max_durability": 800
+      }
+    }
+  }
+}

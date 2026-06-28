@@ -1,0 +1,23 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:block": {
+    "description": {
+      "identifier": "xman:bloodstone_ore"
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 5
+      },
+      "minecraft:display_name": {
+        "value": "Bloodstone Ore"
+      },
+      "minecraft:geometry": "minecraft:geometry.full_block",
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "xman:bloodstone_ore"
+        }
+      },
+      "minecraft:loot": "loot_tables/blocks/bloodstone_ore"
+    }
+  }
+}

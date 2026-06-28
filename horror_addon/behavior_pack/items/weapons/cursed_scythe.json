@@ -1,0 +1,18 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "xman:cursed_scythe"
+    },
+    "components": {
+      "minecraft:max_stack_size": 1,
+      "minecraft:display_name": {
+        "value": "Cursed Scythe"
+      },
+      "minecraft:damage": 18,
+      "minecraft:durability": {
+        "max_durability": 700
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "format_version": "1.12",
+  "type": "shapeless",
+  "input": {
+    "items": [
+      {
+        "item_name": "minecraft:iron_ingot",
+        "count": 5
+      },
+      {
+        "item_name": "xman:bloodstone_shard",
+        "count": 3
+      }
+    ]
+  },
+  "output": {
+    "item_name": "xman:blood_sword",
+    "count": 1
+  }
+}
