@@ -1,0 +1,19 @@
+{
+  "format_version": "1.16.100",
+  "minecraft:item": {
+    "description": {
+      "identifier": "xman:ore_scanner",
+      "category": "equipment"
+    },
+    "components": {
+      "minecraft:display_name": {
+        "value": "Ore Scanner"
+      },
+      "minecraft:icon": {
+        "texture": "textures/items/special/ore_scanner"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:hand_equipped": true
+    }
+  }
+}

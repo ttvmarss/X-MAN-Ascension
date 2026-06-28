@@ -1,0 +1,19 @@
+{
+  "format_version": "1.16.100",
+  "minecraft:item": {
+    "description": {
+      "identifier": "xman:rail_conductor_staff",
+      "category": "equipment"
+    },
+    "components": {
+      "minecraft:display_name": {
+        "value": "Rail Conductor Staff"
+      },
+      "minecraft:icon": {
+        "texture": "textures/items/special/rail_conductor_staff"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:hand_equipped": true
+    }
+  }
+}

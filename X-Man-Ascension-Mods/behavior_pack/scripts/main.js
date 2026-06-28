@@ -57,6 +57,8 @@ import { VehicleSystem } from "./vehicle_system.js";
 import { FuelSystem } from "./fuel_system.js";
 import { AffinityGauntlet } from "./affinity_gauntlet.js";
 import { ProgressionSystem } from "./progression.js";
+import { initXRaySystem } from "./xray_system.js";
+import { initRailSystem } from "./rail_system.js";
 import { getDynamicProp, setDynamicProp, sendActionbar, sendChat, COLORS } from "./utils.js";
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -83,6 +85,13 @@ world.afterEvents.worldInitialize?.subscribe?.(() => {
         world.getDynamicPropertyTotalByteCount(); // probe that it's available
     } catch (e) {}
 });
+
+// ──────────────────────────────────────────────────────────────────────────────
+// INITIALIZE NEW SYSTEMS
+// ──────────────────────────────────────────────────────────────────────────────
+
+try { initXRaySystem(); } catch (e) { console.warn("X-Ray System failed to initialize"); }
+try { initRailSystem(); } catch (e) { console.warn("Rail System failed to initialize"); }
 
 // ──────────────────────────────────────────────────────────────────────────────
 // TICK LOOP

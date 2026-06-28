@@ -1,0 +1,19 @@
+{
+  "format_version": "1.16.100",
+  "minecraft:item": {
+    "description": {
+      "identifier": "xman:xray_goggles",
+      "category": "equipment"
+    },
+    "components": {
+      "minecraft:display_name": {
+        "value": "X-Ray Goggles"
+      },
+      "minecraft:icon": {
+        "texture": "textures/items/special/xray_goggles"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:hand_equipped": true
+    }
+  }
+}
