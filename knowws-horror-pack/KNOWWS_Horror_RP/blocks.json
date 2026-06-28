@@ -1,0 +1,18 @@
+{
+  "format_version": "1.21.50",
+  "knws:blood_ore": {
+    "sound": "stone"
+  },
+  "knws:silver_ore": {
+    "sound": "stone"
+  },
+  "knws:deepslate_blood_ore": {
+    "sound": "deepslate"
+  },
+  "knws:deepslate_silver_ore": {
+    "sound": "deepslate"
+  },
+  "knws:horror_crystal_block": {
+    "sound": "glass"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_exorcist_helmet"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "ABC",
+      "D E"
+    ],
+    "key": {
+      "A": {
+        "item": "knws:exorcist_essence"
+      },
+      "B": {
+        "item": "knws:silver_ingot"
+      },
+      "C": {
+        "item": "knws:exorcist_essence"
+      },
+      "D": {
+        "item": "knws:silver_ingot"
+      },
+      "E": {
+        "item": "knws:silver_ingot"
+      }
+    },
+    "result": {
+      "item": "knws:exorcist_helmet",
+      "count": 1
+    }
+  }
+}

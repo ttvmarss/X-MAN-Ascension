@@ -1,0 +1,34 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_nightmare_boots"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "   ",
+      "A B",
+      "C D"
+    ],
+    "key": {
+      "A": {
+        "item": "knws:blood_ingot"
+      },
+      "B": {
+        "item": "knws:blood_ingot"
+      },
+      "C": {
+        "item": "knws:horror_crystal"
+      },
+      "D": {
+        "item": "knws:horror_crystal"
+      }
+    },
+    "result": {
+      "item": "knws:nightmare_boots",
+      "count": 1
+    }
+  }
+}

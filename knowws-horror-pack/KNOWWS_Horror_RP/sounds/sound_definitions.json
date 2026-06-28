@@ -1,0 +1,32 @@
+{
+  "format_version": "1.21.0",
+  "sound_definitions": {
+    "knws.horror.ambient": {
+      "category": "ambient",
+      "sounds": [
+        {
+          "name": "sounds/ambient/cave/cave1",
+          "volume": 0.5
+        }
+      ]
+    },
+    "knws.gun.pistol": {
+      "category": "neutral",
+      "sounds": [
+        {
+          "name": "sounds/random/bow",
+          "volume": 1.0
+        }
+      ]
+    },
+    "knws.jumpscare": {
+      "category": "hostile",
+      "sounds": [
+        {
+          "name": "sounds/mob/wither/spawn1",
+          "volume": 0.8
+        }
+      ]
+    }
+  }
+}

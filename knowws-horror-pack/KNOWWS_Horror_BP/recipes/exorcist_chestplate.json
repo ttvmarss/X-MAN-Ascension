@@ -1,0 +1,46 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_exorcist_chestplate"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "A B",
+      "CDE",
+      "FGH"
+    ],
+    "key": {
+      "A": {
+        "item": "knws:exorcist_essence"
+      },
+      "B": {
+        "item": "knws:exorcist_essence"
+      },
+      "C": {
+        "item": "knws:silver_ingot"
+      },
+      "D": {
+        "item": "knws:horror_crystal"
+      },
+      "E": {
+        "item": "knws:silver_ingot"
+      },
+      "F": {
+        "item": "knws:silver_ingot"
+      },
+      "G": {
+        "item": "knws:silver_ingot"
+      },
+      "H": {
+        "item": "knws:silver_ingot"
+      }
+    },
+    "result": {
+      "item": "knws:exorcist_chestplate",
+      "count": 1
+    }
+  }
+}

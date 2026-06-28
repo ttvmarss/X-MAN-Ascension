@@ -1,0 +1,33 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_holy_water"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      " A ",
+      "BCD"
+    ],
+    "key": {
+      "A": {
+        "item": "knws:exorcist_essence"
+      },
+      "B": {
+        "item": "minecraft:glass_bottle"
+      },
+      "C": {
+        "item": "minecraft:glass_bottle"
+      },
+      "D": {
+        "item": "minecraft:glass_bottle"
+      }
+    },
+    "result": {
+      "item": "knws:holy_water",
+      "count": 3
+    }
+  }
+}

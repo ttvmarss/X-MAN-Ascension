@@ -1,0 +1,31 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_silver_sword"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      " A ",
+      " B ",
+      " C "
+    ],
+    "key": {
+      "A": {
+        "item": "knws:silver_ingot"
+      },
+      "B": {
+        "item": "knws:silver_ingot"
+      },
+      "C": {
+        "item": "minecraft:stick"
+      }
+    },
+    "result": {
+      "item": "knws:silver_sword",
+      "count": 1
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_rifle_ammo"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "AB ",
+      "CDE"
+    ],
+    "key": {
+      "A": {
+        "item": "knws:silver_ingot"
+      },
+      "B": {
+        "item": "knws:silver_ingot"
+      },
+      "C": {
+        "item": "minecraft:gunpowder"
+      },
+      "D": {
+        "item": "minecraft:gunpowder"
+      },
+      "E": {
+        "item": "minecraft:gunpowder"
+      }
+    },
+    "result": {
+      "item": "knws:rifle_ammo",
+      "count": 8
+    }
+  }
+}

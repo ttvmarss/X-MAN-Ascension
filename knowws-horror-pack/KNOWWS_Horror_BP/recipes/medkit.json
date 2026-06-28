@@ -1,0 +1,39 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_medkit"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "ABC",
+      "DEF"
+    ],
+    "key": {
+      "A": {
+        "item": "minecraft:paper"
+      },
+      "B": {
+        "item": "minecraft:paper"
+      },
+      "C": {
+        "item": "minecraft:paper"
+      },
+      "D": {
+        "item": "knws:blood_ingot"
+      },
+      "E": {
+        "item": "minecraft:golden_apple"
+      },
+      "F": {
+        "item": "knws:blood_ingot"
+      }
+    },
+    "result": {
+      "item": "knws:medkit",
+      "count": 1
+    }
+  }
+}

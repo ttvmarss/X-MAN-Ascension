@@ -1,0 +1,43 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_assault_rifle"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "ABC",
+      "DEF",
+      " G "
+    ],
+    "key": {
+      "A": {
+        "item": "knws:silver_ingot"
+      },
+      "B": {
+        "item": "knws:blood_ingot"
+      },
+      "C": {
+        "item": "knws:silver_ingot"
+      },
+      "D": {
+        "item": "minecraft:iron_ingot"
+      },
+      "E": {
+        "item": "minecraft:redstone"
+      },
+      "F": {
+        "item": "minecraft:iron_ingot"
+      },
+      "G": {
+        "item": "minecraft:stick"
+      }
+    },
+    "result": {
+      "item": "knws:assault_rifle",
+      "count": 1
+    }
+  }
+}

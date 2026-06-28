@@ -1,0 +1,46 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_survivor_chestplate"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "A B",
+      "CDE",
+      "FGH"
+    ],
+    "key": {
+      "A": {
+        "item": "knws:silver_ingot"
+      },
+      "B": {
+        "item": "knws:silver_ingot"
+      },
+      "C": {
+        "item": "knws:silver_ingot"
+      },
+      "D": {
+        "item": "knws:silver_ingot"
+      },
+      "E": {
+        "item": "knws:silver_ingot"
+      },
+      "F": {
+        "item": "knws:silver_ingot"
+      },
+      "G": {
+        "item": "knws:silver_ingot"
+      },
+      "H": {
+        "item": "knws:silver_ingot"
+      }
+    },
+    "result": {
+      "item": "knws:survivor_chestplate",
+      "count": 1
+    }
+  }
+}

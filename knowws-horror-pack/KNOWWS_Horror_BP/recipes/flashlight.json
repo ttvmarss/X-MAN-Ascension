@@ -1,0 +1,37 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "knws:recipe_flashlight"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      " A ",
+      "BCD",
+      " E "
+    ],
+    "key": {
+      "A": {
+        "item": "minecraft:glowstone_dust"
+      },
+      "B": {
+        "item": "minecraft:iron_ingot"
+      },
+      "C": {
+        "item": "minecraft:redstone"
+      },
+      "D": {
+        "item": "minecraft:iron_ingot"
+      },
+      "E": {
+        "item": "minecraft:iron_ingot"
+      }
+    },
+    "result": {
+      "item": "knws:flashlight",
+      "count": 1
+    }
+  }
+}
