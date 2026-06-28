@@ -1,0 +1,50 @@
+{
+  "format_version": "1.21.40",
+  "minecraft:biome": {
+    "description": {
+      "identifier": "knws:horror_wastes"
+    },
+    "components": {
+      "minecraft:climate": {
+        "temperature": 1.2,
+        "downfall": 0.1,
+        "snow_accumulation": [
+          0.0,
+          0.0
+        ]
+      },
+      "minecraft:overworld_height": {
+        "noise_type": "default"
+      },
+      "minecraft:surface_parameters": {
+        "sea_floor_depth": 7,
+        "sea_floor_material": "minecraft:gravel",
+        "foundation_material": "minecraft:stone",
+        "mid_material": "minecraft:coarse_dirt",
+        "top_material": "knws:wasteland_soil",
+        "sea_material": "minecraft:water"
+      },
+      "minecraft:overworld_generation_rules": {
+        "hills_transformation": "knws:horror_wastes",
+        "generate_for_climates": [
+          [
+            "warm",
+            1
+          ],
+          [
+            "medium",
+            2
+          ]
+        ]
+      },
+      "minecraft:tags": {
+        "tags": [
+          "overworld",
+          "monster",
+          "horror_wastes",
+          "no_legacy_worldgen"
+        ]
+      }
+    }
+  }
+}

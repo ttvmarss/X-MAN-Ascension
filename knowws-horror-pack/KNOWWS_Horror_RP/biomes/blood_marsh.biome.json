@@ -1,0 +1,25 @@
+{
+  "format_version": "1.21.40",
+  "minecraft:client_biome": {
+    "description": {
+      "identifier": "knws:blood_marsh"
+    },
+    "components": {
+      "minecraft:fog_appearance": {
+        "fog_identifier": "knws:blood_marsh_fog"
+      },
+      "minecraft:water_appearance": {
+        "surface_color": "#5c1010"
+      },
+      "minecraft:foliage_appearance": {
+        "color": "#6b2020"
+      },
+      "minecraft:grass_appearance": {
+        "color": "#6b2020"
+      },
+      "minecraft:sky_color": {
+        "sky_color": "#3a0808"
+      }
+    }
+  }
+}

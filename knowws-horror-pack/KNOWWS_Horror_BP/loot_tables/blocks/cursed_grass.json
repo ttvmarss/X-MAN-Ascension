@@ -1,0 +1,15 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "item",
+          "name": "knws:cursed_grass",
+          "weight": 1,
+          "functions": []
+        }
+      ]
+    }
+  ]
+}

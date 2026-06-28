@@ -1,0 +1,50 @@
+{
+  "format_version": "1.21.40",
+  "minecraft:biome": {
+    "description": {
+      "identifier": "knws:cursed_forest"
+    },
+    "components": {
+      "minecraft:climate": {
+        "temperature": 0.6,
+        "downfall": 0.8,
+        "snow_accumulation": [
+          0.0,
+          0.0
+        ]
+      },
+      "minecraft:overworld_height": {
+        "noise_type": "default"
+      },
+      "minecraft:surface_parameters": {
+        "sea_floor_depth": 7,
+        "sea_floor_material": "minecraft:gravel",
+        "foundation_material": "minecraft:stone",
+        "mid_material": "minecraft:dirt",
+        "top_material": "knws:cursed_grass",
+        "sea_material": "minecraft:water"
+      },
+      "minecraft:overworld_generation_rules": {
+        "hills_transformation": "knws:cursed_forest",
+        "generate_for_climates": [
+          [
+            "medium",
+            2
+          ],
+          [
+            "cold",
+            1
+          ]
+        ]
+      },
+      "minecraft:tags": {
+        "tags": [
+          "overworld",
+          "monster",
+          "cursed_forest",
+          "no_legacy_worldgen"
+        ]
+      }
+    }
+  }
+}

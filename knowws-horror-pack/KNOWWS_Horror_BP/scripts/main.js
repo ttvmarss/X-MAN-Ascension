@@ -1,6 +1,9 @@
-import { world, system, ItemStack } from "@minecraft/server";
+import { world, system } from "@minecraft/server";
 import { registerWeapons } from "./weapons.js";
 import { registerHorrorSystem } from "./horror_system.js";
+import { registerTorchLighting } from "./torch_lighting.js";
+import { registerCaveBrightness } from "./cave_brightness.js";
+import { registerVarietySystem } from "./variety_system.js";
 
 system.beforeEvents.startup.subscribe((event) => {
   registerWeapons(event.itemComponentRegistry);
@@ -33,5 +36,8 @@ function horrorTick() {
 }
 
 registerHorrorSystem();
+registerTorchLighting();
+registerCaveBrightness();
+registerVarietySystem();
 
-console.warn("[KNOWWS Horror Pack] Loaded! Survive the night...");
+console.warn("[KNOWWS Horror Pack v3] Loaded — horror, variety, torch lighting & cave brightness active!");

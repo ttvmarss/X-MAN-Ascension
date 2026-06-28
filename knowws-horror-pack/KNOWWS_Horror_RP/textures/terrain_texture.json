@@ -18,6 +18,18 @@
     },
     "knws_horror_crystal_block": {
       "textures": "textures/blocks/horror_crystal_block"
+    },
+    "knws_cursed_grass": {
+      "textures": "textures/blocks/cursed_grass"
+    },
+    "knws_blood_mushroom": {
+      "textures": "textures/blocks/blood_mushroom"
+    },
+    "knws_wasteland_soil": {
+      "textures": "textures/blocks/wasteland_soil"
+    },
+    "knws_crystal_grass": {
+      "textures": "textures/blocks/crystal_grass"
     }
   }
 }

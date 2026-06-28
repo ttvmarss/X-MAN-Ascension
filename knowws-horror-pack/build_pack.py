@@ -115,6 +115,11 @@ def main():
     item_texture("horror_crystal", [rgba(60, 0, 80), rgba(140, 20, 180), rgba(220, 80, 255)])
     item_texture("exorcist_essence", [rgba(180, 150, 40), rgba(255, 220, 80), rgba(255, 255, 180)])
 
+    # Torches (off-hand glow)
+    item_texture("glow_torch", [rgba(80, 60, 20), rgba(255, 200, 60), rgba(255, 255, 150)])
+    item_texture("cave_lantern", [rgba(40, 40, 50), rgba(100, 180, 255), rgba(200, 240, 255)])
+    item_texture("soul_flame_torch", [rgba(30, 20, 50), rgba(80, 40, 180), rgba(160, 100, 255)])
+
     # Armor
     for piece, colors in {
         "survivor_helmet": [rgba(50, 55, 45), rgba(90, 95, 80), rgba(120, 125, 100)],
@@ -142,12 +147,29 @@ def main():
     entity_texture("screamer", rgba(180, 180, 190), rgba(100, 100, 110), rgba(255, 0, 0))
     entity_texture("the_watcher", rgba(15, 15, 20), rgba(50, 50, 60), rgba(255, 255, 0))
 
+    # Biome horror mobs
+    entity_texture("marsh_lurker", rgba(40, 60, 30), rgba(100, 40, 30), rgba(200, 50, 50))
+    entity_texture("forest_shade", rgba(20, 35, 15), rgba(50, 80, 30), rgba(150, 255, 50))
+    entity_texture("waste_howler", rgba(90, 80, 60), rgba(140, 100, 50), rgba(255, 80, 0))
+    entity_texture("crystal_shardling", rgba(60, 100, 180), rgba(120, 180, 255), rgba(200, 240, 255))
+    entity_texture("bone_stalker", rgba(200, 195, 180), rgba(140, 130, 110), rgba(255, 0, 0))
+    entity_texture("swamp_wraith", rgba(30, 50, 40), rgba(60, 90, 70), rgba(100, 200, 150))
+
+    # Variety passive mobs
+    entity_texture("glow_beetle", rgba(40, 30, 10), rgba(200, 160, 40), rgba(255, 230, 80))
+    entity_texture("variety_deer", rgba(100, 70, 40), rgba(160, 110, 60), rgba(200, 150, 80))
+    entity_texture("crystal_sprite", rgba(80, 140, 200), rgba(140, 200, 255), rgba(220, 240, 255))
+
     # Blocks
     block_texture("blood_ore", rgba(60, 45, 45), rgba(180, 30, 30))
     block_texture("silver_ore", rgba(70, 70, 80), rgba(200, 210, 230))
     block_texture("deepslate_blood_ore", rgba(40, 40, 45), rgba(140, 20, 20))
     block_texture("deepslate_silver_ore", rgba(35, 38, 42), rgba(170, 180, 200))
     block_texture("horror_crystal_block", rgba(40, 0, 60), rgba(180, 40, 220))
+    block_texture("cursed_grass", rgba(30, 50, 20), rgba(60, 100, 30))
+    block_texture("blood_mushroom", rgba(80, 20, 20), rgba(160, 40, 40))
+    block_texture("wasteland_soil", rgba(70, 55, 35), rgba(110, 85, 50))
+    block_texture("crystal_grass", rgba(40, 60, 100), rgba(80, 140, 200))
 
     print("Textures generated.")
 

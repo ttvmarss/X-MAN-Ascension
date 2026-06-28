@@ -1,0 +1,25 @@
+{
+  "format_version": "1.21.40",
+  "minecraft:client_biome": {
+    "description": {
+      "identifier": "knws:cursed_forest"
+    },
+    "components": {
+      "minecraft:fog_appearance": {
+        "fog_identifier": "knws:cursed_forest_fog"
+      },
+      "minecraft:water_appearance": {
+        "surface_color": "#2d4a1f"
+      },
+      "minecraft:foliage_appearance": {
+        "color": "#3d6628"
+      },
+      "minecraft:grass_appearance": {
+        "color": "#3d6628"
+      },
+      "minecraft:sky_color": {
+        "sky_color": "#1a2e12"
+      }
+    }
+  }
+}

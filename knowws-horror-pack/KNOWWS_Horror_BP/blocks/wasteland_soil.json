@@ -1,0 +1,27 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:block": {
+    "description": {
+      "identifier": "knws:wasteland_soil",
+      "menu_category": {
+        "category": "nature"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 3
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 3
+      },
+      "minecraft:map_color": "#8B0000",
+      "minecraft:loot": "loot_tables/blocks/wasteland_soil.json",
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "knws_wasteland_soil",
+          "render_method": "opaque"
+        }
+      }
+    }
+  }
+}

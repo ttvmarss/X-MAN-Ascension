@@ -1,14 +1,44 @@
 # KNOWWS Horror Pack for Minecraft Bedrock Edition
 
-The ultimate horror mod pack for Minecraft Bedrock — inspired by popular horror addons and variety packs. Adds custom horror mobs, guns, melee weapons, three armor sets, new ores, crafting recipes, sanity/jumpscare systems, and more.
+The ultimate horror & variety mod pack for Minecraft Bedrock — inspired by popular horror addons and Variety Bedrock Edition. Adds custom horror mobs, guns, melee weapons, three armor sets, **off-hand torch glow**, **enhanced cave brightness**, **4 custom biomes**, crafting recipes, sanity/jumpscare systems, and more.
 
 **Compatible with Minecraft Bedrock 1.21+** (Windows, Xbox, PlayStation, Switch, Mobile)
 
 ---
 
-## What's Included
+## Download
 
-### Horror Mobs (8)
+**[Open Download Page](download.html)** — click to download `KNOWWS_Horror_Pack.mcaddon`, then drag it into Minecraft.
+
+Or grab the file directly: `KNOWWS_Horror_Pack.mcaddon` in this folder.
+
+---
+
+## What's Included (v3.0)
+
+### Off-Hand Torch Glow (Real Dynamic Lighting)
+- Hold **any torch** in your off-hand — vanilla torch, soul torch, or custom glow torches
+- Script places real `light_block` entities around you (not fake UI effects)
+- **Glow Torch** — brightest off-hand light (craft: torch + glowstone dust)
+- **Cave Lantern** — maximum cave visibility
+- **Soul Flame Torch** — purple-tinted off-hand glow
+- Flame & end-rod particles on off-hand torch
+
+### Enhanced Cave Brightness
+- Subtle night vision when deep underground in dark areas
+- Ambient light blocks when light level is very low
+- Lighter fog settings for better cave visibility
+- Works automatically — no config needed
+
+### Custom Biomes (4)
+| Biome | Features |
+|-------|----------|
+| **Cursed Forest** | Dark green terrain, Forest Shade mobs, Glow Beetles |
+| **Blood Marsh** | Red swampy ground, Marsh Lurker & Swamp Wraith |
+| **Horror Wastes** | Barren wasteland, Waste Howler & Bone Stalker |
+| **Crystal Caverns** | Blue crystal terrain, Crystal Shardling & Crystal Sprite |
+
+### Horror Mobs (17 total)
 | Mob | Description |
 |-----|-------------|
 | **The Knocker** | Folklore-inspired stalker that hunts at night |
@@ -19,6 +49,17 @@ The ultimate horror mod pack for Minecraft Bedrock — inspired by popular horro
 | **Phantom Doll** | Creepy doll entity |
 | **Screamer** | Shrieking horror mob |
 | **The Watcher** | Slow but deadly observer |
+| **Marsh Lurker** | Blood Marsh ambush predator |
+| **Forest Shade** | Cursed Forest stalker |
+| **Waste Howler** | Horror Wastes alpha hunter |
+| **Crystal Shardling** | Crystal Caverns swarm mob |
+| **Bone Stalker** | Skeletal horror of the wastes |
+| **Swamp Wraith** | Blood Marsh ghost entity |
+
+### Variety Passive Mobs
+- **Glow Beetle** — emits light particles
+- **Variety Deer** — peaceful forest animal
+- **Crystal Sprite** — friendly crystal cavern mob
 
 ### Guns (5)
 - Pistol, Shotgun, Assault Rifle, Sniper Rifle, Flamethrower
@@ -53,7 +94,7 @@ The ultimate horror mod pack for Minecraft Bedrock — inspired by popular horro
 2. Double-click / open the `.mcaddon` file — Minecraft will import both packs.
 3. Create a **new world** → scroll to **Behavior Packs** → activate **KNOWWS Horror Pack BP**.
 4. The resource pack will auto-activate (linked dependency).
-5. Enable **Holiday Creator Features** and **Beta APIs** in world settings (required for scripts & custom blocks).
+5. Enable **Holiday Creator Features**, **Beta APIs**, and **Custom Biomes** in world settings (required for scripts, blocks & biomes).
 6. Play!
 
 ---
@@ -69,9 +110,10 @@ This is the method to attach the pack to a world you already have:
 3. Go to **Behavior Packs** → find **KNOWWS Horror Pack BP** → click **+** to activate.
 4. The resource pack should auto-apply. If not, also add **KNOWWS Horror Pack RP** under Resource Packs.
 5. **Important:** Go to world settings and enable:
-   - ✅ **Holiday Creator Features** (or "Custom Biomes" / Creator features)
-   - ✅ **Beta APIs** (for gun scripts)
-6. Re-enter your world. New ores will generate in **new chunks**; horror mobs spawn at night.
+   - ✅ **Holiday Creator Features** (custom blocks)
+   - ✅ **Beta APIs** (gun scripts & torch lighting)
+   - ✅ **Custom Biomes** (new biomes in new chunks)
+6. Re-enter your world. New ores and biomes generate in **new chunks**; horror mobs spawn at night.
 
 ### Manual Method (World Folder)
 
@@ -129,6 +171,8 @@ Template files are in `world_templates/`.
 | Silver Sword | 2 silver ingots + stick |
 | Holy Mace | Exorcist essence + silver + stick |
 | Pistol Ammo x8 | Silver + gunpowder |
+| Glow Torch x4 | Torch + glowstone dust |
+| Cave Lantern x2 | Glowstone + horror crystal + torch |
 | Survivor Helmet | Silver ingots |
 | Exorcist Chestplate | Silver + horror crystal + essence |
 | Nightmare Helmet | Horror crystal + blood ingot |

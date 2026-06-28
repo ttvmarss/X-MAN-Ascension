@@ -103,6 +103,15 @@
     },
     "knws_nightmare_boots": {
       "textures": "textures/items/nightmare_boots"
+    },
+    "knws_glow_torch": {
+      "textures": "textures/items/glow_torch"
+    },
+    "knws_cave_lantern": {
+      "textures": "textures/items/cave_lantern"
+    },
+    "knws_soul_flame_torch": {
+      "textures": "textures/items/soul_flame_torch"
     }
   }
 }

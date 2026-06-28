@@ -56,6 +56,90 @@ def armor_item(identifier, name, icon, slot, protection):
     })
 
 
+def passive_entity_def(identifier, health, speed):
+    return {
+        "format_version": "1.21.50",
+        "minecraft:entity": {
+            "description": {
+                "identifier": identifier,
+                "is_spawnable": True,
+                "is_summonable": True,
+                "is_experimental": False,
+            },
+            "components": {
+                "minecraft:type_family": {"family": ["passive", "knws_passive", "mob"]},
+                "minecraft:health": {"value": health, "max": health},
+                "minecraft:movement": {"value": speed},
+                "minecraft:navigation.walk": {"can_path_over_water": True},
+                "minecraft:movement.basic": {},
+                "minecraft:jump.static": {},
+                "minecraft:collision_box": {"width": 0.6, "height": 1.0},
+                "minecraft:nameable": {},
+                "minecraft:behavior.float": {"priority": 0},
+                "minecraft:behavior.panic": {"priority": 1, "speed_multiplier": 1.5},
+                "minecraft:behavior.random_stroll": {"priority": 5, "speed_multiplier": 0.8},
+                "minecraft:behavior.look_at_player": {"priority": 6, "look_distance": 6},
+                "minecraft:physics": {},
+                "minecraft:pushable": {"is_pushable": True},
+            },
+        },
+    }
+
+
+def biome_spawn_rule(entity, weight, biome_tag, herd_min=1, herd_max=3):
+    return {
+        "format_version": "1.21.50",
+        "minecraft:spawn_rules": {
+            "description": {"identifier": entity},
+            "conditions": [
+                {
+                    "minecraft:spawns_on_surface": {},
+                    "minecraft:brightness_filter": {"min": 0, "max": 15, "adjust_for_weather": False},
+                    "minecraft:weight": {"default": weight},
+                    "minecraft:herd": {"min_size": herd_min, "max_size": herd_max},
+                    "minecraft:biome_filter": {
+                        "all_of": [
+                            {"test": "has_biome_tag", "operator": "==", "value": biome_tag}
+                        ]
+                    },
+                }
+            ],
+        },
+    }
+
+
+def biome_def(identifier, tag, top_mat, mid_mat, climate_temp, climate_downfall, climates, height_noise="default"):
+    return {
+        "format_version": "1.21.40",
+        "minecraft:biome": {
+            "description": {"identifier": identifier},
+            "components": {
+                "minecraft:climate": {
+                    "temperature": climate_temp,
+                    "downfall": climate_downfall,
+                    "snow_accumulation": [0.0, 0.0],
+                },
+                "minecraft:overworld_height": {"noise_type": height_noise},
+                "minecraft:surface_parameters": {
+                    "sea_floor_depth": 7,
+                    "sea_floor_material": "minecraft:gravel",
+                    "foundation_material": "minecraft:stone",
+                    "mid_material": mid_mat,
+                    "top_material": top_mat,
+                    "sea_material": "minecraft:water",
+                },
+                "minecraft:overworld_generation_rules": {
+                    "hills_transformation": identifier,
+                    "generate_for_climates": climates,
+                },
+                "minecraft:tags": {
+                    "tags": ["overworld", "monster", tag, "no_legacy_worldgen"],
+                },
+            },
+        },
+    }
+
+
 def entity_def(identifier, name, health, damage, speed, family_extra=None):
     families = ["monster", "knws_horror"]
     if family_extra:
@@ -268,6 +352,18 @@ def generate_items():
     for ident, name, icon, slot, prot in armors:
         write_json(BP / "items" / f"{ident.split(':')[1]}.json", armor_item(ident, name, icon, slot, prot))
 
+    torches = [
+        ("knws:glow_torch", "§eGlow Torch", "knws_glow_torch", 64),
+        ("knws:cave_lantern", "§bCave Lantern", "knws_cave_lantern", 64),
+        ("knws:soul_flame_torch", "§5Soul Flame Torch", "knws_soul_flame_torch", 64),
+    ]
+    for ident, name, icon, stack in torches:
+        write_json(BP / "items" / f"{ident.split(':')[1]}.json", item_def(ident, name, icon, "Items", stack, {
+            "minecraft:hand_equipped": True,
+            "minecraft:allow_off_hand": True,
+            "minecraft:max_stack_size": stack,
+        }))
+
 
 def generate_entities():
     mobs = [
@@ -290,6 +386,35 @@ def generate_entities():
         write_json(BP / "spawn_rules" / f"{ident.split(':')[1]}.json", spawn_rule(ident, 8 + mobs.index((ident, hp, dmg, spd, fam))))
         write_json(RP / "entity" / f"{ident.split(':')[1]}.entity.json", client_entity(ident, ident.split(":")[1]))
 
+    # Biome-specific horror mobs
+    biome_mobs = [
+        ("knws:marsh_lurker", 32, 7, 0.32, "lurker", "blood_marsh"),
+        ("knws:forest_shade", 28, 9, 0.4, "shade", "cursed_forest"),
+        ("knws:waste_howler", 45, 11, 0.36, "howler", "horror_wastes"),
+        ("knws:crystal_shardling", 22, 5, 0.3, "shardling", "crystal_caverns"),
+        ("knws:bone_stalker", 38, 8, 0.38, "bone", "horror_wastes"),
+        ("knws:swamp_wraith", 30, 6, 0.35, "wraith", "blood_marsh"),
+    ]
+    for ident, hp, dmg, spd, fam, biome in biome_mobs:
+        write_json(BP / "entities" / f"{ident.split(':')[1]}.json", entity_def(ident, ident, hp, dmg, spd, fam))
+        write_json(BP / "loot_tables/entities" / f"{ident.split(':')[1]}.json", loot_table(ident.split(":")[1], [
+            {"item": "knws:horror_crystal", "weight": 2, "min": 1, "max": 2},
+            {"item": "knws:blood_ingot", "weight": 2},
+        ]))
+        write_json(BP / "spawn_rules" / f"{ident.split(':')[1]}.json", biome_spawn_rule(ident, 10, biome))
+        write_json(RP / "entity" / f"{ident.split(':')[1]}.entity.json", client_entity(ident, ident.split(":")[1]))
+
+    # Variety passive mobs
+    passive_mobs = [
+        ("knws:glow_beetle", 8, 0.2),
+        ("knws:variety_deer", 20, 0.25),
+        ("knws:crystal_sprite", 12, 0.22),
+    ]
+    for ident, hp, spd in passive_mobs:
+        write_json(BP / "entities" / f"{ident.split(':')[1]}.json", passive_entity_def(ident, hp, spd))
+        write_json(BP / "spawn_rules" / f"{ident.split(':')[1]}.json", biome_spawn_rule(ident, 6, "cursed_forest", 2, 4))
+        write_json(RP / "entity" / f"{ident.split(':')[1]}.entity.json", client_entity(ident, ident.split(":")[1]))
+
 
 def generate_blocks():
     blocks = [
@@ -298,11 +423,15 @@ def generate_blocks():
         ("knws:deepslate_blood_ore", "knws_deepslate_blood_ore"),
         ("knws:deepslate_silver_ore", "knws_deepslate_silver_ore"),
         ("knws:horror_crystal_block", "knws_horror_crystal_block"),
+        ("knws:cursed_grass", "knws_cursed_grass"),
+        ("knws:blood_mushroom", "knws_blood_mushroom"),
+        ("knws:wasteland_soil", "knws_wasteland_soil"),
+        ("knws:crystal_grass", "knws_crystal_grass"),
     ]
     for ident, tex in blocks:
         write_json(BP / "blocks" / f"{ident.split(':')[1]}.json", block_def(ident, tex))
-        drop = "knws:blood_ingot" if "blood" in ident else "knws:silver_ingot" if "silver" in ident else "knws:horror_crystal"
-        write_json(BP / "loot_tables/blocks" / f"{ident.split(':')[1]}.json", loot_table(ident.split(":")[1], [{"item": drop, "min": 1, "max": 3}]))
+        drop = "knws:blood_ingot" if "blood" in ident and "mushroom" not in ident else "knws:silver_ingot" if "silver" in ident else "knws:horror_crystal" if "crystal" in ident else "knws:cursed_grass" if "cursed" in ident or "wasteland" in ident or "crystal_grass" in ident else "knws:blood_mushroom"
+        write_json(BP / "loot_tables/blocks" / f"{ident.split(':')[1]}.json", loot_table(ident.split(":")[1], [{"item": drop, "min": 1, "max": 1}]))
 
 
 def generate_recipes():
@@ -333,6 +462,9 @@ def generate_recipes():
         recipe("knws:nightmare_leggings", 1, [["knws:horror_crystal", "knws:blood_ingot", "knws:horror_crystal"], ["knws:blood_ingot", None, "knws:blood_ingot"], [None, None, None]]),
         recipe("knws:nightmare_boots", 1, [[None, None, None], ["knws:blood_ingot", None, "knws:blood_ingot"], ["knws:horror_crystal", None, "knws:horror_crystal"]]),
         recipe("knws:horror_crystal_block", 1, [["knws:horror_crystal", "knws:horror_crystal", "knws:horror_crystal"], ["knws:horror_crystal", "knws:horror_crystal", "knws:horror_crystal"], ["knws:horror_crystal", "knws:horror_crystal", "knws:horror_crystal"]]),
+        recipe("knws:glow_torch", 4, [[None, "minecraft:torch", None], ["minecraft:torch", "minecraft:glowstone_dust", "minecraft:torch"]]),
+        recipe("knws:cave_lantern", 2, [[None, "minecraft:glowstone", None], ["minecraft:iron_ingot", "knws:horror_crystal", "minecraft:iron_ingot"], [None, "minecraft:torch", None]]),
+        recipe("knws:soul_flame_torch", 4, [[None, "minecraft:soul_torch", None], ["minecraft:soul_torch", "knws:exorcist_essence", "minecraft:soul_torch"]]),
     ]
     for r in recipes:
         rid = r["minecraft:recipe_shaped"]["result"]["item"].split(":")[1]
@@ -350,17 +482,23 @@ def generate_rp_catalogs():
         "survivor_helmet", "survivor_chestplate", "survivor_leggings", "survivor_boots",
         "exorcist_helmet", "exorcist_chestplate", "exorcist_leggings", "exorcist_boots",
         "nightmare_helmet", "nightmare_chestplate", "nightmare_leggings", "nightmare_boots",
+        "glow_torch", "cave_lantern", "soul_flame_torch",
     ]
     for name in items:
         item_textures["texture_data"][f"knws_{name}"] = {"textures": f"textures/items/{name}"}
     write_json(RP / "textures/item_texture.json", {"resource_pack_name": "knowws_horror", "texture_name": "atlas.items", "texture_data": item_textures["texture_data"]})
 
     terrain = {"resource_pack_name": "knowws_horror", "texture_name": "atlas.terrain", "padding": 8, "num_mip_levels": 4, "texture_data": {}}
-    for name in ["blood_ore", "silver_ore", "deepslate_blood_ore", "deepslate_silver_ore", "horror_crystal_block"]:
+    for name in ["blood_ore", "silver_ore", "deepslate_blood_ore", "deepslate_silver_ore", "horror_crystal_block",
+                 "cursed_grass", "blood_mushroom", "wasteland_soil", "crystal_grass"]:
         terrain["texture_data"][f"knws_{name}"] = {"textures": f"textures/blocks/{name}"}
     write_json(RP / "textures/terrain_texture.json", terrain)
 
-    blocks_catalog = {"format_version": "1.21.50", "knws:blood_ore": {"sound": "stone"}, "knws:silver_ore": {"sound": "stone"}, "knws:deepslate_blood_ore": {"sound": "deepslate"}, "knws:deepslate_silver_ore": {"sound": "deepslate"}, "knws:horror_crystal_block": {"sound": "glass"}}
+    blocks_catalog = {"format_version": "1.21.50"}
+    for name in ["blood_ore", "silver_ore", "deepslate_blood_ore", "deepslate_silver_ore", "horror_crystal_block",
+                 "cursed_grass", "blood_mushroom", "wasteland_soil", "crystal_grass"]:
+        sound = "grass" if "grass" in name or "mushroom" in name or "soil" in name else "glass" if "crystal" in name else "deepslate" if "deepslate" in name else "stone"
+        blocks_catalog[f"knws:{name}"] = {"sound": sound}
     write_json(RP / "blocks.json", blocks_catalog)
 
     write_json(RP / "sounds/sound_definitions.json", {
@@ -408,6 +546,84 @@ def generate_feature_rules():
     })
 
 
+def generate_biomes():
+    biomes = [
+        ("knws:cursed_forest", "cursed_forest", "knws:cursed_grass", "minecraft:dirt", 0.6, 0.8, [["medium", 2], ["cold", 1]]),
+        ("knws:blood_marsh", "blood_marsh", "knws:blood_mushroom", "minecraft:mud", 0.9, 0.9, [["warm", 2], ["medium", 1]]),
+        ("knws:horror_wastes", "horror_wastes", "knws:wasteland_soil", "minecraft:coarse_dirt", 1.2, 0.1, [["warm", 1], ["medium", 2]]),
+        ("knws:crystal_caverns", "crystal_caverns", "knws:crystal_grass", "minecraft:stone", 0.3, 0.0, [["cold", 2], ["frozen", 1]], "lowlands"),
+    ]
+    for entry in biomes:
+        ident, tag, top, mid, temp, down, climates = entry[:7]
+        height = entry[7] if len(entry) > 7 else "default"
+        short = ident.split(":")[1]
+        write_json(BP / "biomes" / f"{short}.biome.json", biome_def(ident, tag, top, mid, temp, down, climates, height))
+
+    # Client biomes for visuals
+    client_biomes = {
+        "knws:cursed_forest": {"water_surface_color": "#2d4a1f", "fog_color": "#1a2e12", "foliage_color": "#3d6628"},
+        "knws:blood_marsh": {"water_surface_color": "#5c1010", "fog_color": "#3a0808", "foliage_color": "#6b2020"},
+        "knws:horror_wastes": {"water_surface_color": "#4a3a2a", "fog_color": "#2a2018", "foliage_color": "#5a4a30"},
+        "knws:crystal_caverns": {"water_surface_color": "#3a5a8a", "fog_color": "#1a2a4a", "foliage_color": "#4a8acc"},
+    }
+    for ident, colors in client_biomes.items():
+        short = ident.split(":")[1]
+        write_json(RP / "biomes" / f"{short}.biome.json", {
+            "format_version": "1.21.40",
+            "minecraft:client_biome": {
+                "description": {"identifier": ident},
+                "components": {
+                    "minecraft:fog_appearance": {
+                        "fog_identifier": f"knws:{short}_fog",
+                    },
+                    "minecraft:water_appearance": {
+                        "surface_color": colors["water_surface_color"],
+                    },
+                    "minecraft:foliage_appearance": {
+                        "color": colors["foliage_color"],
+                    },
+                    "minecraft:grass_appearance": {
+                        "color": colors["foliage_color"],
+                    },
+                    "minecraft:sky_color": {
+                        "sky_color": colors["fog_color"],
+                    },
+                },
+            },
+        })
+
+
+def generate_fog():
+    fogs = {
+        "knws:cursed_forest_fog": {"r": 0.1, "g": 0.18, "b": 0.07, "density": 0.06},
+        "knws:blood_marsh_fog": {"r": 0.23, "g": 0.03, "b": 0.03, "density": 0.08},
+        "knws:horror_wastes_fog": {"r": 0.16, "g": 0.12, "b": 0.09, "density": 0.05},
+        "knws:crystal_caverns_fog": {"r": 0.1, "g": 0.16, "b": 0.28, "density": 0.04},
+        "knws:cave_brightness_fog": {"r": 0.18, "g": 0.16, "b": 0.14, "density": 0.02},
+    }
+    for fog_id, c in fogs.items():
+        write_json(RP / "fogs" / f"{fog_id.split(':')[1]}.json", {
+            "format_version": "1.21.40",
+            "minecraft:fog_settings": {
+                "description": {"identifier": fog_id},
+                "distance": {
+                    "air": {
+                        "fog_start": 8.0,
+                        "fog_end": 96.0,
+                        "fog_color": f"#{int(c['r']*255):02x}{int(c['g']*255):02x}{int(c['b']*255):02x}",
+                        "render_distance_type": "render",
+                    },
+                    "water": {
+                        "fog_start": 0.0,
+                        "fog_end": 48.0,
+                        "fog_color": "#1a3040",
+                        "render_distance_type": "render",
+                    },
+                },
+            },
+        })
+
+
 def main():
     generate_items()
     generate_entities()
@@ -415,6 +631,8 @@ def main():
     generate_recipes()
     generate_rp_catalogs()
     generate_feature_rules()
+    generate_biomes()
+    generate_fog()
     print("JSON definitions generated.")
 
 
