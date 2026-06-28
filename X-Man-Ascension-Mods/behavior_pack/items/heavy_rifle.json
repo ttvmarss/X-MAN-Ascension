@@ -1,0 +1,23 @@
+{
+  "format_version": "1.16.100",
+  "minecraft:item": {
+    "description": {
+      "identifier": "xman:heavy_rifle",
+      "category": "weapon"
+    },
+    "components": {
+      "minecraft:display_name": {
+        "value": "Heavy Rifle"
+      },
+      "minecraft:icon": {
+        "texture": "textures/items/weapons/heavy_rifle"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:hand_equipped": true,
+      "minecraft:enchantable": {
+        "value": 10,
+        "slot": "all"
+      }
+    }
+  }
+}

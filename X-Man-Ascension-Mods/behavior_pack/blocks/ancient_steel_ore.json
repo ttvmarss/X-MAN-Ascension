@@ -1,23 +1,21 @@
 {
-  "format_version": "1.21.0",
+  "format_version": "1.16.100",
   "minecraft:block": {
     "description": {
-      "identifier": "xman:ancient_steel_ore"
+      "identifier": "xman:ancient_steel_ore",
+      "is_experimental": false
     },
     "components": {
-      "minecraft:destructible_by_mining": {
-        "seconds_to_destroy": 6
-      },
-      "minecraft:display_name": {
-        "value": "Ancient Steel Ore"
-      },
-      "minecraft:geometry": "minecraft:geometry.full_block",
+      "minecraft:display_name": "Ancient Steel Ore",
+      "minecraft:map_color": "#000000",
+      "minecraft:destroy_time": 4.5,
+      "minecraft:explosion_resistance": 9.0,
       "minecraft:material_instances": {
         "*": {
-          "texture": "xman:ancient_steel_ore"
+          "texture": "textures/blocks/ancient_steel_ore",
+          "render_method": "opaque"
         }
-      },
-      "minecraft:loot": "loot_tables/blocks/ancient_steel_ore"
+      }
     }
   }
 }

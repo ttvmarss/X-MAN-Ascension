@@ -1,0 +1,23 @@
+{
+  "format_version": "1.16.100",
+  "minecraft:item": {
+    "description": {
+      "identifier": "xman:blood_chestplate",
+      "category": "armor"
+    },
+    "components": {
+      "minecraft:display_name": {
+        "value": "Blood Chestplate"
+      },
+      "minecraft:icon": {
+        "texture": "textures/items/armor/blood_chestplate"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:hand_equipped": true,
+      "minecraft:enchantable": {
+        "value": 10,
+        "slot": "all"
+      }
+    }
+  }
+}

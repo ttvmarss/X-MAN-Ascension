@@ -1,23 +1,21 @@
 {
-  "format_version": "1.21.0",
+  "format_version": "1.16.100",
   "minecraft:block": {
     "description": {
-      "identifier": "xman:mutant_crystal_ore"
+      "identifier": "xman:mutant_crystal_ore",
+      "is_experimental": false
     },
     "components": {
-      "minecraft:destructible_by_mining": {
-        "seconds_to_destroy": 5
-      },
-      "minecraft:display_name": {
-        "value": "Mutant Crystal Ore"
-      },
-      "minecraft:geometry": "minecraft:geometry.full_block",
+      "minecraft:display_name": "Mutant Crystal Ore",
+      "minecraft:map_color": "#000000",
+      "minecraft:destroy_time": 3.5,
+      "minecraft:explosion_resistance": 7.0,
       "minecraft:material_instances": {
         "*": {
-          "texture": "xman:mutant_crystal_ore"
+          "texture": "textures/blocks/mutant_crystal_ore",
+          "render_method": "opaque"
         }
-      },
-      "minecraft:loot": "loot_tables/blocks/mutant_crystal_ore"
+      }
     }
   }
 }

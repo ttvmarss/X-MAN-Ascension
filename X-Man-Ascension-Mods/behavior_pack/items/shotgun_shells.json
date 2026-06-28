@@ -1,13 +1,22 @@
 {
-  "format_version": "1.21.0",
+  "format_version": "1.16.100",
   "minecraft:item": {
     "description": {
-      "identifier": "xman:shotgun_shells"
+      "identifier": "xman:shotgun_shells",
+      "category": "ammunition"
     },
     "components": {
-      "minecraft:max_stack_size": 16,
       "minecraft:display_name": {
         "value": "Shotgun Shells"
+      },
+      "minecraft:icon": {
+        "texture": "textures/items/ammo/shotgun_shells"
+      },
+      "minecraft:max_stack_size": 32,
+      "minecraft:hand_equipped": true,
+      "minecraft:enchantable": {
+        "value": 10,
+        "slot": "all"
       }
     }
   }

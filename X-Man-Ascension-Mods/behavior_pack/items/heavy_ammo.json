@@ -1,13 +1,22 @@
 {
-  "format_version": "1.21.0",
+  "format_version": "1.16.100",
   "minecraft:item": {
     "description": {
-      "identifier": "xman:heavy_ammo"
+      "identifier": "xman:heavy_ammo",
+      "category": "ammunition"
     },
     "components": {
-      "minecraft:max_stack_size": 32,
       "minecraft:display_name": {
         "value": "Heavy Ammo"
+      },
+      "minecraft:icon": {
+        "texture": "textures/items/ammo/heavy_ammo"
+      },
+      "minecraft:max_stack_size": 16,
+      "minecraft:hand_equipped": true,
+      "minecraft:enchantable": {
+        "value": 10,
+        "slot": "all"
       }
     }
   }

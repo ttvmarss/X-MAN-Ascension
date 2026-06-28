@@ -1,23 +1,21 @@
 {
-  "format_version": "1.21.0",
+  "format_version": "1.16.100",
   "minecraft:block": {
     "description": {
-      "identifier": "xman:void_ore"
+      "identifier": "xman:void_ore",
+      "is_experimental": false
     },
     "components": {
-      "minecraft:destructible_by_mining": {
-        "seconds_to_destroy": 6
-      },
-      "minecraft:display_name": {
-        "value": "Void Ore"
-      },
-      "minecraft:geometry": "minecraft:geometry.full_block",
+      "minecraft:display_name": "Void Ore",
+      "minecraft:map_color": "#000000",
+      "minecraft:destroy_time": 4.0,
+      "minecraft:explosion_resistance": 8.0,
       "minecraft:material_instances": {
         "*": {
-          "texture": "xman:void_ore"
+          "texture": "textures/blocks/void_ore",
+          "render_method": "opaque"
         }
-      },
-      "minecraft:loot": "loot_tables/blocks/void_ore"
+      }
     }
   }
 }

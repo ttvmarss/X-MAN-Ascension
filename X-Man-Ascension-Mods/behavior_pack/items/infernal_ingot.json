@@ -1,0 +1,23 @@
+{
+  "format_version": "1.16.100",
+  "minecraft:item": {
+    "description": {
+      "identifier": "xman:infernal_ingot",
+      "category": "material"
+    },
+    "components": {
+      "minecraft:display_name": {
+        "value": "Infernal Ingot"
+      },
+      "minecraft:icon": {
+        "texture": "textures/items/materials/infernal_ingot"
+      },
+      "minecraft:max_stack_size": 64,
+      "minecraft:hand_equipped": true,
+      "minecraft:enchantable": {
+        "value": 10,
+        "slot": "all"
+      }
+    }
+  }
+}
