@@ -1,0 +1,61 @@
+═══════════════════════════════════════════════════════════════════════════════
+  X-MAN ASCENSION: HORROR SURVIVAL
+  Minecraft Bedrock Edition Add-on
+═══════════════════════════════════════════════════════════════════════════════
+
+📁 FILE LOCATION: X-Man-Ascension-Horror-Survival.mcaddon
+
+🎮 HOW TO INSTALL:
+
+1. Locate: X-Man-Ascension-Horror-Survival.mcaddon (in this folder)
+2. Open: Minecraft Bedrock Edition
+3. Drag: The .mcaddon file onto your Minecraft window
+4. Click: "Import" when prompted
+5. Play: New world with addon enabled
+
+═══════════════════════════════════════════════════════════════════════════════
+
+✨ WHAT YOU GET:
+
+• 11 Complete Gameplay Systems
+• 9 Guns (pistol, SMG, rifle, shotgun, sniper, launcher)
+• 10 Melee Weapons (with special abilities)
+• 8 Armor Sets (with bonuses)
+• 7 Legendary Bosses (with phases)
+• 8 Rideable Vehicles (trucks, planes, helicopters)
+• Affinity Gauntlet (8 powers)
+• Infinity Stones (6 stones + THE SNAP)
+• 5 Superhero Identities
+• 14-Stage Progression Arc
+• Jump Scares (10/10 Horror)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+⚙️ REQUIREMENTS:
+
+✓ Minecraft Bedrock Edition 1.21.x
+✓ Experimental Features Enabled
+✓ Script Eval Enabled
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🚀 QUICK START:
+
+• Just drag the .mcaddon file into Minecraft
+• Everything installs automatically
+• Create new world or apply to existing world
+• Start playing!
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📖 FOR MORE INFO:
+
+See folder: X-Man-Ascension-Mods/
+  • START-HERE.md (quick start)
+  • INSTALL.md (detailed instructions)
+  • README.md (full documentation)
+  • ADDON_SUMMARY.md (technical details)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Ready to play? Just drag the .mcaddon file into Minecraft!
