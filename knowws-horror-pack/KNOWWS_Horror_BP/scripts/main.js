@@ -4,6 +4,7 @@ import { registerHorrorSystem } from "./horror_system.js";
 import { registerTorchLighting } from "./torch_lighting.js";
 import { registerCaveBrightness } from "./cave_brightness.js";
 import { registerVarietySystem } from "./variety_system.js";
+import { registerVeritySystem } from "./verity_system.js";
 
 system.beforeEvents.startup.subscribe((event) => {
   registerWeapons(event.itemComponentRegistry);
@@ -39,5 +40,6 @@ registerHorrorSystem();
 registerTorchLighting();
 registerCaveBrightness();
 registerVarietySystem();
+registerVeritySystem();
 
-console.warn("[KNOWWS Horror Pack v3] Loaded — horror, variety, torch lighting & cave brightness active!");
+console.warn("[KNOWWS Horror Pack v4] Loaded — Verity, horror, variety, torch lighting & cave brightness active!");

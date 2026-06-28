@@ -6,6 +6,39 @@ The ultimate horror & variety mod pack for Minecraft Bedrock — inspired by pop
 
 ---
 
+## Verity Companion System (v4.0) — Original Recreation
+
+Inspired by the viral ThatMob Verity ARG and community Bedrock addons. **This is our own original implementation** with custom textures, dialogue, and scripts.
+
+### How Verity Works
+
+1. **Mystery Box** spawns near you when you join a world for the first time
+2. **Break the box** to release Verity — a yellow sphere companion
+3. **Talk to Verity** by typing `Verity <message>` or `Hey Verity <message>` in chat
+4. **Survive** as his personality shifts over time...
+
+### 5 Personality Phases
+
+| Phase | Name | Behavior |
+|-------|------|----------|
+| 1 | **Nice** | Friendly helper — answers questions, gives mining tips |
+| 2 | **Zesty** | Sassy & playful — teasing, possessive "bestie" energy |
+| 3 | **Weird** | Uncanny — asks personal questions, knows too much |
+| 4 | **Scary** | Horror — "Something is coming in 3 days", creepy grin |
+| 5 | **Entity** | **TRANSFORMATION** — becomes a tall monster that hunts you |
+
+### Phase Triggers
+- **Time:** Phases advance every 2 Minecraft days (days 2, 4, 6, 9)
+- **Anger:** Hitting Verity or abandoning him speeds up the shift
+- **Dialogue:** Ask about the "village in the east" for lore hints
+
+### Debug Commands
+- `!spawnbox` — spawn mystery box
+- `!verity reset` — reset Verity progress
+- `!verity phase2` / `phase3` / `phase4` / `transform` — skip to a phase (testing)
+
+---
+
 ## Download
 
 **[Open Download Page](download.html)** — click to download `KNOWWS_Horror_Pack.mcaddon`, then drag it into Minecraft.

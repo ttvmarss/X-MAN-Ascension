@@ -5,6 +5,7 @@ cd "$(dirname "$0")"
 
 echo "Building textures..."
 python3 build_pack.py
+python3 build_verity.py
 
 echo "Generating definitions..."
 python3 generate_definitions.py

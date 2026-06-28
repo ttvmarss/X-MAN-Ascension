@@ -112,6 +112,9 @@
     },
     "knws_soul_flame_torch": {
       "textures": "textures/items/soul_flame_torch"
+    },
+    "knws_verity_companion": {
+      "textures": "textures/items/verity_companion"
     }
   }
 }

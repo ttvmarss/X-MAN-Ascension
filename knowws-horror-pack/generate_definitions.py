@@ -482,7 +482,7 @@ def generate_rp_catalogs():
         "survivor_helmet", "survivor_chestplate", "survivor_leggings", "survivor_boots",
         "exorcist_helmet", "exorcist_chestplate", "exorcist_leggings", "exorcist_boots",
         "nightmare_helmet", "nightmare_chestplate", "nightmare_leggings", "nightmare_boots",
-        "glow_torch", "cave_lantern", "soul_flame_torch",
+        "glow_torch", "cave_lantern", "soul_flame_torch", "verity_companion",
     ]
     for name in items:
         item_textures["texture_data"][f"knws_{name}"] = {"textures": f"textures/items/{name}"}
@@ -490,13 +490,13 @@ def generate_rp_catalogs():
 
     terrain = {"resource_pack_name": "knowws_horror", "texture_name": "atlas.terrain", "padding": 8, "num_mip_levels": 4, "texture_data": {}}
     for name in ["blood_ore", "silver_ore", "deepslate_blood_ore", "deepslate_silver_ore", "horror_crystal_block",
-                 "cursed_grass", "blood_mushroom", "wasteland_soil", "crystal_grass"]:
+                 "cursed_grass", "blood_mushroom", "wasteland_soil", "crystal_grass", "verity_box"]:
         terrain["texture_data"][f"knws_{name}"] = {"textures": f"textures/blocks/{name}"}
     write_json(RP / "textures/terrain_texture.json", terrain)
 
     blocks_catalog = {"format_version": "1.21.50"}
     for name in ["blood_ore", "silver_ore", "deepslate_blood_ore", "deepslate_silver_ore", "horror_crystal_block",
-                 "cursed_grass", "blood_mushroom", "wasteland_soil", "crystal_grass"]:
+                 "cursed_grass", "blood_mushroom", "wasteland_soil", "crystal_grass", "verity_box"]:
         sound = "grass" if "grass" in name or "mushroom" in name or "soil" in name else "glass" if "crystal" in name else "deepslate" if "deepslate" in name else "stone"
         blocks_catalog[f"knws:{name}"] = {"sound": sound}
     write_json(RP / "blocks.json", blocks_catalog)

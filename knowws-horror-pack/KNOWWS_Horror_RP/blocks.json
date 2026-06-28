@@ -26,5 +26,8 @@
   },
   "knws:crystal_grass": {
     "sound": "grass"
+  },
+  "knws:verity_box": {
+    "sound": "stone"
   }
 }

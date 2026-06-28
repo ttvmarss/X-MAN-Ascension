@@ -30,6 +30,9 @@
     },
     "knws_crystal_grass": {
       "textures": "textures/blocks/crystal_grass"
+    },
+    "knws_verity_box": {
+      "textures": "textures/blocks/verity_box"
     }
   }
 }
