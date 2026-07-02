@@ -75,6 +75,39 @@ foreach ($q in $QuestionableList) {
     else { Write-Log "Kept $($q.Name)." 'INFO' }
 }
 
+Write-Banner 'Deep scan - every other removable app on this PC'
+$deep = Read-Host 'List EVERY remaining removable app (including hidden preinstalls) for pick-and-choose removal? [y/N]'
+if ($deep -match '^[Yy]') {
+    $known = @($SafeList) + @($QuestionableList | ForEach-Object { $_.Name })
+    $rest = @(Get-AppxPackage | Where-Object {
+        $_.Name -notmatch $Protected -and $_.Name -notin $known -and
+        -not $_.IsFramework -and $_.SignatureKind -ne 'System' -and (-not $_.NonRemovable)
+    } | Sort-Object Name)
+    if ($rest.Count -eq 0) { Write-Log 'Nothing else removable found.' 'OK' }
+    else {
+        for ($i = 0; $i -lt $rest.Count; $i++) { Write-Log "[$($i + 1)] $($rest[$i].Name)" 'ASK' }
+        $pick = Read-Host "`nEnter numbers to remove (e.g. 1,4,7) or press Enter to skip"
+        if ($pick.Trim()) {
+            foreach ($n in ($pick -split '[,; ]+')) {
+                $idx = 0
+                if ([int]::TryParse($n.Trim(), [ref]$idx) -and $idx -ge 1 -and $idx -le $rest.Count) {
+                    Remove-BloatApp $rest[$idx - 1].Name 'deep scan, user picked'
+                }
+            }
+        } else { Write-Log 'Deep scan: nothing removed.' 'INFO' }
+    }
+}
+
+Write-Banner 'Stop bloat from reinstalling itself'
+# Documented Content Delivery Manager settings: Windows silently reinstalls
+# "suggested" apps after updates unless these are off. Reversible, journaled.
+Set-TrackedRegValue -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager' -Name 'SilentInstalledAppsEnabled' -Value 0 `
+    -What 'Stop silent auto-install of suggested apps' -Why 'this is how removed bloat keeps coming back after updates' | Out-Null
+Set-TrackedRegValue -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager' -Name 'PreInstalledAppsEnabled' -Value 0 `
+    -What 'Disable OEM/carrier preinstalled app delivery' -Why 'stops partner bloat from being delivered to this profile' | Out-Null
+Set-TrackedRegValue -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager' -Name 'SubscribedContent-338388Enabled' -Value 0 `
+    -What 'Disable Start menu app suggestions' -Why 'removes the ad slots in the Start menu' | Out-Null
+
 Write-Banner 'What was NOT touched'
 Write-Log 'Microsoft Store, Windows Update, Defender, Xbox gaming services/overlays (Game Pass needs them),' 'INFO'
 Write-Log 'networking, audio, Bluetooth, codecs/extensions, and every Microsoft.Windows.* system app.' 'INFO'

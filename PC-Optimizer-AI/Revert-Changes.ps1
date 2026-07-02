@@ -68,6 +68,13 @@ foreach ($e in $journal) {
                     Write-Log "$($e.Name): package no longer staged - reinstall free from Microsoft Store (search '$($e.Name -replace 'Microsoft\.','')')." 'WARN'
                 }
             }
+            'DisplayMode' {
+                & "$PSScriptRoot\Display-MaxRefresh.ps1" -RestoreDevice $e.Device -RestoreHz $e.OldValue -NoPause
+            }
+            'DriverInstall' {
+                Write-Log "Driver installs can't be auto-reverted safely: $($e.Description)" 'WARN'
+                Write-Log '  Use Device Manager > device > Driver > Roll Back Driver, or the System Restore point.' 'INFO'
+            }
             default { Write-Log "Unknown journal entry type '$($e.Type)' - skipped." 'WARN' }
         }
     } catch {

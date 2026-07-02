@@ -45,6 +45,17 @@ THE MENU
                            before/after report + rollback instructions.
   7  Revert changes      - undoes every recorded change, newest first.
   8  Open latest report
+  9  UPDATE drivers      - rescans hardware, lists problem + hidden
+                          devices, then finds and INSTALLS driver
+                          updates through the official Windows Update
+                          channel (Microsoft-signed only), with your
+                          approval and a restore point first.
+  10 Max refresh rate    - sets every monitor to its highest supported
+                          refresh rate at the current resolution.
+                          Test-before-apply; revertible via option 7.
+
+  The menu loops - when an admin window finishes, come back to the
+  menu window and pick the next option.
 
 WHERE THINGS LIVE
   C:\PC-Optimizer-AI\Reports\          reports (Markdown + JSON)

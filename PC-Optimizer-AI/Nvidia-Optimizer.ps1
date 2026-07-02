@@ -84,4 +84,20 @@ $checklist = @(
 foreach ($c in $checklist) { Write-Log $c 'ASK' }
 Write-Log 'Each of these is stability-neutral; none disable safety features. No overclocking is ever applied.' 'INFO'
 
+if (-not $NoPause) {
+    Write-Banner 'Clean fresh driver install (official NVIDIA installer)'
+    Write-Log 'The safe way to a completely fresh NVIDIA driver - no third-party wipe tools needed:' 'INFO'
+    Write-Log '  1. Download the latest GAME READY driver for your exact card from nvidia.com' 'INFO'
+    Write-Log '  2. Run it > choose CUSTOM (Advanced) > tick "Perform a clean installation"' 'INFO'
+    Write-Log '     That checkbox wipes the old driver and all its settings, then installs fresh.' 'INFO'
+    Write-Log '  3. Untick GeForce Experience during install if you never use Shadowplay/overlays.' 'INFO'
+    Write-Log '  4. Reboot after install even if not asked to.' 'INFO'
+    $answer = Read-Host "`nOpen the official NVIDIA driver download page in your browser now? [y/N]"
+    if ($answer -match '^[Yy]') {
+        Start-Process 'https://www.nvidia.com/Download/index.aspx'
+        Write-Log 'Page opened. Pick your card, download, then follow the 4 steps above.' 'OK'
+        Write-Log "The driver inventory CSV in $DrvBackDir records your current version in case you want to go back." 'INFO'
+    }
+}
+
 if ($Pause -and -not $NoPause) { Read-Host "`nDone. Press Enter to close" | Out-Null }

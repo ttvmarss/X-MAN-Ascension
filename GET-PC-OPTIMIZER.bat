@@ -20,7 +20,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "$dest='%DEST%'; $base='%BASE%';" ^
   "New-Item -ItemType Directory -Path $dest -Force | Out-Null;" ^
   "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;" ^
-  "$files=@('START-PC-OPTIMIZER.bat','Common.ps1','Win10Optimizer.ps1','Driver-Scanner.ps1','Nvidia-Optimizer.ps1','Debloat-Safe.ps1','Registry-SafeTweaks.ps1','Revert-Changes.ps1','README.txt');" ^
+  "$files=@('START-PC-OPTIMIZER.bat','Common.ps1','Win10Optimizer.ps1','Driver-Scanner.ps1','Driver-Updater.ps1','Nvidia-Optimizer.ps1','Debloat-Safe.ps1','Registry-SafeTweaks.ps1','Revert-Changes.ps1','Display-MaxRefresh.ps1','README.txt');" ^
   "foreach($f in $files){ Write-Host ('  downloading ' + $f); Invoke-WebRequest -Uri ($base + '/' + $f) -OutFile (Join-Path $dest $f) -UseBasicParsing };" ^
   "Write-Host '  All files downloaded.' -ForegroundColor Green"
 
