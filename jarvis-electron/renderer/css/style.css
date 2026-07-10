@@ -1,0 +1,72 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #0a0a0f;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+#app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+#orbCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.mic-btn {
+  -webkit-app-region: no-drag;
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 220, 220, 0.4);
+  background: rgba(0, 220, 220, 0.1);
+  color: rgba(0, 220, 220, 0.8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.mic-btn:hover {
+  background: rgba(0, 220, 220, 0.2);
+  border-color: rgba(0, 220, 220, 0.7);
+}
+
+.mic-btn.muted {
+  border-color: rgba(255, 80, 80, 0.5);
+  color: rgba(255, 80, 80, 0.8);
+  background: rgba(255, 80, 80, 0.1);
+}
+
+.state-indicator {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(0, 220, 220, 0.3);
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
